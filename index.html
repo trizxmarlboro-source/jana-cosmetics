@@ -135,6 +135,12 @@
     .nav-links a:hover { color: var(--rose); }
     .nav-links a:hover::after { width: 100%; }
 
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
     .btn {
       display: inline-flex;
       min-height: 46px;
@@ -173,6 +179,44 @@
       color: var(--white);
       background: var(--ink);
       transform: translateY(-2px);
+    }
+
+    .btn-soft {
+      color: var(--ink);
+      border: 1px solid rgba(224, 33, 122, 0.18);
+      background: #fff5fb;
+    }
+
+    .cart-toggle {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(224, 33, 122, 0.22);
+      border-radius: 8px;
+      display: inline-grid;
+      place-items: center;
+      color: var(--ink);
+      background: var(--white);
+      box-shadow: var(--soft-shadow);
+      cursor: pointer;
+      font-size: 1.35rem;
+      font-weight: 900;
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -7px;
+      right: -7px;
+      min-width: 22px;
+      height: 22px;
+      border-radius: 999px;
+      display: inline-grid;
+      place-items: center;
+      color: var(--white);
+      background: var(--rose);
+      font-size: 0.72rem;
+      font-weight: 900;
+      line-height: 1;
     }
 
     .hero {
@@ -417,6 +461,54 @@
       gap: 26px;
     }
 
+    .product-tools {
+      margin: -18px auto 32px;
+      max-width: 720px;
+    }
+
+    .search-box {
+      position: relative;
+      display: grid;
+    }
+
+    .search-box label {
+      margin-bottom: 8px;
+      color: var(--muted);
+      font-size: 0.82rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .search-box input {
+      width: 100%;
+      border: 1px solid rgba(224, 33, 122, 0.2);
+      border-radius: 8px;
+      padding: 16px 18px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.88);
+      box-shadow: var(--soft-shadow);
+      font: inherit;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .search-box input:focus {
+      border-color: var(--rose);
+      box-shadow: 0 0 0 4px rgba(255, 0, 128, 0.12);
+    }
+
+    .empty-products {
+      grid-column: 1 / -1;
+      border: 1px dashed rgba(224, 33, 122, 0.24);
+      border-radius: 8px;
+      padding: 30px;
+      color: var(--muted);
+      background: #fff7fb;
+      text-align: center;
+      font-weight: 700;
+    }
+
     .product-card {
       overflow: hidden;
       transition: transform 180ms ease, box-shadow 180ms ease;
@@ -466,6 +558,19 @@
       justify-content: space-between;
       gap: 14px;
       margin-top: 22px;
+    }
+
+    .product-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .product-actions .btn {
+      min-height: 42px;
+      padding: 10px 15px;
+      font-size: 0.9rem;
     }
 
     .price {
@@ -602,118 +707,210 @@
       font-weight: 700;
     }
 
-    .checkout-modal {
+    .cart-overlay {
       position: fixed;
       inset: 0;
       z-index: 200;
       display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-      background: rgba(26, 17, 24, 0.58);
-      backdrop-filter: blur(10px);
+      background: rgba(0, 0, 0, 0.5);
     }
 
-    .checkout-modal.open { display: flex; }
-
-    .checkout-dialog {
-      width: min(100%, 520px);
-      max-height: calc(100vh - 48px);
-      overflow: auto;
-      border: 1px solid rgba(224, 33, 122, 0.16);
-      border-radius: 30px;
-      padding: 28px;
-      background: var(--cream);
-      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.24);
+    .cart-overlay.open {
+      display: block;
     }
 
-    .checkout-top {
+    .cart-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(100vw, 520px);
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      background: var(--white);
+      box-shadow: -24px 0 60px rgba(0, 0, 0, 0.22);
+      transform: translateX(100%);
+      transition: transform 220ms ease;
+    }
+
+    .cart-overlay.open .cart-drawer {
+      transform: translateX(0);
+    }
+
+    .cart-head {
+      padding: 24px 26px 20px;
+      border-bottom: 1px solid #eee;
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      gap: 18px;
-      margin-bottom: 18px;
+      gap: 14px;
     }
 
-    .checkout-close {
+    .cart-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      font-size: 1.5rem;
+      font-weight: 900;
+      text-transform: lowercase;
+    }
+
+    .cart-close {
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background: var(--white);
+      cursor: pointer;
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .cart-items {
+      overflow: auto;
+      padding: 8px 26px 28px;
+    }
+
+    .cart-item {
+      position: relative;
+      display: grid;
+      grid-template-columns: 96px minmax(0, 1fr);
+      gap: 18px;
+      padding: 24px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .cart-item img {
+      width: 96px;
+      height: 96px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: #fff2f8;
+    }
+
+    .cart-item h3 {
+      margin: 0 28px 10px 0;
+      font-size: 1rem;
+      line-height: 1.35;
+      font-weight: 900;
+    }
+
+    .cart-item p {
+      margin-bottom: 14px;
+      color: var(--muted);
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+
+    .cart-remove {
+      position: absolute;
+      top: 22px;
+      right: 0;
+      width: 26px;
+      height: 26px;
+      border: 0;
+      border-radius: 50%;
+      color: #fff;
+      background: #d9d9d9;
+      cursor: pointer;
+      font-weight: 900;
+    }
+
+    .cart-line {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .qty-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--rose);
+      font-weight: 900;
+    }
+
+    .qty-control button {
       width: 42px;
       height: 42px;
       border: 0;
       border-radius: 50%;
-      color: var(--ink);
-      background: var(--white);
+      display: grid;
+      place-items: center;
+      color: var(--white);
+      background: var(--rose);
       cursor: pointer;
-      font-size: 24px;
+      font-size: 1.55rem;
       line-height: 1;
-      box-shadow: var(--soft-shadow);
+      font-weight: 900;
     }
 
-    .checkout-summary {
-      margin-bottom: 18px;
-      border: 1px solid rgba(224, 33, 122, 0.12);
-      border-radius: 20px;
-      padding: 14px 16px;
-      background: rgba(255, 255, 255, 0.72);
+    .cart-price {
+      color: var(--rose);
+      font-size: 1.22rem;
+      font-weight: 900;
+      white-space: nowrap;
     }
 
-    .checkout-summary strong {
-      display: block;
-      color: var(--ink);
-      font-family: "Century Gothic", "Montserrat", sans-serif;
-      font-size: 1.2rem;
+    .cart-empty {
+      padding: 44px 8px;
+      color: var(--muted);
+      text-align: center;
       font-weight: 700;
     }
 
-    .checkout-form {
+    .cart-foot {
+      border-top: 1px solid #eee;
+      padding: 22px 26px calc(22px + env(safe-area-inset-bottom));
+      background: #fff;
+      box-shadow: 0 -18px 40px rgba(0, 0, 0, 0.06);
+    }
+
+    .cart-total-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+      color: var(--ink);
+      font-size: 1.05rem;
+      font-weight: 900;
+      text-transform: lowercase;
+    }
+
+    .cart-total-row strong {
+      color: var(--rose);
+      font-size: 1.45rem;
+    }
+
+    .cart-foot-actions {
       display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr);
+      align-items: center;
       gap: 12px;
     }
 
-    .checkout-form label {
-      display: grid;
-      gap: 6px;
-      color: var(--muted);
-      font-size: 0.9rem;
-      font-weight: 800;
-    }
-
-    .checkout-form input {
-      width: 100%;
-      border: 1px solid rgba(224, 33, 122, 0.16);
-      border-radius: 14px;
-      padding: 13px 14px;
+    .cart-continue {
       color: var(--ink);
-      background: var(--white);
-      font: inherit;
+      font-weight: 900;
+      text-decoration: underline;
+      text-underline-offset: 4px;
     }
 
-    .checkout-form .btn {
-      border: 0;
-      cursor: pointer;
-      margin-top: 8px;
+    .cart-checkout {
+      min-height: 56px;
+      font-size: 1rem;
+      text-transform: lowercase;
     }
 
-    .checkout-result {
-      display: none;
-      margin-top: 18px;
-      border: 1px solid rgba(224, 33, 122, 0.14);
-      border-radius: 20px;
-      padding: 16px;
-      color: var(--ink);
-      background: rgba(255, 255, 255, 0.8);
-    }
-
-    .checkout-result.show { display: block; }
-
-    .checkout-result textarea {
-      width: 100%;
-      min-height: 110px;
-      margin-top: 10px;
-      border: 1px solid rgba(224, 33, 122, 0.18);
-      border-radius: 14px;
-      padding: 12px;
-      resize: vertical;
-      font: 13px Consolas, monospace;
+    .cart-checkout.disabled {
+      opacity: 0.55;
+      pointer-events: none;
     }
 
     @media (max-width: 920px) {
@@ -741,10 +938,47 @@
         padding-bottom: 14px;
         flex-wrap: wrap;
       }
+      .nav-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) 52px;
+      }
       .nav .btn { width: 100%; }
+      .cart-toggle {
+        width: 52px;
+        height: 52px;
+      }
       h1 { font-size: 3.2rem; }
       .hero { padding-top: 48px; }
       .contact-card { padding: 30px; }
+      .product-meta {
+        align-items: stretch;
+        flex-direction: column;
+      }
+      .product-actions {
+        justify-content: stretch;
+      }
+      .product-actions .btn {
+        flex: 1 1 140px;
+      }
+      .cart-drawer {
+        width: 100vw;
+      }
+      .cart-item {
+        grid-template-columns: 82px minmax(0, 1fr);
+        gap: 14px;
+      }
+      .cart-item img {
+        width: 82px;
+        height: 82px;
+      }
+      .cart-line {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .cart-foot-actions {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -764,7 +998,13 @@
         <a href="#sobre">Sobre</a>
         <a href="#contato">Contato</a>
       </div>
-      <a class="btn btn-primary" href="#contato">Comprar agora</a>
+      <div class="nav-actions">
+        <a class="btn btn-primary" href="#produtos">Comprar agora</a>
+        <button class="cart-toggle" id="cartOpen" type="button" aria-label="Abrir carrinho">
+          <span aria-hidden="true">&#128722;</span>
+          <span class="cart-count" id="cartCount">0</span>
+        </button>
+      </div>
     </nav>
   </header>
 
@@ -832,6 +1072,12 @@
           <h2>Produtos em <em>destaque</em></h2>
           <p class="section-desc">Uma selecao inicial para apresentar perfumes e cosmeticos da Jana Cosmeticos.</p>
         </div>
+        <div class="product-tools">
+          <div class="search-box">
+            <label for="productSearch">Buscar produto</label>
+            <input id="productSearch" type="search" placeholder="Digite perfume, kit ou fragrancia" autocomplete="off">
+          </div>
+        </div>
         <div class="product-grid" id="productGrid">
           <article class="product-card">
             <div class="product-image">
@@ -843,7 +1089,10 @@
               <p>Fragrancia feminina floral adocicada, ideal para dias marcantes e presentes especiais.</p>
               <div class="product-meta">
                 <span class="price">R$ 89,90</span>
-                <a class="btn btn-primary" href="produto.html?id=prod-perfume-rose">Comprar</a>
+                <div class="product-actions">
+                  <a class="btn btn-soft" href="produto.html?id=prod-perfume-rose">Detalhes</a>
+                  <button class="btn btn-primary add-to-cart" type="button" data-product-id="prod-perfume-rose">Comprar</button>
+                </div>
               </div>
             </div>
           </article>
@@ -857,7 +1106,10 @@
               <p>Notas sofisticadas com toque amadeirado e elegante para usar a qualquer hora.</p>
               <div class="product-meta">
                 <span class="price">R$ 99,90</span>
-                <a class="btn btn-primary" href="produto.html?id=prod-perfume-gold">Comprar</a>
+                <div class="product-actions">
+                  <a class="btn btn-soft" href="produto.html?id=prod-perfume-gold">Detalhes</a>
+                  <button class="btn btn-primary add-to-cart" type="button" data-product-id="prod-perfume-gold">Comprar</button>
+                </div>
               </div>
             </div>
           </article>
@@ -871,7 +1123,10 @@
               <p>Combinacao de produtos para cuidado pessoal, ideal para montar presentes personalizados.</p>
               <div class="product-meta">
                 <span class="price">R$ 129,90</span>
-                <a class="btn btn-primary" href="produto.html?id=prod-kit-autocuidado">Comprar</a>
+                <div class="product-actions">
+                  <a class="btn btn-soft" href="produto.html?id=prod-kit-autocuidado">Detalhes</a>
+                  <button class="btn btn-primary add-to-cart" type="button" data-product-id="prod-kit-autocuidado">Comprar</button>
+                </div>
               </div>
             </div>
           </article>
@@ -940,54 +1195,73 @@
     <p><strong>Jana Cosmeticos</strong> · © 2026 Todos os direitos reservados · Beleza em cada detalhe</p>
   </footer>
 
-  <div class="checkout-modal" id="checkoutModal" aria-hidden="true">
-    <div class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
-      <div class="checkout-top">
-        <div>
-          <span class="eyebrow">Checkout Pix</span>
-          <h2 id="checkoutTitle">Finalizar compra</h2>
+  <div class="cart-overlay" id="cartOverlay" aria-hidden="true">
+    <aside class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+      <div class="cart-head">
+        <h2 class="cart-title" id="cartTitle"><span aria-hidden="true">&#128722;</span> seu carrinho</h2>
+        <button class="cart-close" id="cartClose" type="button" aria-label="Fechar carrinho">&times;</button>
+      </div>
+
+      <div class="cart-items" id="cartItems"></div>
+      <div class="cart-foot">
+        <div class="cart-total-row">
+          <span>total</span>
+          <strong id="cartTotal">R$ 0,00</strong>
         </div>
-        <button class="checkout-close" type="button" id="checkoutClose" aria-label="Fechar checkout">×</button>
+        <div class="cart-foot-actions">
+          <a class="cart-continue" href="#produtos" id="cartContinue">continuar comprando</a>
+          <a class="btn btn-primary cart-checkout disabled" id="cartCheckout" href="produto.html?cart=1#checkout">finalizar compra</a>
+        </div>
       </div>
-
-      <div class="checkout-summary">
-        <strong id="checkoutProductName">Produto</strong>
-        <span id="checkoutProductPrice">R$ 0,00</span>
-      </div>
-
-      <form class="checkout-form" id="checkoutForm">
-        <input type="hidden" id="checkoutProductId">
-        <label>
-          Nome do comprador
-          <input id="buyerName" name="buyerName" autocomplete="name" required>
-        </label>
-        <label>
-          CEP
-          <input id="buyerCep" name="cep" inputmode="numeric" placeholder="00000-000" required>
-        </label>
-        <label>
-          Nome da rua
-          <input id="buyerStreet" name="street" autocomplete="street-address" required>
-        </label>
-        <button class="btn btn-primary" type="submit" id="checkoutSubmit">Ir ao pagamento</button>
-      </form>
-
-      <div class="checkout-result" id="checkoutResult">
-        <strong id="checkoutResultTitle">Pix gerado</strong>
-        <p id="checkoutResultText">Confira os dados retornados pela MisticPay.</p>
-        <textarea id="checkoutPayload" readonly></textarea>
-      </div>
-    </div>
+    </aside>
   </div>
 
   <script>
     const productGrid = document.getElementById("productGrid");
-    const checkoutModal = document.getElementById("checkoutModal");
-    const checkoutForm = document.getElementById("checkoutForm");
-    const checkoutSubmit = document.getElementById("checkoutSubmit");
-    const checkoutResult = document.getElementById("checkoutResult");
-    const checkoutPayload = document.getElementById("checkoutPayload");
+    const productSearch = document.getElementById("productSearch");
+    const cartOverlay = document.getElementById("cartOverlay");
+    const cartOpen = document.getElementById("cartOpen");
+    const cartClose = document.getElementById("cartClose");
+    const cartContinue = document.getElementById("cartContinue");
+    const cartItems = document.getElementById("cartItems");
+    const cartCount = document.getElementById("cartCount");
+    const cartTotal = document.getElementById("cartTotal");
+    const cartCheckout = document.getElementById("cartCheckout");
     const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+    const CART_KEY = "janaCosmeticosCart";
+
+    const fallbackProducts = [
+      {
+        id: "prod-perfume-rose",
+        name: "Perfume Rose Elegance",
+        description: "Fragrancia feminina floral adocicada, ideal para dias marcantes e presentes especiais.",
+        price: 89.9,
+        imageUrl: "assets/perfume-rose.svg",
+        badge: "Mais pedido",
+        categoryName: "Perfumes"
+      },
+      {
+        id: "prod-perfume-gold",
+        name: "Perfume Gold Charm",
+        description: "Notas sofisticadas com toque amadeirado e elegante para usar a qualquer hora.",
+        price: 99.9,
+        imageUrl: "assets/perfume-gold.svg",
+        badge: "Lancamento",
+        categoryName: "Perfumes"
+      },
+      {
+        id: "prod-kit-autocuidado",
+        name: "Kit Autocuidado",
+        description: "Combinacao de produtos para cuidado pessoal, ideal para montar presentes personalizados.",
+        price: 129.9,
+        imageUrl: "assets/kit-cosmeticos.svg",
+        badge: "Kit presente",
+        categoryName: "Kits"
+      }
+    ];
+
+    let catalogProducts = fallbackProducts;
+    let cart = loadCart();
 
     function escapeHtml(value) {
       return String(value).replace(/[&<>"']/g, (char) => ({
@@ -1003,104 +1277,204 @@
       return `produto.html?id=${encodeURIComponent(id)}`;
     }
 
+    function loadCart() {
+      try {
+        const parsed = JSON.parse(localStorage.getItem(CART_KEY) || "[]");
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCart() {
+      localStorage.setItem(CART_KEY, JSON.stringify(cart));
+    }
+
+    function getProduct(id) {
+      return catalogProducts.find((product) => product.id === id) || fallbackProducts.find((product) => product.id === id);
+    }
+
     function productCard(product) {
       return `
         <article class="product-card">
-          <div class="product-image">
-            <img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}">
+          <a class="product-image" href="${productLink(product.id)}" aria-label="Ver detalhes de ${escapeHtml(product.name)}">
+            <img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}" onerror="this.src='assets/kit-cosmeticos.svg'">
             ${product.badge ? `<span class="badge">${escapeHtml(product.badge)}</span>` : ""}
-          </div>
+          </a>
           <div class="product-body">
             <h3>${escapeHtml(product.name)}</h3>
             <p>${escapeHtml(product.description)}</p>
             <div class="product-meta">
-              <span class="price">${money.format(product.price)}</span>
-              <a class="btn btn-primary" href="${productLink(product.id)}">Comprar</a>
+              <span class="price">${money.format(Number(product.price))}</span>
+              <div class="product-actions">
+                <a class="btn btn-soft" href="${productLink(product.id)}">Detalhes</a>
+                <button class="btn btn-primary add-to-cart" type="button" data-product-id="${escapeHtml(product.id)}">Comprar</button>
+              </div>
             </div>
           </div>
         </article>
       `;
     }
 
-    function openCheckout(product) {
-      document.getElementById("checkoutProductId").value = product.id;
-      document.getElementById("checkoutProductName").textContent = product.name;
-      document.getElementById("checkoutProductPrice").textContent = money.format(Number(product.price));
-      checkoutResult.classList.remove("show");
-      checkoutPayload.value = "";
-      checkoutModal.classList.add("open");
-      checkoutModal.setAttribute("aria-hidden", "false");
-      document.getElementById("buyerName").focus();
+    function renderProducts() {
+      const query = productSearch.value.trim().toLowerCase();
+      const visibleProducts = catalogProducts.filter((product) => {
+        const haystack = `${product.name} ${product.description} ${product.categoryName || ""}`.toLowerCase();
+        return haystack.includes(query);
+      });
+
+      productGrid.innerHTML = visibleProducts.length
+        ? visibleProducts.map(productCard).join("")
+        : '<div class="empty-products">Nenhum produto encontrado nessa busca.</div>';
     }
 
-    function closeCheckout() {
-      checkoutModal.classList.remove("open");
-      checkoutModal.setAttribute("aria-hidden", "true");
-      checkoutForm.reset();
-      checkoutSubmit.disabled = false;
-      checkoutSubmit.textContent = "Ir ao pagamento";
+    function addToCart(productId) {
+      const product = getProduct(productId);
+      if (!product) return;
+
+      const existing = cart.find((item) => item.productId === productId);
+      if (existing) {
+        existing.quantity += 1;
+      } else {
+        cart.push({ productId, quantity: 1 });
+      }
+      saveCart();
+      renderCart();
+    }
+
+    function setCartQuantity(productId, quantity) {
+      cart = cart
+        .map((item) => item.productId === productId ? { ...item, quantity: Math.max(1, quantity) } : item)
+        .filter((item) => item.quantity > 0);
+      saveCart();
+      renderCart();
+    }
+
+    function removeFromCart(productId) {
+      cart = cart.filter((item) => item.productId !== productId);
+      saveCart();
+      renderCart();
+    }
+
+    function cartSummary() {
+      return cart.reduce((summary, item) => {
+        const product = getProduct(item.productId);
+        if (!product) return summary;
+        summary.quantity += item.quantity;
+        summary.total += Number(product.price) * item.quantity;
+        return summary;
+      }, { quantity: 0, total: 0 });
+    }
+
+    function renderCart() {
+      const summary = cartSummary();
+      cartCount.textContent = summary.quantity;
+      cartTotal.textContent = money.format(summary.total);
+      cartCheckout.classList.toggle("disabled", summary.quantity === 0);
+
+      if (summary.quantity === 0) {
+        cartItems.innerHTML = '<div class="cart-empty">Seu carrinho esta vazio. Escolha um produto para continuar.</div>';
+        return;
+      }
+
+      cartItems.innerHTML = cart.map((item) => {
+        const product = getProduct(item.productId);
+        if (!product) return "";
+        return `
+          <article class="cart-item">
+            <img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}" onerror="this.src='assets/kit-cosmeticos.svg'">
+            <div>
+              <button class="cart-remove" type="button" data-remove="${escapeHtml(product.id)}" aria-label="Remover ${escapeHtml(product.name)}">&times;</button>
+              <h3>${escapeHtml(product.name)}</h3>
+              <p>${escapeHtml(product.description)}</p>
+              <div class="cart-line">
+                <div class="qty-control" aria-label="Quantidade de ${escapeHtml(product.name)}">
+                  <button type="button" data-minus="${escapeHtml(product.id)}" aria-label="Diminuir quantidade">-</button>
+                  <span>${item.quantity}</span>
+                  <button type="button" data-plus="${escapeHtml(product.id)}" aria-label="Aumentar quantidade">+</button>
+                </div>
+                <strong class="cart-price">${money.format(Number(product.price) * item.quantity)}</strong>
+              </div>
+            </div>
+          </article>
+        `;
+      }).join("");
+    }
+
+    function openCart() {
+      renderCart();
+      cartOverlay.classList.add("open");
+      cartOverlay.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeCart() {
+      cartOverlay.classList.remove("open");
+      cartOverlay.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
     }
 
     document.addEventListener("click", (event) => {
-      const button = event.target.closest(".checkout-trigger");
-      if (!button) return;
-      openCheckout({
-        id: button.dataset.productId,
-        name: button.dataset.productName,
-        price: button.dataset.productPrice
-      });
+      const addButton = event.target.closest(".add-to-cart");
+      if (!addButton) return;
+      addToCart(addButton.dataset.productId);
+      openCart();
     });
 
-    document.getElementById("checkoutClose").addEventListener("click", closeCheckout);
-    checkoutModal.addEventListener("click", (event) => {
-      if (event.target === checkoutModal) closeCheckout();
-    });
+    cartItems.addEventListener("click", (event) => {
+      const plusId = event.target.dataset.plus;
+      const minusId = event.target.dataset.minus;
+      const removeId = event.target.dataset.remove;
 
-    checkoutForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      checkoutSubmit.disabled = true;
-      checkoutSubmit.textContent = "Indo ao pagamento...";
-      checkoutResult.classList.remove("show");
+      if (plusId) {
+        const item = cart.find((entry) => entry.productId === plusId);
+        if (item) setCartQuantity(plusId, item.quantity + 1);
+      }
 
-      try {
-        const response = await fetch("/api/checkout/pix", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            productId: document.getElementById("checkoutProductId").value,
-            buyerName: document.getElementById("buyerName").value,
-            cep: document.getElementById("buyerCep").value,
-            street: document.getElementById("buyerStreet").value
-          })
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Nao foi possivel gerar o Pix.");
+      if (minusId) {
+        const item = cart.find((entry) => entry.productId === minusId);
+        if (item && item.quantity > 1) {
+          setCartQuantity(minusId, item.quantity - 1);
+        } else {
+          removeFromCart(minusId);
+        }
+      }
 
-        document.getElementById("checkoutResultTitle").textContent = "Pix solicitado com sucesso";
-        document.getElementById("checkoutResultText").textContent = "A resposta da MisticPay esta abaixo. Use o codigo ou QR retornado pelo gateway para concluir o pagamento.";
-        checkoutPayload.value = JSON.stringify(data, null, 2);
-        checkoutResult.classList.add("show");
-      } catch (error) {
-        document.getElementById("checkoutResultTitle").textContent = "Erro ao gerar Pix";
-        document.getElementById("checkoutResultText").textContent = error.message;
-        checkoutPayload.value = "";
-        checkoutResult.classList.add("show");
-      } finally {
-        checkoutSubmit.disabled = false;
-        checkoutSubmit.textContent = "Ir ao pagamento";
+      if (removeId) {
+        removeFromCart(removeId);
       }
     });
+
+    cartOpen.addEventListener("click", openCart);
+    cartClose.addEventListener("click", closeCart);
+    cartContinue.addEventListener("click", closeCart);
+    cartOverlay.addEventListener("click", (event) => {
+      if (event.target === cartOverlay) closeCart();
+    });
+    cartCheckout.addEventListener("click", (event) => {
+      if (cartSummary().quantity === 0) {
+        event.preventDefault();
+        return;
+      }
+      saveCart();
+    });
+    productSearch.addEventListener("input", renderProducts);
 
     fetch("/api/catalog/products")
       .then((response) => response.ok ? response.json() : Promise.reject())
       .then((data) => {
         if (Array.isArray(data.products) && data.products.length > 0) {
-          productGrid.innerHTML = data.products.map(productCard).join("");
+          catalogProducts = data.products;
+          renderProducts();
+          renderCart();
         }
       })
       .catch(() => {
         console.warn("Catalogo dinamico indisponivel. Usando produtos estaticos.");
       });
+
+    renderProducts();
+    renderCart();
   </script>
 </body>
 </html>

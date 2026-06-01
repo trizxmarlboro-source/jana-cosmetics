@@ -381,6 +381,35 @@ async function handleAdminApi(request, response, requestUrl) {
   return false;
 }
 
+function normalizeCheckoutItems(body) {
+  if (Array.isArray(body.items) && body.items.length > 0) {
+    return body.items.map((item) => ({
+      productId: String(item.productId ?? item.id ?? "").trim(),
+      quantity: Math.max(1, Math.min(99, Number.parseInt(item.quantity ?? 1, 10) || 1))
+    }));
+  }
+
+  const productId = String(body.productId ?? "").trim();
+  return productId ? [{ productId, quantity: 1 }] : [];
+}
+
+function formatCheckoutAddress(body) {
+  const noNumber = Boolean(body.noNumber);
+  const number = noNumber ? "S/N" : String(body.number ?? "").trim();
+
+  return {
+    cep: String(body.cep ?? "").trim(),
+    street: String(body.street ?? body.buyerStreet ?? "").trim(),
+    number,
+    noNumber,
+    complement: String(body.complement ?? "").trim(),
+    reference: String(body.reference ?? "").trim(),
+    neighborhood: String(body.neighborhood ?? "").trim(),
+    city: String(body.city ?? "").trim(),
+    uf: String(body.uf ?? "").trim().toUpperCase().slice(0, 2)
+  };
+}
+
 async function handleCheckoutApi(request, response, requestUrl) {
   if (request.method !== "POST" || requestUrl.pathname !== "/api/checkout/pix") {
     return false;
@@ -388,43 +417,61 @@ async function handleCheckoutApi(request, response, requestUrl) {
 
   const body = await readJsonBody(request);
   const buyerName = String(body.buyerName ?? "").trim();
-  const cep = String(body.cep ?? "").trim();
-  const street = String(body.street ?? "").trim();
-  const productId = String(body.productId ?? "").trim();
+  const address = formatCheckoutAddress(body);
+  const requestedItems = normalizeCheckoutItems(body);
 
-  if (!buyerName || !cep || !street || !productId) {
-    sendJson(response, 400, { error: "Nome, CEP, rua e produto sao obrigatorios." });
+  if (!buyerName || !address.cep || !address.street || !address.city || !address.uf || requestedItems.length === 0) {
+    sendJson(response, 400, {
+      error: "Nome, CEP, rua, cidade, UF e pelo menos um produto sao obrigatorios."
+    });
+    return true;
+  }
+
+  if (!address.noNumber && !address.number) {
+    sendJson(response, 400, { error: "Informe o numero do endereco ou marque S/N." });
     return true;
   }
 
   const data = await readCms();
-  const product = data.products.find((item) => item.id === productId && item.status);
+  const productsById = new Map(data.products.filter((product) => product.status).map((product) => [product.id, product]));
+  const checkoutItems = [];
 
-  if (!product) {
-    sendJson(response, 404, { error: "Produto indisponivel." });
-    return true;
+  for (const item of requestedItems) {
+    const product = productsById.get(item.productId);
+    if (!product) {
+      sendJson(response, 404, { error: `Produto indisponivel: ${item.productId}` });
+      return true;
+    }
+
+    checkoutItems.push({
+      id: product.id,
+      name: product.name,
+      price: Number(product.price),
+      quantity: item.quantity,
+      subtotal: Number(product.price) * item.quantity
+    });
   }
 
-  const transactionId = `jana-${Date.now()}-${product.id}`.replace(/[^a-zA-Z0-9-]/g, "-");
+  const total = Number(checkoutItems.reduce((sum, item) => sum + item.subtotal, 0).toFixed(2));
+  const itemSummary = checkoutItems.map((item) => `${item.quantity}x ${item.name}`).join(", ");
+  const addressSummary = `${address.street}, ${address.number} - ${address.neighborhood || "Bairro nao informado"} - ${address.city}/${address.uf} - CEP ${address.cep}`;
+  const transactionId = `jana-${Date.now()}-${checkoutItems.length}itens`.replace(/[^a-zA-Z0-9-]/g, "-");
+
   const payment = await createMisticPayPixTransaction({
-    amount: Number(product.price),
+    amount: total,
     payerName: buyerName,
     payerDocument: String(body.payerDocument ?? DEFAULT_PAYER_DOCUMENT).replace(/\D/g, ""),
     transactionId,
-    description: `${product.name} | Comprador: ${buyerName} | CEP: ${cep} | Rua: ${street}`
+    description: `${itemSummary} | Comprador: ${buyerName} | Endereco: ${addressSummary}`
   });
 
   sendJson(response, 201, {
     transactionId,
-    product: {
-      id: product.id,
-      name: product.name,
-      price: product.price
-    },
+    items: checkoutItems,
+    total,
     buyer: {
       name: buyerName,
-      cep,
-      street
+      ...address
     },
     payment
   });
