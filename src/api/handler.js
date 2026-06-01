@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { env } from "../config/env.js";
 import { readCms, writeCms, makeId, nowIso, publicProduct } from "../lib/cmsStore.js";
 import {
   checkMisticPayTransaction,
@@ -6,17 +7,14 @@ import {
   getMisticPayBalance
 } from "../payments.js";
 
-const ADMIN_USER = process.env.ADMIN_USER ?? "";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "";
-const DEFAULT_PAYER_DOCUMENT = process.env.MISTIC_PAY_DEFAULT_DOCUMENT ?? "00000000000";
+const ADMIN_USER = env.admin.user;
+const ADMIN_PASSWORD = env.admin.password;
+const DEFAULT_PAYER_DOCUMENT = env.misticPay.defaultDocument;
 const SESSION_COOKIE_NAME = "admin_session";
-const SESSION_TTL_SECONDS = Number(process.env.ADMIN_SESSION_TTL_SECONDS ?? 86400);
-const SESSION_SECRET =
-  process.env.ADMIN_SESSION_SECRET ??
-  process.env.ADMIN_PASSWORD ??
-  "change-this-admin-session-secret";
+const SESSION_TTL_SECONDS = env.admin.sessionTtlSeconds;
+const SESSION_SECRET = env.admin.sessionSecret || env.admin.password || "change-this-admin-session-secret";
 const JSON_BODY_CACHE_KEY = Symbol.for("jana-cosmeticos.json-body");
-const PIX_DISCOUNT_RATE = Number(process.env.PIX_DISCOUNT_RATE ?? 0.15);
+const PIX_DISCOUNT_RATE = env.checkout.pixDiscountRate;
 const MAX_ASSET_DATA_URL_LENGTH = Number(process.env.MAX_ASSET_DATA_URL_LENGTH ?? 900000);
 
 export function sendJson(response, statusCode, payload) {
