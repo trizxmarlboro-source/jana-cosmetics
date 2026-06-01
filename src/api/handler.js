@@ -488,3 +488,5 @@ export async function handleApiRequest(request, response) {
     });
   }
 }
+
+export default handleApiRequest;
