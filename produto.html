@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Checkout Jana Cosmeticos com carrinho, endereco por CEP e pagamento Pix.">
   <title>Checkout | Jana Cosmeticos</title>
+  <link id="siteFavicon" rel="icon" href="assets/logo-jana-cosmeticos.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -438,6 +439,17 @@
       text-decoration: line-through;
     }
 
+    .payment-option .benefit {
+      display: block;
+      margin-top: 6px;
+      color: var(--rose);
+      font-size: .72rem;
+      font-weight: 900;
+      letter-spacing: .03em;
+      line-height: 1.25;
+      text-transform: none;
+    }
+
     .method-note {
       position: absolute;
       right: 16px;
@@ -536,6 +548,12 @@
     .summary-total strong {
       color: var(--rose);
       font-size: 1.35rem;
+    }
+
+    .summary-total.discount {
+      color: var(--rose);
+      background: #fff2f8;
+      font-size: .96rem;
     }
 
     .checkout-result {
@@ -662,7 +680,7 @@
   <header class="topbar">
     <div class="topbar-inner">
       <a class="brand" href="/index.html#produtos">
-        <img src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+        <img class="site-logo" src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
         <span>
           Jana Cosmeticos
           <small>beleza em cada detalhe</small>
@@ -718,7 +736,7 @@
               </label>
               <label class="payment-option active">
                 <input type="radio" name="paymentMethod" value="pix" checked>
-                <span>Pix</span>
+                <span>Pix <small class="benefit">Tenha até 15% de desconto pagando à vista no Pix</small></span>
               </label>
               <label class="payment-option disabled" aria-disabled="true">
                 <input type="radio" name="paymentMethod" value="googlepay" disabled>
@@ -816,6 +834,7 @@
     const selectedId = params.get("id");
     const isCartCheckout = params.get("cart") === "1";
     const CART_KEY = "janaCosmeticosCart";
+    const PIX_DISCOUNT_RATE = 0.15;
 
     const productImage = document.getElementById("productImage");
     const productName = document.getElementById("productName");
@@ -837,6 +856,18 @@
 
     let catalogProducts = [];
     let checkoutItems = [];
+
+    function applySiteSettings(settings) {
+      if (!settings) return;
+      if (settings.logoUrl) {
+        document.querySelectorAll(".site-logo").forEach((image) => {
+          image.src = settings.logoUrl;
+        });
+      }
+      if (settings.faviconUrl) {
+        document.getElementById("siteFavicon").href = settings.faviconUrl;
+      }
+    }
 
     function escapeHtml(value) {
       return String(value).replace(/[&<>"']/g, (char) => ({
@@ -905,6 +936,14 @@
       return checkoutItems.reduce((sum, item) => sum + Number(item.product.price) * item.quantity, 0);
     }
 
+    function pixDiscountValue() {
+      return Number((orderTotal() * PIX_DISCOUNT_RATE).toFixed(2));
+    }
+
+    function finalPixTotal() {
+      return Number((orderTotal() - pixDiscountValue()).toFixed(2));
+    }
+
     function renderOverview() {
       if (checkoutItems.length === 1) {
         const { product } = checkoutItems[0];
@@ -929,7 +968,7 @@
       productImage.alt = "Carrinho Jana Cosmeticos";
       productName.textContent = "Seu carrinho";
       productDescription.textContent = `${checkoutItems.length} produtos selecionados para finalizar a compra.`;
-      productPrice.textContent = money.format(orderTotal());
+      productPrice.textContent = money.format(finalPixTotal());
       productBadge.textContent = "Pedido";
       productBadge.style.display = "inline-flex";
     }
@@ -951,9 +990,13 @@
 
       orderSummary.innerHTML = `
         ${rows}
+        <div class="summary-total discount">
+          <span>Desconto Pix 15%</span>
+          <strong>- ${money.format(pixDiscountValue())}</strong>
+        </div>
         <div class="summary-total">
           <span>Total</span>
-          <strong>${money.format(orderTotal())}</strong>
+          <strong>${money.format(finalPixTotal())}</strong>
         </div>
       `;
     }
@@ -1102,6 +1145,11 @@
     productImage.onerror = () => {
       productImage.src = "assets/kit-cosmeticos.svg";
     };
+
+    fetch("/api/site/settings")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data) => applySiteSettings(data.settings))
+      .catch(() => {});
 
     loadCheckout();
   </script>

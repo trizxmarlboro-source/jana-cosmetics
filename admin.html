@@ -164,7 +164,7 @@
 
     .metrics {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 14px;
       margin-bottom: 20px;
     }
@@ -193,8 +193,86 @@
       align-items: start;
     }
 
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
     .panel {
       padding: 20px;
+    }
+
+    .donut-wrap {
+      display: grid;
+      place-items: center;
+      gap: 14px;
+      padding: 8px 0 16px;
+    }
+
+    .donut-chart {
+      --angle: 0deg;
+      width: 220px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      background: conic-gradient(var(--rose) 0 var(--angle), var(--line) var(--angle) 360deg);
+      box-shadow: inset 0 0 0 1px rgba(0,0,0,.05);
+      grid-area: 1 / 1;
+    }
+
+    .donut-chart::before {
+      content: "";
+      width: 128px;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: var(--white);
+      box-shadow: inset 0 0 0 1px var(--line);
+    }
+
+    .donut-center {
+      display: grid;
+      place-items: center;
+      gap: 2px;
+      font-weight: 900;
+      grid-area: 1 / 1;
+      z-index: 1;
+    }
+
+    .donut-center strong {
+      color: var(--rose);
+      font-size: 28px;
+    }
+
+    .donut-legend {
+      display: grid;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      margin-right: 8px;
+      background: var(--rose);
+    }
+
+    .legend-dot.muted {
+      background: var(--line);
     }
 
     table {
@@ -271,6 +349,21 @@
       line-height: 1.35;
     }
 
+    .brand-preview {
+      display: grid;
+      gap: 12px;
+      margin-top: 12px;
+    }
+
+    .brand-preview img {
+      width: 92px;
+      height: 92px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      object-fit: contain;
+      background: var(--sand);
+    }
+
     .status {
       display: inline-flex;
       border-radius: 999px;
@@ -296,20 +389,20 @@
     @media (max-width: 920px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { position: static; }
-      .metrics, .grid { grid-template-columns: 1fr; }
+      .metrics, .grid, .dashboard-grid { grid-template-columns: 1fr; }
       .topbar { flex-direction: column; }
     }
   </style>
 </head>
 <body>
   <section class="login" id="loginView">
-    <form class="login-card" id="loginForm">
+    <form class="login-card" id="loginForm" autocomplete="off">
       <h1>Jana Cosmeticos</h1>
       <p>Entre para gerenciar produtos, categorias e metricas.</p>
       <label for="user">Usuario</label>
-      <input id="user" name="user" autocomplete="username" value="admin@jana.com" required>
+      <input id="user" name="user" autocomplete="off" required>
       <label for="password">Senha</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" value="admin123" required>
+      <input id="password" name="password" type="password" autocomplete="off" required>
       <div class="btn-row">
         <button class="btn btn-primary" type="submit">Entrar</button>
         <a class="btn btn-ghost" href="/">Voltar ao site</a>
@@ -324,6 +417,7 @@
       <button class="btn nav-btn active" data-view="dashboard">Dashboard</button>
       <button class="btn nav-btn" data-view="products">Produtos</button>
       <button class="btn nav-btn" data-view="categories">Categorias</button>
+      <button class="btn nav-btn" data-view="settings">Personalizacao</button>
       <button class="btn nav-btn" id="logoutBtn">Sair</button>
     </aside>
 
@@ -340,15 +434,35 @@
         <div class="metrics">
           <article class="card metric"><span>Total de vendas</span><strong id="metricSales">R$ 0,00</strong></article>
           <article class="card metric"><span>Pedidos</span><strong id="metricOrders">0</strong></article>
+          <article class="card metric"><span>Pix iniciados</span><strong id="metricPixInitiated">0</strong></article>
+          <article class="card metric"><span>Pix concluidos</span><strong id="metricPixCompleted">0</strong></article>
+          <article class="card metric"><span>Conversao Pix</span><strong id="metricPixConversion">0%</strong></article>
+          <article class="card metric"><span>Descontos Pix</span><strong id="metricPixDiscounts">R$ 0,00</strong></article>
           <article class="card metric"><span>Produtos ativos</span><strong id="metricProducts">0</strong></article>
           <article class="card metric"><span>Categorias</span><strong id="metricCategories">0</strong></article>
         </div>
-        <div class="panel">
-          <h2>Produtos por categoria</h2>
-          <table>
-            <thead><tr><th>Categoria</th><th>Total</th></tr></thead>
-            <tbody id="categoryMetrics"></tbody>
-          </table>
+        <div class="dashboard-grid">
+          <div class="panel">
+            <h2>Produtos por categoria</h2>
+            <table>
+              <thead><tr><th>Categoria</th><th>Total</th></tr></thead>
+              <tbody id="categoryMetrics"></tbody>
+            </table>
+          </div>
+          <div class="panel">
+            <h2>Conversao Pix</h2>
+            <div class="donut-wrap">
+              <div class="donut-chart" id="pixDonut"></div>
+              <div class="donut-center">
+                <strong id="pixDonutRate">0%</strong>
+                <span>conversao</span>
+              </div>
+            </div>
+            <div class="donut-legend">
+              <div class="legend-row"><span><i class="legend-dot"></i>Concluidas</span><strong id="legendPixCompleted">0</strong></div>
+              <div class="legend-row"><span><i class="legend-dot muted"></i>Iniciadas sem conclusao</span><strong id="legendPixOpen">0</strong></div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -403,15 +517,53 @@
           <p class="message" id="categoryMessage"></p>
         </form>
       </section>
+
+      <section class="grid hidden" id="settingsView">
+        <form class="panel" id="settingsForm">
+          <h2>Personalizacao</h2>
+          <p>Atualize a identidade visual do site sem editar o codigo.</p>
+          <label for="logoUpload">Upload de logo (PNG/SVG)</label>
+          <input id="logoUpload" type="file" accept="image/png,image/svg+xml,image/jpeg,image/webp">
+          <label for="faviconUpload">Upload de favicon (.ico/PNG)</label>
+          <input id="faviconUpload" type="file" accept="image/png,image/x-icon,image/vnd.microsoft.icon,image/svg+xml">
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">Salvar personalizacao</button>
+            <button class="btn btn-ghost" type="button" id="resetBrandBtn">Restaurar padrao</button>
+          </div>
+          <p class="message" id="settingsMessage"></p>
+        </form>
+        <div class="panel">
+          <h2>Preview atual</h2>
+          <div class="brand-preview">
+            <div>
+              <label>Logo</label>
+              <img id="logoPreview" src="assets/logo-jana-cosmeticos.svg" alt="Preview da logo">
+            </div>
+            <div>
+              <label>Favicon</label>
+              <img id="faviconPreview" src="assets/logo-jana-cosmeticos.svg" alt="Preview do favicon">
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
   </section>
 
   <script>
-    const state = { products: [], categories: [] };
+    const DEFAULT_LOGO = "assets/logo-jana-cosmeticos.svg";
+    const state = {
+      products: [],
+      categories: [],
+      settings: { logoUrl: DEFAULT_LOGO, faviconUrl: DEFAULT_LOGO },
+      pendingLogoUrl: "",
+      pendingFaviconUrl: ""
+    };
     const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
     const productImageInput = document.getElementById("productImage");
     const productImagePreview = document.getElementById("productImagePreview");
     const productImagePreviewText = document.getElementById("productImagePreviewText");
+    const logoUploadInput = document.getElementById("logoUpload");
+    const faviconUploadInput = document.getElementById("faviconUpload");
 
     async function api(path, options = {}) {
       const response = await fetch(path, {
@@ -436,18 +588,34 @@
     }
 
     async function loadAll() {
-      await Promise.all([loadDashboard(), loadProducts(), loadCategories()]);
+      await Promise.all([loadDashboard(), loadProducts(), loadCategories(), loadSettings()]);
     }
 
     async function loadDashboard() {
       const data = await api("/api/admin/dashboard");
       document.getElementById("metricSales").textContent = money.format(data.totalSales);
       document.getElementById("metricOrders").textContent = data.orderCount;
+      document.getElementById("metricPixInitiated").textContent = data.pixInitiated || 0;
+      document.getElementById("metricPixCompleted").textContent = data.pixCompleted || 0;
+      document.getElementById("metricPixConversion").textContent = `${data.pixConversionRate || 0}%`;
+      document.getElementById("metricPixDiscounts").textContent = money.format(data.pixDiscounts || 0);
       document.getElementById("metricProducts").textContent = data.activeProducts;
       document.getElementById("metricCategories").textContent = data.categories;
       document.getElementById("categoryMetrics").innerHTML = data.productsByCategory.map((row) =>
         `<tr><td>${row.category}</td><td>${row.total}</td></tr>`
       ).join("");
+      renderPixDonut(data);
+    }
+
+    function renderPixDonut(data) {
+      const initiated = Number(data.pixInitiated || 0);
+      const completed = Number(data.pixCompleted || 0);
+      const rate = initiated > 0 ? Number(((completed / initiated) * 100).toFixed(1)) : 0;
+      const open = Math.max(0, initiated - completed);
+      document.getElementById("pixDonut").style.setProperty("--angle", `${rate * 3.6}deg`);
+      document.getElementById("pixDonutRate").textContent = `${rate}%`;
+      document.getElementById("legendPixCompleted").textContent = completed;
+      document.getElementById("legendPixOpen").textContent = open;
     }
 
     async function loadProducts() {
@@ -463,6 +631,42 @@
       state.categories = data.categories;
       renderProductCategoryOptions();
       renderCategories();
+    }
+
+    async function loadSettings() {
+      const data = await api("/api/admin/settings");
+      state.settings = data.settings;
+      state.pendingLogoUrl = "";
+      state.pendingFaviconUrl = "";
+      logoUploadInput.value = "";
+      faviconUploadInput.value = "";
+      renderSettings();
+    }
+
+    function renderSettings() {
+      document.getElementById("logoPreview").src = state.pendingLogoUrl || state.settings.logoUrl || DEFAULT_LOGO;
+      document.getElementById("faviconPreview").src = state.pendingFaviconUrl || state.settings.faviconUrl || DEFAULT_LOGO;
+    }
+
+    function fileToDataUrl(file) {
+      return new Promise((resolve, reject) => {
+        if (!file) {
+          resolve("");
+          return;
+        }
+        if (!file.type.startsWith("image/") && !file.name.toLowerCase().endsWith(".ico")) {
+          reject(new Error("Envie apenas arquivos de imagem."));
+          return;
+        }
+        if (file.size > 850 * 1024) {
+          reject(new Error("Use uma imagem com ate 850 KB."));
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = () => resolve(String(reader.result || ""));
+        reader.onerror = () => reject(new Error("Nao foi possivel ler o arquivo."));
+        reader.readAsDataURL(file);
+      });
     }
 
     function categoryName(id) {
@@ -600,7 +804,12 @@
         document.getElementById("dashboardView").classList.toggle("hidden", view !== "dashboard");
         document.getElementById("productsView").classList.toggle("hidden", view !== "products");
         document.getElementById("categoriesView").classList.toggle("hidden", view !== "categories");
-        document.getElementById("pageTitle").textContent = view === "dashboard" ? "Dashboard" : view === "products" ? "Produtos" : "Categorias";
+        document.getElementById("settingsView").classList.toggle("hidden", view !== "settings");
+        document.getElementById("pageTitle").textContent =
+          view === "dashboard" ? "Dashboard" :
+          view === "products" ? "Produtos" :
+          view === "categories" ? "Categorias" :
+          "Personalizacao";
       });
     });
 
@@ -646,6 +855,69 @@
         document.getElementById("categoryMessage").textContent = "Categoria salva com sucesso.";
       } catch (error) {
         document.getElementById("categoryMessage").textContent = error.message;
+      }
+    });
+
+    logoUploadInput.addEventListener("change", async () => {
+      try {
+        state.pendingLogoUrl = await fileToDataUrl(logoUploadInput.files[0]);
+        renderSettings();
+        document.getElementById("settingsMessage").textContent = "Logo carregada para preview. Clique em salvar.";
+      } catch (error) {
+        logoUploadInput.value = "";
+        state.pendingLogoUrl = "";
+        document.getElementById("settingsMessage").textContent = error.message;
+      }
+    });
+
+    faviconUploadInput.addEventListener("change", async () => {
+      try {
+        state.pendingFaviconUrl = await fileToDataUrl(faviconUploadInput.files[0]);
+        renderSettings();
+        document.getElementById("settingsMessage").textContent = "Favicon carregado para preview. Clique em salvar.";
+      } catch (error) {
+        faviconUploadInput.value = "";
+        state.pendingFaviconUrl = "";
+        document.getElementById("settingsMessage").textContent = error.message;
+      }
+    });
+
+    document.getElementById("settingsForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        const payload = {
+          logoUrl: state.pendingLogoUrl || state.settings.logoUrl,
+          faviconUrl: state.pendingFaviconUrl || state.settings.faviconUrl
+        };
+        const data = await api("/api/admin/settings", {
+          method: "PUT",
+          body: JSON.stringify(payload)
+        });
+        state.settings = data.settings;
+        state.pendingLogoUrl = "";
+        state.pendingFaviconUrl = "";
+        logoUploadInput.value = "";
+        faviconUploadInput.value = "";
+        renderSettings();
+        document.getElementById("settingsMessage").textContent = "Personalizacao salva com sucesso.";
+      } catch (error) {
+        document.getElementById("settingsMessage").textContent = error.message;
+      }
+    });
+
+    document.getElementById("resetBrandBtn").addEventListener("click", async () => {
+      try {
+        const data = await api("/api/admin/settings", {
+          method: "PUT",
+          body: JSON.stringify({ logoUrl: DEFAULT_LOGO, faviconUrl: DEFAULT_LOGO })
+        });
+        state.settings = data.settings;
+        state.pendingLogoUrl = "";
+        state.pendingFaviconUrl = "";
+        renderSettings();
+        document.getElementById("settingsMessage").textContent = "Identidade visual restaurada.";
+      } catch (error) {
+        document.getElementById("settingsMessage").textContent = error.message;
       }
     });
 

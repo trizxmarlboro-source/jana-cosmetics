@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="Jana Cosmeticos: perfumes, fragrancias e cosmeticos selecionados para realcar sua beleza todos os dias.">
   <title>Jana Cosmeticos | Perfumes e beleza para o seu momento</title>
+  <link id="siteFavicon" rel="icon" href="assets/logo-jana-cosmeticos.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
@@ -700,6 +701,22 @@
       font-size: 0.9rem;
     }
 
+    .footer-inner {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .footer-logo {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: contain;
+      background: var(--white);
+    }
+
     .footer strong {
       color: var(--white);
       font-family: "Century Gothic", "Montserrat", sans-serif;
@@ -986,7 +1003,7 @@
   <header class="nav">
     <nav class="nav-inner" aria-label="Navegacao principal">
       <a class="brand" href="#inicio" aria-label="Jana Cosmeticos - inicio">
-        <img src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+        <img class="site-logo" src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
         <span>
           <strong>Jana Cosmeticos</strong>
           beleza em cada detalhe
@@ -1026,7 +1043,7 @@
       </div>
       <div class="hero-visual">
         <div class="hero-card">
-          <img src="assets/logo-jana-cosmeticos.svg" alt="Jana Cosmeticos com frascos de perfume">
+          <img class="site-logo" src="assets/logo-jana-cosmeticos.svg" alt="Jana Cosmeticos com frascos de perfume">
           <div class="hero-note">Fragrancias para marcar presenca sem perder delicadeza.</div>
         </div>
       </div>
@@ -1149,7 +1166,7 @@
     </section>
 
     <section class="about" id="sobre">
-      <img class="about-logo" src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+      <img class="about-logo site-logo" src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
       <div>
         <span class="eyebrow">Sobre nos</span>
         <h2>Uma curadoria de beleza feita para <em>voce</em></h2>
@@ -1192,7 +1209,10 @@
   </main>
 
   <footer class="footer">
+    <div class="footer-inner">
+      <img class="footer-logo site-logo" src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
     <p><strong>Jana Cosmeticos</strong> · © 2026 Todos os direitos reservados · Beleza em cada detalhe</p>
+    </div>
   </footer>
 
   <div class="cart-overlay" id="cartOverlay" aria-hidden="true">
@@ -1262,6 +1282,18 @@
 
     let catalogProducts = fallbackProducts;
     let cart = loadCart();
+
+    function applySiteSettings(settings) {
+      if (!settings) return;
+      if (settings.logoUrl) {
+        document.querySelectorAll(".site-logo").forEach((image) => {
+          image.src = settings.logoUrl;
+        });
+      }
+      if (settings.faviconUrl) {
+        document.getElementById("siteFavicon").href = settings.faviconUrl;
+      }
+    }
 
     function escapeHtml(value) {
       return String(value).replace(/[&<>"']/g, (char) => ({
@@ -1472,6 +1504,11 @@
       .catch(() => {
         console.warn("Catalogo dinamico indisponivel. Usando produtos estaticos.");
       });
+
+    fetch("/api/site/settings")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data) => applySiteSettings(data.settings))
+      .catch(() => {});
 
     renderProducts();
     renderCart();

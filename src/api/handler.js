@@ -6,8 +6,8 @@ import {
   getMisticPayBalance
 } from "../payments.js";
 
-const ADMIN_USER = process.env.ADMIN_USER ?? "admin@jana.com";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+const ADMIN_USER = process.env.ADMIN_USER ?? "";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "";
 const DEFAULT_PAYER_DOCUMENT = process.env.MISTIC_PAY_DEFAULT_DOCUMENT ?? "00000000000";
 const SESSION_COOKIE_NAME = "admin_session";
 const SESSION_TTL_SECONDS = Number(process.env.ADMIN_SESSION_TTL_SECONDS ?? 86400);
@@ -16,6 +16,8 @@ const SESSION_SECRET =
   process.env.ADMIN_PASSWORD ??
   "change-this-admin-session-secret";
 const JSON_BODY_CACHE_KEY = Symbol.for("jana-cosmeticos.json-body");
+const PIX_DISCOUNT_RATE = Number(process.env.PIX_DISCOUNT_RATE ?? 0.15);
+const MAX_ASSET_DATA_URL_LENGTH = Number(process.env.MAX_ASSET_DATA_URL_LENGTH ?? 900000);
 
 export function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, { "Content-Type": "application/json; charset=utf-8" });
@@ -42,6 +44,15 @@ function isSameSecret(a, b) {
   const left = Buffer.from(String(a));
   const right = Buffer.from(String(b));
   return left.length === right.length && timingSafeEqual(left, right);
+}
+
+function adminCredentialsConfigured() {
+  return Boolean(
+    ADMIN_USER &&
+    ADMIN_PASSWORD &&
+    !ADMIN_USER.startsWith("YOUR_") &&
+    !ADMIN_PASSWORD.startsWith("YOUR_")
+  );
 }
 
 function shouldUseSecureCookie(request) {
@@ -198,6 +209,70 @@ function productPayload(input, categories) {
   };
 }
 
+function defaultSettings() {
+  return {
+    logoUrl: "assets/logo-jana-cosmeticos.svg",
+    faviconUrl: "assets/logo-jana-cosmeticos.svg",
+    updatedAt: nowIso()
+  };
+}
+
+function publicSettings(data) {
+  return {
+    ...defaultSettings(),
+    ...(data.settings ?? {})
+  };
+}
+
+function settingsPayload(input, currentSettings) {
+  const nextSettings = {
+    ...defaultSettings(),
+    ...currentSettings,
+    updatedAt: nowIso()
+  };
+
+  for (const key of ["logoUrl", "faviconUrl"]) {
+    const value = String(input[key] ?? "").trim();
+    if (!value) {
+      continue;
+    }
+    if (value.length > MAX_ASSET_DATA_URL_LENGTH) {
+      const error = new Error(`${key} excede o limite permitido.`);
+      error.status = 400;
+      throw error;
+    }
+    if (!value.startsWith("data:image/") && !value.startsWith("assets/") && !value.startsWith("http")) {
+      const error = new Error(`${key} deve ser uma imagem valida.`);
+      error.status = 400;
+      throw error;
+    }
+    nextSettings[key] = value;
+  }
+
+  return nextSettings;
+}
+
+function ensureMetrics(data) {
+  data.metrics = {
+    totalSales: Number(data.metrics?.totalSales ?? 0),
+    orderCount: Number(data.metrics?.orderCount ?? 0),
+    pixInitiated: Number(data.metrics?.pixInitiated ?? 0),
+    pixCompleted: Number(data.metrics?.pixCompleted ?? 0),
+    pixRevenue: Number(data.metrics?.pixRevenue ?? data.metrics?.totalSales ?? 0),
+    pixDiscounts: Number(data.metrics?.pixDiscounts ?? 0)
+  };
+
+  return data.metrics;
+}
+
+function pixConversionRate(metrics) {
+  return metrics.pixInitiated > 0 ? Number(((metrics.pixCompleted / metrics.pixInitiated) * 100).toFixed(1)) : 0;
+}
+
+function moneyValue(value) {
+  return Number(Number(value).toFixed(2));
+}
+
 async function handleCatalogApi(request, response, requestUrl) {
   const data = await readCms();
   const categoriesById = new Map(data.categories.map((category) => [category.id, category]));
@@ -215,12 +290,22 @@ async function handleCatalogApi(request, response, requestUrl) {
     return true;
   }
 
+  if (request.method === "GET" && requestUrl.pathname === "/api/site/settings") {
+    sendJson(response, 200, { settings: publicSettings(data) });
+    return true;
+  }
+
   return false;
 }
 
 async function handleAdminApi(request, response, requestUrl) {
   if (request.method === "POST" && requestUrl.pathname === "/api/admin/login") {
     const body = await readJsonBody(request);
+    if (!adminCredentialsConfigured()) {
+      sendJson(response, 503, { error: "Credenciais admin nao configuradas no servidor." });
+      return true;
+    }
+
     if (isSameSecret(body.user ?? "", ADMIN_USER) && isSameSecret(body.password ?? "", ADMIN_PASSWORD)) {
       createSession(response, request);
       sendJson(response, 200, { ok: true });
@@ -259,14 +344,20 @@ async function handleAdminApi(request, response, requestUrl) {
   if (request.method === "GET" && requestUrl.pathname === "/api/admin/dashboard") {
     const activeProducts = data.products.filter((product) => product.status).length;
     const categories = data.categories.length;
+    const metrics = ensureMetrics(data);
     const productsByCategory = data.categories.map((category) => ({
       category: category.name,
       total: data.products.filter((product) => product.categoryId === category.id).length
     }));
 
     sendJson(response, 200, {
-      totalSales: data.metrics?.totalSales ?? 0,
-      orderCount: data.metrics?.orderCount ?? 0,
+      totalSales: metrics.totalSales,
+      orderCount: metrics.orderCount,
+      pixInitiated: metrics.pixInitiated,
+      pixCompleted: metrics.pixCompleted,
+      pixRevenue: metrics.pixRevenue,
+      pixDiscounts: metrics.pixDiscounts,
+      pixConversionRate: pixConversionRate(metrics),
       activeProducts,
       categories,
       topProducts: data.products.slice(0, 5).map((product) => ({ name: product.name, sales: 0 })),
@@ -316,6 +407,19 @@ async function handleAdminApi(request, response, requestUrl) {
       sendJson(response, 200, { product });
       return true;
     }
+  }
+
+  if (request.method === "GET" && requestUrl.pathname === "/api/admin/settings") {
+    sendJson(response, 200, { settings: publicSettings(data) });
+    return true;
+  }
+
+  if (request.method === "PUT" && requestUrl.pathname === "/api/admin/settings") {
+    const body = await readJsonBody(request);
+    data.settings = settingsPayload(body, data.settings);
+    await writeCms(data);
+    sendJson(response, 200, { settings: publicSettings(data) });
+    return true;
   }
 
   if (request.method === "GET" && requestUrl.pathname === "/api/admin/categories") {
@@ -452,10 +556,16 @@ async function handleCheckoutApi(request, response, requestUrl) {
     });
   }
 
-  const total = Number(checkoutItems.reduce((sum, item) => sum + item.subtotal, 0).toFixed(2));
+  const subtotal = moneyValue(checkoutItems.reduce((sum, item) => sum + item.subtotal, 0));
+  const pixDiscountRate = Math.max(0, Math.min(0.8, PIX_DISCOUNT_RATE));
+  const pixDiscount = moneyValue(subtotal * pixDiscountRate);
+  const total = moneyValue(subtotal - pixDiscount);
   const itemSummary = checkoutItems.map((item) => `${item.quantity}x ${item.name}`).join(", ");
   const addressSummary = `${address.street}, ${address.number} - ${address.neighborhood || "Bairro nao informado"} - ${address.city}/${address.uf} - CEP ${address.cep}`;
   const transactionId = `jana-${Date.now()}-${checkoutItems.length}itens`.replace(/[^a-zA-Z0-9-]/g, "-");
+  const metrics = ensureMetrics(data);
+  metrics.pixInitiated += 1;
+  await writeCms(data);
 
   const payment = await createMisticPayPixTransaction({
     amount: total,
@@ -465,9 +575,19 @@ async function handleCheckoutApi(request, response, requestUrl) {
     description: `${itemSummary} | Comprador: ${buyerName} | Endereco: ${addressSummary}`
   });
 
+  metrics.pixCompleted += 1;
+  metrics.orderCount += 1;
+  metrics.totalSales = moneyValue(metrics.totalSales + total);
+  metrics.pixRevenue = moneyValue(metrics.pixRevenue + total);
+  metrics.pixDiscounts = moneyValue(metrics.pixDiscounts + pixDiscount);
+  await writeCms(data);
+
   sendJson(response, 201, {
     transactionId,
     items: checkoutItems,
+    subtotal,
+    pixDiscountRate,
+    pixDiscount,
     total,
     buyer: {
       name: buyerName,

@@ -55,6 +55,15 @@
   ],
   "metrics": {
     "totalSales": 0,
-    "orderCount": 0
+    "orderCount": 0,
+    "pixInitiated": 0,
+    "pixCompleted": 0,
+    "pixRevenue": 0,
+    "pixDiscounts": 0
+  },
+  "settings": {
+    "logoUrl": "assets/logo-jana-cosmeticos.svg",
+    "faviconUrl": "assets/logo-jana-cosmeticos.svg",
+    "updatedAt": "2026-05-31T00:00:00.000Z"
   }
 }
