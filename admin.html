@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin | Jana Cosmeticos</title>
+  <style>
+    :root {
+      --rose: #e0217a;
+      --rose-dark: #b5155e;
+      --rose-light: #ffd6eb;
+      --cream: #fff8f4;
+      --sand: #f5ede7;
+      --ink: #1a1118;
+      --muted: #7a5068;
+      --line: #ead6e2;
+      --white: #fff;
+      --green: #168a4a;
+      --red: #c52645;
+      --shadow: 0 18px 44px rgba(30, 5, 25, .12);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--cream);
+      font-family: Arial, sans-serif;
+    }
+
+    button, input, textarea, select {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: 0;
+    }
+
+    .login {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .login-card,
+    .panel,
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .login-card {
+      width: min(100%, 420px);
+      padding: 30px;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 8px; color: var(--rose); }
+    h2 { margin-bottom: 16px; }
+
+    label {
+      display: block;
+      margin: 14px 0 6px;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    input, textarea, select {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 12px;
+      background: #fff;
+    }
+
+    textarea {
+      min-height: 86px;
+      resize: vertical;
+    }
+
+    .btn {
+      display: inline-flex;
+      min-height: 42px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 10px 18px;
+      font-weight: 800;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: var(--rose);
+    }
+
+    .btn-dark {
+      color: #fff;
+      background: var(--ink);
+    }
+
+    .btn-ghost {
+      color: var(--ink);
+      background: var(--sand);
+    }
+
+    .btn-danger {
+      color: #fff;
+      background: var(--red);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: 250px 1fr;
+    }
+
+    .sidebar {
+      padding: 24px;
+      color: #fff;
+      background: var(--ink);
+    }
+
+    .sidebar strong {
+      display: block;
+      margin-bottom: 24px;
+      color: var(--rose-light);
+      font-size: 22px;
+    }
+
+    .nav-btn {
+      width: 100%;
+      margin-bottom: 8px;
+      justify-content: flex-start;
+      color: #fff;
+      background: rgba(255,255,255,.08);
+    }
+
+    .nav-btn.active {
+      background: var(--rose);
+    }
+
+    .main {
+      padding: 28px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 22px;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .metric {
+      padding: 18px;
+    }
+
+    .metric span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .metric strong {
+      display: block;
+      margin-top: 6px;
+      font-size: 26px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--line);
+      padding: 12px 10px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+    }
+
+    th {
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    .table-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .product-thumb {
+      width: 56px;
+      height: 56px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      object-fit: cover;
+      background: var(--sand);
+    }
+
+    .product-thumb-empty {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .image-help {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .image-preview-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .image-preview {
+      width: 72px;
+      height: 72px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      object-fit: cover;
+      background: var(--sand);
+      flex-shrink: 0;
+    }
+
+    .image-preview-text {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .status {
+      display: inline-flex;
+      border-radius: 999px;
+      padding: 4px 9px;
+      color: #fff;
+      background: var(--red);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .status.active {
+      background: var(--green);
+    }
+
+    .message {
+      margin: 12px 0 0;
+      color: var(--rose-dark);
+      font-weight: 700;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 920px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .metrics, .grid { grid-template-columns: 1fr; }
+      .topbar { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <section class="login" id="loginView">
+    <form class="login-card" id="loginForm">
+      <h1>Jana Cosmeticos</h1>
+      <p>Entre para gerenciar produtos, categorias e metricas.</p>
+      <label for="user">Usuario</label>
+      <input id="user" name="user" autocomplete="username" value="admin@jana.com" required>
+      <label for="password">Senha</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" value="admin123" required>
+      <div class="btn-row">
+        <button class="btn btn-primary" type="submit">Entrar</button>
+        <a class="btn btn-ghost" href="/">Voltar ao site</a>
+      </div>
+      <p class="message" id="loginMessage"></p>
+    </form>
+  </section>
+
+  <section class="app hidden" id="appView">
+    <aside class="sidebar">
+      <strong>Jana Admin</strong>
+      <button class="btn nav-btn active" data-view="dashboard">Dashboard</button>
+      <button class="btn nav-btn" data-view="products">Produtos</button>
+      <button class="btn nav-btn" data-view="categories">Categorias</button>
+      <button class="btn nav-btn" id="logoutBtn">Sair</button>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1 id="pageTitle">Dashboard</h1>
+          <p id="pageSubtitle">Resumo administrativo da Jana Cosmeticos.</p>
+        </div>
+        <a class="btn btn-dark" href="/" target="_blank" rel="noopener">Ver site</a>
+      </div>
+
+      <section id="dashboardView">
+        <div class="metrics">
+          <article class="card metric"><span>Total de vendas</span><strong id="metricSales">R$ 0,00</strong></article>
+          <article class="card metric"><span>Pedidos</span><strong id="metricOrders">0</strong></article>
+          <article class="card metric"><span>Produtos ativos</span><strong id="metricProducts">0</strong></article>
+          <article class="card metric"><span>Categorias</span><strong id="metricCategories">0</strong></article>
+        </div>
+        <div class="panel">
+          <h2>Produtos por categoria</h2>
+          <table>
+            <thead><tr><th>Categoria</th><th>Total</th></tr></thead>
+            <tbody id="categoryMetrics"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="grid hidden" id="productsView">
+        <div class="panel">
+          <h2>Produtos</h2>
+          <table>
+            <thead><tr><th>Nome</th><th>Imagem</th><th>Categoria</th><th>Preco</th><th>Status</th><th>Acoes</th></tr></thead>
+            <tbody id="productsTable"></tbody>
+          </table>
+        </div>
+        <form class="panel" id="productForm">
+          <h2 id="productFormTitle">Novo produto</h2>
+          <input type="hidden" id="productId">
+          <label>Nome</label><input id="productName" required>
+          <label>Descricao</label><textarea id="productDescription" required></textarea>
+          <label>Preco</label><input id="productPrice" type="number" min="0.01" step="0.01" required>
+          <label>Imagem URL</label><input id="productImage" required placeholder="https://seu-link-direto-da-imagem.jpg">
+          <p class="image-help">Use o link direto da imagem (ex: .jpg, .png, .webp).</p>
+          <div class="image-preview-wrap">
+            <img id="productImagePreview" class="image-preview hidden" alt="Preview da imagem do produto">
+            <span class="image-preview-text" id="productImagePreviewText">Cole a URL da imagem para visualizar.</span>
+          </div>
+          <label>Categoria</label><select id="productCategory" required></select>
+          <label>Badge</label><input id="productBadge" placeholder="Ex: Mais pedido">
+          <label><input id="productStatus" type="checkbox" checked style="width:auto"> Produto ativo</label>
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">Salvar</button>
+            <button class="btn btn-ghost" type="button" id="clearProductBtn">Limpar</button>
+          </div>
+          <p class="message" id="productMessage"></p>
+        </form>
+      </section>
+
+      <section class="grid hidden" id="categoriesView">
+        <div class="panel">
+          <h2>Categorias</h2>
+          <table>
+            <thead><tr><th>Nome</th><th>Descricao</th><th>Acoes</th></tr></thead>
+            <tbody id="categoriesTable"></tbody>
+          </table>
+        </div>
+        <form class="panel" id="categoryForm">
+          <h2 id="categoryFormTitle">Nova categoria</h2>
+          <input type="hidden" id="categoryId">
+          <label>Nome</label><input id="categoryName" required>
+          <label>Descricao</label><textarea id="categoryDescription"></textarea>
+          <div class="btn-row">
+            <button class="btn btn-primary" type="submit">Salvar</button>
+            <button class="btn btn-ghost" type="button" id="clearCategoryBtn">Limpar</button>
+          </div>
+          <p class="message" id="categoryMessage"></p>
+        </form>
+      </section>
+    </main>
+  </section>
+
+  <script>
+    const state = { products: [], categories: [] };
+    const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+    const productImageInput = document.getElementById("productImage");
+    const productImagePreview = document.getElementById("productImagePreview");
+    const productImagePreviewText = document.getElementById("productImagePreviewText");
+
+    async function api(path, options = {}) {
+      const response = await fetch(path, {
+        ...options,
+        headers: {
+          "Content-Type": "application/json",
+          ...(options.headers || {})
+        }
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(data.error || "Erro na requisicao.");
+      return data;
+    }
+
+    async function checkSession() {
+      const data = await api("/api/admin/me");
+      document.getElementById("loginView").classList.toggle("hidden", data.authenticated);
+      document.getElementById("appView").classList.toggle("hidden", !data.authenticated);
+      if (data.authenticated) {
+        await loadAll();
+      }
+    }
+
+    async function loadAll() {
+      await Promise.all([loadDashboard(), loadProducts(), loadCategories()]);
+    }
+
+    async function loadDashboard() {
+      const data = await api("/api/admin/dashboard");
+      document.getElementById("metricSales").textContent = money.format(data.totalSales);
+      document.getElementById("metricOrders").textContent = data.orderCount;
+      document.getElementById("metricProducts").textContent = data.activeProducts;
+      document.getElementById("metricCategories").textContent = data.categories;
+      document.getElementById("categoryMetrics").innerHTML = data.productsByCategory.map((row) =>
+        `<tr><td>${row.category}</td><td>${row.total}</td></tr>`
+      ).join("");
+    }
+
+    async function loadProducts() {
+      const data = await api("/api/admin/products");
+      state.products = data.products;
+      state.categories = data.categories;
+      renderProductCategoryOptions();
+      renderProducts();
+    }
+
+    async function loadCategories() {
+      const data = await api("/api/admin/categories");
+      state.categories = data.categories;
+      renderProductCategoryOptions();
+      renderCategories();
+    }
+
+    function categoryName(id) {
+      return state.categories.find((category) => category.id === id)?.name || "Sem categoria";
+    }
+
+    function renderProductCategoryOptions() {
+      document.getElementById("productCategory").innerHTML = state.categories
+        .map((category) => `<option value="${category.id}">${category.name}</option>`)
+        .join("");
+    }
+
+    function renderProducts() {
+      document.getElementById("productsTable").innerHTML = state.products.map((product) => `
+        <tr>
+          <td>${product.name}</td>
+          <td>
+            ${product.imageUrl
+              ? `<img class="product-thumb" src="${product.imageUrl}" alt="Imagem de ${product.name}" loading="lazy" onerror="this.outerHTML='<span class=&quot;product-thumb-empty&quot;>Imagem invalida</span>'">`
+              : `<span class="product-thumb-empty">Sem imagem</span>`}
+          </td>
+          <td>${categoryName(product.categoryId)}</td>
+          <td>${money.format(product.price)}</td>
+          <td><span class="status ${product.status ? "active" : ""}">${product.status ? "Ativo" : "Inativo"}</span></td>
+          <td class="table-actions">
+            <button class="btn btn-ghost" onclick="editProduct('${product.id}')">Editar</button>
+            <button class="btn btn-danger" onclick="deleteProduct('${product.id}')">Excluir</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    function renderImagePreview(url) {
+      const imageUrl = (url || "").trim();
+      if (!imageUrl) {
+        productImagePreview.classList.add("hidden");
+        productImagePreview.removeAttribute("src");
+        productImagePreviewText.textContent = "Cole a URL da imagem para visualizar.";
+        return;
+      }
+      productImagePreview.classList.remove("hidden");
+      productImagePreview.src = imageUrl;
+      productImagePreviewText.textContent = "Carregando preview...";
+    }
+
+    function renderCategories() {
+      document.getElementById("categoriesTable").innerHTML = state.categories.map((category) => `
+        <tr>
+          <td>${category.name}</td>
+          <td>${category.description || "-"}</td>
+          <td>
+            <button class="btn btn-ghost" onclick="editCategory('${category.id}')">Editar</button>
+            <button class="btn btn-danger" onclick="deleteCategory('${category.id}')">Excluir</button>
+          </td>
+        </tr>
+      `).join("");
+    }
+
+    window.editProduct = function(id) {
+      const product = state.products.find((item) => item.id === id);
+      document.getElementById("productFormTitle").textContent = "Editar produto";
+      document.getElementById("productId").value = product.id;
+      document.getElementById("productName").value = product.name;
+      document.getElementById("productDescription").value = product.description;
+      document.getElementById("productPrice").value = product.price;
+      document.getElementById("productImage").value = product.imageUrl;
+      renderImagePreview(product.imageUrl);
+      document.getElementById("productCategory").value = product.categoryId;
+      document.getElementById("productBadge").value = product.badge || "";
+      document.getElementById("productStatus").checked = product.status;
+    };
+
+    window.deleteProduct = async function(id) {
+      if (!confirm("Excluir este produto?")) return;
+      await api(`/api/admin/products/${encodeURIComponent(id)}`, { method: "DELETE" });
+      await loadAll();
+    };
+
+    window.editCategory = function(id) {
+      const category = state.categories.find((item) => item.id === id);
+      document.getElementById("categoryFormTitle").textContent = "Editar categoria";
+      document.getElementById("categoryId").value = category.id;
+      document.getElementById("categoryName").value = category.name;
+      document.getElementById("categoryDescription").value = category.description || "";
+    };
+
+    window.deleteCategory = async function(id) {
+      if (!confirm("Excluir esta categoria?")) return;
+      await api(`/api/admin/categories/${encodeURIComponent(id)}`, { method: "DELETE" });
+      await loadAll();
+    };
+
+    function clearProductForm() {
+      document.getElementById("productForm").reset();
+      document.getElementById("productFormTitle").textContent = "Novo produto";
+      document.getElementById("productId").value = "";
+      document.getElementById("productStatus").checked = true;
+      document.getElementById("productMessage").textContent = "";
+      renderImagePreview("");
+    }
+
+    function clearCategoryForm() {
+      document.getElementById("categoryForm").reset();
+      document.getElementById("categoryFormTitle").textContent = "Nova categoria";
+      document.getElementById("categoryId").value = "";
+      document.getElementById("categoryMessage").textContent = "";
+    }
+
+    document.getElementById("loginForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      try {
+        await api("/api/admin/login", {
+          method: "POST",
+          body: JSON.stringify({
+            user: document.getElementById("user").value,
+            password: document.getElementById("password").value
+          })
+        });
+        await checkSession();
+      } catch (error) {
+        document.getElementById("loginMessage").textContent = error.message;
+      }
+    });
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await api("/api/admin/logout", { method: "POST" });
+      await checkSession();
+    });
+
+    document.querySelectorAll("[data-view]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const view = button.dataset.view;
+        document.querySelectorAll("[data-view]").forEach((item) => item.classList.remove("active"));
+        button.classList.add("active");
+        document.getElementById("dashboardView").classList.toggle("hidden", view !== "dashboard");
+        document.getElementById("productsView").classList.toggle("hidden", view !== "products");
+        document.getElementById("categoriesView").classList.toggle("hidden", view !== "categories");
+        document.getElementById("pageTitle").textContent = view === "dashboard" ? "Dashboard" : view === "products" ? "Produtos" : "Categorias";
+      });
+    });
+
+    document.getElementById("productForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const id = document.getElementById("productId").value;
+      const payload = {
+        name: document.getElementById("productName").value,
+        description: document.getElementById("productDescription").value,
+        price: Number(document.getElementById("productPrice").value),
+        imageUrl: document.getElementById("productImage").value,
+        categoryId: document.getElementById("productCategory").value,
+        badge: document.getElementById("productBadge").value,
+        status: document.getElementById("productStatus").checked
+      };
+      try {
+        await api(id ? `/api/admin/products/${encodeURIComponent(id)}` : "/api/admin/products", {
+          method: id ? "PUT" : "POST",
+          body: JSON.stringify(payload)
+        });
+        clearProductForm();
+        await loadAll();
+        document.getElementById("productMessage").textContent = "Produto salvo com sucesso.";
+      } catch (error) {
+        document.getElementById("productMessage").textContent = error.message;
+      }
+    });
+
+    document.getElementById("categoryForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const id = document.getElementById("categoryId").value;
+      const payload = {
+        name: document.getElementById("categoryName").value,
+        description: document.getElementById("categoryDescription").value
+      };
+      try {
+        await api(id ? `/api/admin/categories/${encodeURIComponent(id)}` : "/api/admin/categories", {
+          method: id ? "PUT" : "POST",
+          body: JSON.stringify(payload)
+        });
+        clearCategoryForm();
+        await loadAll();
+        document.getElementById("categoryMessage").textContent = "Categoria salva com sucesso.";
+      } catch (error) {
+        document.getElementById("categoryMessage").textContent = error.message;
+      }
+    });
+
+    document.getElementById("clearProductBtn").addEventListener("click", clearProductForm);
+    document.getElementById("clearCategoryBtn").addEventListener("click", clearCategoryForm);
+    productImageInput.addEventListener("input", () => renderImagePreview(productImageInput.value));
+    productImagePreview.addEventListener("load", () => {
+      productImagePreviewText.textContent = "Preview carregado com sucesso.";
+    });
+    productImagePreview.addEventListener("error", () => {
+      productImagePreview.classList.add("hidden");
+      productImagePreview.removeAttribute("src");
+      productImagePreviewText.textContent = "Link invalido ou bloqueado. Use URL direta da imagem.";
+    });
+    renderImagePreview("");
+    checkSession();
+  </script>
+</body>
+</html>

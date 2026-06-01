@@ -1,0 +1,60 @@
+{
+  "categories": [
+    {
+      "id": "cat-perfumes",
+      "name": "Perfumes",
+      "description": "Fragrancias femininas, masculinas e unissex.",
+      "createdAt": "2026-05-31T00:00:00.000Z",
+      "updatedAt": "2026-05-31T00:00:00.000Z"
+    },
+    {
+      "id": "cat-kits",
+      "name": "Kits",
+      "description": "Kits de presente e autocuidado.",
+      "createdAt": "2026-05-31T00:00:00.000Z",
+      "updatedAt": "2026-05-31T00:00:00.000Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "prod-perfume-rose",
+      "name": "Perfume Rose Elegance",
+      "description": "Fragrancia feminina floral adocicada, ideal para dias marcantes e presentes especiais.",
+      "price": 89.9,
+      "imageUrl": "https://imgs.search.brave.com/gCrztZ18DblWGPucTHtGBmd01Xmr86uJAZkXVcURr2o/rs:fit:500:0:1:0/g:ce/aHR0cHM6Ly9tZWRp/YS5pc3RvY2twaG90/by5jb20vaWQvMTgz/Mzg4MzIwL3Bob3Rv/L3BlcmZ1bWUtYm90/dGxlLmpwZz9zPTYx/Mng2MTImdz0wJms9/MjAmYz1ZTURyY2RS/ZVhsdkRUSmROZS1z/SjFkaXI3MzFMeFA3/OFgwNXM3YmpkWEJr/PQ",
+      "categoryId": "cat-perfumes",
+      "status": true,
+      "badge": "Mais pedido",
+      "createdAt": "2026-05-31T00:00:00.000Z",
+      "updatedAt": "2026-05-31T19:20:41.303Z"
+    },
+    {
+      "id": "prod-perfume-gold",
+      "name": "Perfume Gold Charm",
+      "description": "Notas sofisticadas com toque amadeirado e elegante para usar a qualquer hora.",
+      "price": 99.9,
+      "imageUrl": "https://imgs.search.brave.com/V_dhur1L9rJ-0D517urK5QgF9BWQBFtrH6_XX3H3NEk/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/cGl4YWJheS5jb20v/cGhvdG8vMjAxNy8w/My8xNC8xMS8zOS9w/ZXJmdW1lLTIxNDI4/MTdfNjQwLmpwZw",
+      "categoryId": "cat-perfumes",
+      "status": true,
+      "badge": "Lancamento",
+      "createdAt": "2026-05-31T00:00:00.000Z",
+      "updatedAt": "2026-05-31T19:20:58.312Z"
+    },
+    {
+      "id": "prod-kit-autocuidado",
+      "name": "Kit Autocuidado",
+      "description": "Combinacao de produtos para cuidado pessoal, ideal para montar presentes personalizados.",
+      "price": 129.9,
+      "imageUrl": "assets/kit-cosmeticos.svg",
+      "categoryId": "cat-kits",
+      "status": true,
+      "badge": "Kit presente",
+      "createdAt": "2026-05-31T00:00:00.000Z",
+      "updatedAt": "2026-05-31T00:00:00.000Z"
+    }
+  ],
+  "metrics": {
+    "totalSales": 0,
+    "orderCount": 0
+  }
+}

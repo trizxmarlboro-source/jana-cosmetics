@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="132" height="40" viewBox="0 0 132 40" role="img" aria-labelledby="title desc">
+  <title id="title">Mastercard</title>
+  <desc id="desc">Bandeira Mastercard</desc>
+  <rect width="132" height="40" rx="8" fill="#fff" stroke="#e6d8e2"/>
+  <circle cx="43" cy="20" r="10" fill="#EB001B"/>
+  <circle cx="56" cy="20" r="10" fill="#FF5F00" fill-opacity=".95"/>
+  <text x="70" y="24" fill="#1a1118" font-family="Arial, sans-serif" font-size="10" font-weight="700">mastercard</text>
+</svg>

@@ -1,0 +1,14 @@
+{
+  "name": "jana-cosmeticos-payments",
+  "version": "1.0.0",
+  "description": "Base backend para teste Pix com MisticPay na Jana Cosmeticos.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node scripts/check-config.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

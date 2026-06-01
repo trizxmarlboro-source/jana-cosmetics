@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="104" height="40" viewBox="0 0 104 40" role="img" aria-labelledby="title desc">
+  <title id="title">Visa</title>
+  <desc id="desc">Bandeira Visa</desc>
+  <rect width="104" height="40" rx="8" fill="#fff" stroke="#e6d8e2"/>
+  <text x="22" y="27" fill="#1A1F71" font-family="Arial, sans-serif" font-size="20" font-weight="700" letter-spacing=".5">VISA</text>
+</svg>

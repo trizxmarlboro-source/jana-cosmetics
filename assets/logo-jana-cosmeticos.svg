@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 900" role="img" aria-labelledby="title desc">
+  <title id="title">Logo Jana Cosmeticos</title>
+  <desc id="desc">Logo circular rosa e dourada da Jana Cosmeticos com frascos de perfume.</desc>
+  <defs>
+    <linearGradient id="rose" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ff69b4"/>
+      <stop offset="1" stop-color="#b5155e"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffe3a3"/>
+      <stop offset="1" stop-color="#d9a441"/>
+    </linearGradient>
+  </defs>
+  <rect width="900" height="900" fill="#fff8f4"/>
+  <circle cx="450" cy="450" r="404" fill="#fff" stroke="url(#rose)" stroke-width="28"/>
+  <circle cx="450" cy="330" r="190" fill="#ffd6eb"/>
+  <path d="M338 310h224v262c0 70-57 127-127 127h30c-70 0-127-57-127-127V310z" fill="url(#rose)" opacity=".95"/>
+  <rect x="372" y="220" width="156" height="96" rx="26" fill="url(#gold)"/>
+  <rect x="392" y="172" width="116" height="64" rx="16" fill="#2e0d27"/>
+  <path d="M390 370c52-46 114-42 166 0M402 510c38 31 98 31 136 0" fill="none" stroke="#fff" stroke-width="20" stroke-linecap="round" opacity=".7"/>
+  <text x="450" y="615" text-anchor="middle" font-family="Georgia, serif" font-size="122" font-weight="700" font-style="italic" fill="#e0217a" stroke="#fff" stroke-width="10" paint-order="stroke">Jana</text>
+  <text x="450" y="705" text-anchor="middle" font-family="Georgia, serif" font-size="82" font-weight="700" fill="#1a1118">Cosmeticos</text>
+  <path d="M198 764h504" stroke="#d9a441" stroke-width="12" stroke-linecap="round"/>
+  <text x="450" y="820" text-anchor="middle" font-family="Arial, sans-serif" font-size="32" font-weight="800" fill="#7a5068">PERFUMES • BELEZA • AUTOCUIDADO</text>
+</svg>

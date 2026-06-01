@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 700" role="img" aria-labelledby="title desc">
+  <title id="title">Kit de cosmeticos</title>
+  <desc id="desc">Kit de cosmeticos com creme, perfume e batom.</desc>
+  <rect width="700" height="700" fill="#ffe5f1"/>
+  <ellipse cx="350" cy="612" rx="220" ry="40" fill="#b5155e" opacity=".16"/>
+  <rect x="132" y="310" width="170" height="250" rx="28" fill="#fff8f4" stroke="#e0217a" stroke-width="10"/>
+  <rect x="160" y="260" width="114" height="70" rx="18" fill="#e0217a"/>
+  <text x="217" y="450" text-anchor="middle" font-family="Georgia, serif" font-size="38" font-weight="700" fill="#e0217a">Body</text>
+  <rect x="330" y="190" width="130" height="370" rx="34" fill="#d9a441"/>
+  <rect x="358" y="132" width="74" height="74" rx="16" fill="#2e0d27"/>
+  <circle cx="395" cy="384" r="50" fill="#fff8f4" opacity=".86"/>
+  <text x="395" y="398" text-anchor="middle" font-family="Georgia, serif" font-size="31" font-weight="700" fill="#b5155e">Jana</text>
+  <rect x="492" y="290" width="78" height="270" rx="24" fill="#2e0d27"/>
+  <path d="M504 250h54l12 46h-78z" fill="#e0217a"/>
+  <rect x="502" y="392" width="58" height="120" rx="18" fill="#ff69b4"/>
+</svg>

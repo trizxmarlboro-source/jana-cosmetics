@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="92" height="40" viewBox="0 0 92 40" role="img" aria-labelledby="title desc">
+  <title id="title">Pix</title>
+  <desc id="desc">Bandeira Pix</desc>
+  <rect width="92" height="40" rx="8" fill="#fff" stroke="#d4ece8"/>
+  <g transform="translate(12 10)" fill="none" stroke="#32BCAD" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 0l6 6-6 6-6-6z"/>
+    <path d="M8 4l2 2-2 2-2-2z" fill="#32BCAD" stroke="none"/>
+  </g>
+  <text x="48" y="25" fill="#0c8d7a" font-family="Arial, sans-serif" font-size="14" font-weight="700">PIX</text>
+</svg>

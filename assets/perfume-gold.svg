@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 700" role="img" aria-labelledby="title desc">
+  <title id="title">Perfume Gold Charm</title>
+  <desc id="desc">Frasco de perfume dourado com detalhes rosa.</desc>
+  <rect width="700" height="700" fill="#fff2cf"/>
+  <ellipse cx="350" cy="612" rx="190" ry="36" fill="#8b6d24" opacity=".2"/>
+  <rect x="260" y="105" width="180" height="94" rx="24" fill="#2e0d27"/>
+  <rect x="298" y="62" width="104" height="58" rx="14" fill="#e0217a"/>
+  <path d="M190 260c0-48 39-87 87-87h146c48 0 87 39 87 87v236c0 66-54 120-120 120h-80c-66 0-120-54-120-120V260z" fill="#d9a441"/>
+  <path d="M226 282c38-44 86-66 144-66 42 0 78 14 108 42" fill="none" stroke="#fff8f4" stroke-width="22" stroke-linecap="round" opacity=".6"/>
+  <circle cx="350" cy="420" r="92" fill="#fff8f4" opacity=".92"/>
+  <text x="350" y="435" text-anchor="middle" font-family="Georgia, serif" font-size="48" font-weight="700" fill="#b5155e">Gold</text>
+</svg>

@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Detalhes do produto Jana Cosmeticos e checkout com Pix.">
+  <title>Produto | Jana Cosmeticos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rose: #ff0080;
+      --rose-dark: #cc0066;
+      --rose-soft: #ffe5f2;
+      --cream: #f7f7f7;
+      --ink: #121014;
+      --muted: #6e5a66;
+      --white: #fff;
+      --line: #f0d7e6;
+      --max: 1120px;
+    }
+
+    * { box-sizing: border-box; margin: 0; }
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: "Montserrat", sans-serif;
+      line-height: 1.45;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid rgba(224, 33, 122, 0.14);
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(10px);
+    }
+
+    .topbar-inner {
+      max-width: var(--max);
+      height: 80px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 800;
+    }
+
+    .brand img {
+      width: 48px;
+      height: 48px;
+      border: 2px solid rgba(224, 33, 122, 0.45);
+      border-radius: 50%;
+      object-fit: contain;
+      background: #fff;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 0;
+      border-radius: 8px;
+      min-height: 44px;
+      padding: 10px 18px;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform 160ms ease, background 160ms ease, box-shadow 160ms ease;
+    }
+
+    .btn-primary {
+      color: #fff;
+      background: var(--rose);
+      box-shadow: 0 12px 30px rgba(224, 33, 122, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--rose-dark);
+      transform: translateY(-1px);
+    }
+
+    .btn-outline {
+      border: 2px solid #1d141b;
+      background: transparent;
+      color: #1d141b;
+    }
+
+    .page {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding: 36px 24px 70px;
+      display: grid;
+      gap: 26px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 8px 24px rgba(19, 9, 15, 0.08);
+    }
+
+    .product-layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 420px) minmax(0, 1fr);
+      gap: 22px;
+      padding: 20px;
+      align-items: stretch;
+    }
+
+    .product-image-wrap {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 16px;
+      background: linear-gradient(135deg, #fff 20%, var(--rose-soft));
+      min-height: 360px;
+      display: grid;
+      place-items: center;
+    }
+
+    .product-image-wrap img {
+      max-height: 320px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .product-info {
+      padding: 6px 6px 6px 2px;
+      display: grid;
+      align-content: start;
+      gap: 14px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-self: start;
+      border-radius: 999px;
+      border: 1px solid #f6c18d;
+      padding: 6px 11px;
+      background: #ffefcc;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: clamp(1.9rem, 4vw, 2.8rem);
+      line-height: 1.1;
+      margin: 0;
+    }
+
+    .product-desc {
+      color: var(--muted);
+      font-size: 1rem;
+    }
+
+    .price {
+      font-size: 2rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .payment-card {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 20px;
+    }
+
+    .payment-copy strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 1rem;
+    }
+
+    .payment-copy span {
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 600;
+    }
+
+    .payment-logos {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .payment-logos img {
+      width: auto;
+      height: 40px;
+    }
+
+    .checkout-card {
+      padding: 20px;
+    }
+
+    .checkout-head {
+      margin-bottom: 12px;
+    }
+
+    .checkout-head h2 {
+      margin-bottom: 4px;
+      font-size: 1.5rem;
+    }
+
+    .checkout-head p {
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .checkout-summary {
+      margin: 14px 0 16px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: #fff9fd;
+    }
+
+    .checkout-summary strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .checkout-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .payment-methods {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 4px;
+    }
+
+    .payment-option {
+      border: 1px solid #e9d8e4;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: grid;
+      gap: 2px;
+      background: #fff;
+      cursor: pointer;
+    }
+
+    .payment-option input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .payment-option .method-name {
+      font-size: 15px;
+      font-weight: 800;
+      color: #20161d;
+    }
+
+    .payment-option small {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .payment-option.active {
+      border-color: rgba(224, 33, 122, 0.55);
+      background: #fff6fb;
+    }
+
+    .payment-option.disabled {
+      border-style: dashed;
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    .payment-option.disabled .method-name {
+      text-decoration: line-through;
+    }
+
+    .checkout-form label {
+      display: grid;
+      gap: 5px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #3f2e38;
+    }
+
+    .checkout-form input {
+      border: 1px solid #e9d8e4;
+      border-radius: 8px;
+      height: 42px;
+      padding: 0 12px;
+      font: inherit;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .checkout-result {
+      display: none;
+      margin-top: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: #fff;
+      padding: 12px;
+    }
+
+    .checkout-result.show { display: block; }
+
+    .checkout-result strong {
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .checkout-result p {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 8px;
+    }
+
+    .checkout-result textarea {
+      width: 100%;
+      min-height: 146px;
+      border: 1px solid #ecdde8;
+      border-radius: 8px;
+      padding: 10px;
+      font: 500 0.84rem/1.35 "Courier New", monospace;
+      resize: vertical;
+      color: #2c1d27;
+      background: #fffbfe;
+    }
+
+    .empty-state {
+      padding: 40px 24px;
+      text-align: center;
+    }
+
+    .empty-state p {
+      margin-bottom: 14px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      .product-layout {
+        grid-template-columns: 1fr;
+      }
+
+      .product-image-wrap {
+        min-height: 280px;
+      }
+
+      .payment-methods {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/index.html#produtos">
+        <img src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+        <span>Jana Cosmeticos</span>
+      </a>
+      <a class="btn btn-outline" href="/index.html#produtos">Voltar para vitrine</a>
+    </div>
+  </header>
+
+  <main class="page">
+    <section class="card product-layout" id="productLayout">
+      <div class="product-image-wrap">
+        <img id="productImage" src="assets/perfume-rose.svg" alt="Produto Jana Cosmeticos">
+      </div>
+      <div class="product-info">
+        <span class="badge" id="productBadge">Destaque</span>
+        <h1 id="productName">Carregando produto...</h1>
+        <p class="product-desc" id="productDescription">Aguarde enquanto carregamos os detalhes.</p>
+        <strong class="price" id="productPrice">R$ 0,00</strong>
+        <div class="actions">
+          <a class="btn btn-outline" href="/index.html#produtos">Ver outros produtos</a>
+          <button class="btn btn-primary" id="goCheckoutBtn" type="button">Ir para checkout</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="card payment-card" aria-label="Formas de pagamento">
+      <div class="payment-copy">
+        <strong>Aceitamos cartao e Pix.</strong>
+        <span>Mastercard, Visa e Pix para facilitar sua compra.</span>
+      </div>
+      <div class="payment-logos">
+        <img src="assets/mastercard-badge.svg" alt="Bandeira Mastercard">
+        <img src="assets/visa-badge.svg" alt="Bandeira Visa">
+        <img src="assets/pix-badge.svg" alt="Pagamento Pix">
+      </div>
+    </section>
+
+    <section class="card checkout-card" id="checkout">
+      <div class="checkout-head">
+        <h2>Finalizar compra</h2>
+        <p>Preencha seus dados para gerar a requisicao Pix da MisticPay.</p>
+      </div>
+      <div class="checkout-summary">
+        <strong id="checkoutProductName">Produto</strong>
+        <span id="checkoutProductPrice">R$ 0,00</span>
+      </div>
+
+      <form class="checkout-form" id="checkoutForm">
+        <input type="hidden" id="checkoutProductId">
+        <div class="payment-methods" role="radiogroup" aria-label="Forma de pagamento">
+          <label class="payment-option active">
+            <input type="radio" name="paymentMethod" value="pix" checked>
+            <span class="method-name">Pix</span>
+            <small>Disponivel e integrado com MisticPay</small>
+          </label>
+          <label class="payment-option disabled" aria-disabled="true">
+            <input type="radio" name="paymentMethod" value="card" disabled>
+            <span class="method-name">Cartao</span>
+            <small>Nao disponivel no momento</small>
+          </label>
+        </div>
+        <label>
+          Nome do comprador
+          <input id="buyerName" name="buyerName" autocomplete="name" required>
+        </label>
+        <label>
+          CEP
+          <input id="buyerCep" name="cep" inputmode="numeric" placeholder="00000-000" required>
+        </label>
+        <label>
+          Nome da rua
+          <input id="buyerStreet" name="street" autocomplete="street-address" required>
+        </label>
+        <button class="btn btn-primary" type="submit" id="checkoutSubmit">Ir ao pagamento</button>
+      </form>
+
+      <div class="checkout-result" id="checkoutResult">
+        <strong id="checkoutResultTitle">Pix gerado</strong>
+        <p id="checkoutResultText">Confira os dados retornados pela MisticPay.</p>
+        <textarea id="checkoutPayload" readonly></textarea>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+    const params = new URLSearchParams(window.location.search);
+    const selectedId = params.get("id");
+
+    const productImage = document.getElementById("productImage");
+    const productName = document.getElementById("productName");
+    const productDescription = document.getElementById("productDescription");
+    const productPrice = document.getElementById("productPrice");
+    const productBadge = document.getElementById("productBadge");
+    const goCheckoutBtn = document.getElementById("goCheckoutBtn");
+
+    const checkoutProductId = document.getElementById("checkoutProductId");
+    const checkoutProductName = document.getElementById("checkoutProductName");
+    const checkoutProductPrice = document.getElementById("checkoutProductPrice");
+    const checkoutForm = document.getElementById("checkoutForm");
+    const checkoutSubmit = document.getElementById("checkoutSubmit");
+    const checkoutResult = document.getElementById("checkoutResult");
+    const checkoutPayload = document.getElementById("checkoutPayload");
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function showNotFound(message) {
+      document.querySelector(".page").innerHTML = `
+        <section class="card empty-state">
+          <h1>Produto nao encontrado</h1>
+          <p>${escapeHtml(message)}</p>
+          <a class="btn btn-primary" href="/index.html#produtos">Voltar para vitrine</a>
+        </section>
+      `;
+    }
+
+    function applyProduct(product) {
+      document.title = `${product.name} | Jana Cosmeticos`;
+      productImage.src = product.imageUrl;
+      productImage.alt = product.name;
+      productImage.onerror = () => {
+        productImage.src = "assets/kit-cosmeticos.svg";
+      };
+      productName.textContent = product.name;
+      productDescription.textContent = product.description;
+      productPrice.textContent = money.format(Number(product.price));
+
+      if (product.badge) {
+        productBadge.textContent = product.badge;
+      } else {
+        productBadge.style.display = "none";
+      }
+
+      checkoutProductId.value = product.id;
+      checkoutProductName.textContent = product.name;
+      checkoutProductPrice.textContent = money.format(Number(product.price));
+    }
+
+    async function loadProduct() {
+      try {
+        const response = await fetch("/api/catalog/products");
+        const data = await response.json();
+        if (!response.ok || !Array.isArray(data.products)) {
+          throw new Error("Nao foi possivel carregar o catalogo.");
+        }
+
+        const product = data.products.find((item) => item.id === selectedId);
+        if (!product) {
+          showNotFound("Escolha um produto na vitrine para continuar.");
+          return;
+        }
+
+        applyProduct(product);
+      } catch (error) {
+        showNotFound(error.message || "Falha ao carregar produto.");
+      }
+    }
+
+    goCheckoutBtn.addEventListener("click", () => {
+      document.getElementById("checkout").scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => document.getElementById("buyerName").focus(), 250);
+    });
+
+    checkoutForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const paymentMethod = checkoutForm.querySelector("input[name='paymentMethod']:checked")?.value;
+      if (paymentMethod !== "pix") {
+        document.getElementById("checkoutResultTitle").textContent = "Forma de pagamento indisponivel";
+        document.getElementById("checkoutResultText").textContent = "No momento, apenas Pix esta ativo para este checkout.";
+        checkoutPayload.value = "";
+        checkoutResult.classList.add("show");
+        return;
+      }
+
+      checkoutSubmit.disabled = true;
+      checkoutSubmit.textContent = "Indo ao pagamento...";
+      checkoutResult.classList.remove("show");
+
+      try {
+        const response = await fetch("/api/checkout/pix", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: checkoutProductId.value,
+            buyerName: document.getElementById("buyerName").value,
+            cep: document.getElementById("buyerCep").value,
+            street: document.getElementById("buyerStreet").value
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Nao foi possivel gerar o Pix.");
+
+        document.getElementById("checkoutResultTitle").textContent = "Pix solicitado com sucesso";
+        document.getElementById("checkoutResultText").textContent = "A resposta da MisticPay esta abaixo. Use o codigo ou QR retornado para pagamento.";
+        checkoutPayload.value = JSON.stringify(data, null, 2);
+        checkoutResult.classList.add("show");
+      } catch (error) {
+        document.getElementById("checkoutResultTitle").textContent = "Erro ao gerar Pix";
+        document.getElementById("checkoutResultText").textContent = error.message;
+        checkoutPayload.value = "";
+        checkoutResult.classList.add("show");
+      } finally {
+        checkoutSubmit.disabled = false;
+        checkoutSubmit.textContent = "Ir ao pagamento";
+      }
+    });
+
+    loadProduct();
+  </script>
+</body>
+</html>

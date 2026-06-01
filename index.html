@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Jana Cosmeticos: perfumes, fragrancias e cosmeticos selecionados para realcar sua beleza todos os dias.">
+  <title>Jana Cosmeticos | Perfumes e beleza para o seu momento</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --rose: #ff0080;
+      --rose-dark: #cc0066;
+      --rose-soft: #ffe5f2;
+      --cream: #f7f7f7;
+      --sand: #ffffff;
+      --ink: #000000;
+      --text: #000000;
+      --muted: #727273;
+      --gold: #d9a441;
+      --white: #ffffff;
+      --radius: 8px;
+      --shadow: 0 4px 5px rgba(0,0,0,.1);
+      --soft-shadow: 0 2px 4px rgba(0,0,0,.05);
+      --max: 1160px;
+    }
+
+    * { box-sizing: border-box; margin: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      color: var(--text);
+      background: var(--white);
+      font-family: "Montserrat", sans-serif;
+      line-height: 1.5;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      pointer-events: none;
+      opacity: 0.035;
+      background-image: radial-gradient(circle, #1a1118 0.7px, transparent 0.8px);
+      background-size: 18px 18px;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    img { display: block; max-width: 100%; }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(255, 249, 246, 0.88);
+      border-bottom: 1px solid rgba(224, 33, 122, 0.12);
+      backdrop-filter: blur(16px);
+    }
+
+    .nav-inner {
+      max-width: var(--max);
+      height: 84px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--ink);
+      font-weight: 900;
+    }
+
+    .brand img {
+      width: 54px;
+      height: 54px;
+      border: 2px solid rgba(224, 33, 122, 0.5);
+      border-radius: 50%;
+      object-fit: contain;
+      background: var(--white);
+    }
+
+    .brand strong {
+      display: block;
+      font-family: "Century Gothic", "Montserrat", sans-serif;
+      font-size: 1.28rem;
+      font-weight: 700;
+      line-height: 1;
+      text-transform: uppercase;
+    }
+
+    .brand span {
+      display: block;
+      color: var(--rose);
+      font-family: "Montserrat", sans-serif;
+      font-size: 0.8rem;
+      font-weight: 500;
+      line-height: 1.1;
+      letter-spacing: 0.05em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .nav-links a {
+      position: relative;
+      padding-bottom: 4px;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 2px;
+      border-radius: 999px;
+      background: var(--rose);
+      transition: width 180ms ease;
+    }
+
+    .nav-links a:hover { color: var(--rose); }
+    .nav-links a:hover::after { width: 100%; }
+
+    .btn {
+      display: inline-flex;
+      min-height: 46px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 0;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-weight: 800;
+      line-height: 1;
+      font: inherit;
+      cursor: pointer;
+      transition: transform 180ms ease, background 180ms ease, box-shadow 180ms ease;
+    }
+
+    .btn-primary {
+      color: var(--white);
+      background: var(--rose);
+      box-shadow: 0 10px 28px rgba(224, 33, 122, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: var(--rose-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 14px 34px rgba(224, 33, 122, 0.36);
+    }
+
+    .btn-outline {
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      background: rgba(255, 255, 255, 0.52);
+    }
+
+    .btn-outline:hover {
+      color: var(--white);
+      background: var(--ink);
+      transform: translateY(-2px);
+    }
+
+    .hero {
+      max-width: var(--max);
+      min-height: calc(100svh - 84px);
+      margin: 0 auto;
+      padding: 76px 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.92fr);
+      align-items: center;
+      gap: 64px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      margin-bottom: 18px;
+      border: 1px solid rgba(224, 33, 122, 0.18);
+      border-radius: 999px;
+      padding: 7px 14px;
+      color: var(--rose-dark);
+      background: rgba(255, 214, 235, 0.72);
+      font-size: 0.76rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3, p { margin-top: 0; }
+
+    h1 {
+      max-width: 720px;
+      margin-bottom: 22px;
+      color: var(--ink);
+      font-family: "Century Gothic", "Montserrat", sans-serif;
+      font-size: clamp(3rem, 6vw, 5rem);
+      font-weight: 700;
+      line-height: 1.1;
+      text-transform: uppercase;
+    }
+
+    h1 em, h2 em {
+      color: var(--rose);
+      font-style: normal;
+    }
+
+    .hero-copy {
+      max-width: 560px;
+      margin-bottom: 34px;
+      color: #6a4358;
+      font-size: 1.1rem;
+    }
+
+    .hero-actions,
+    .hero-kicker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+    }
+
+    .hero-kicker {
+      margin-top: 28px;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      font-weight: 700;
+    }
+
+    .hero-kicker span {
+      border: 1px solid rgba(224, 33, 122, 0.14);
+      border-radius: 999px;
+      padding: 8px 12px;
+      background: rgba(255, 255, 255, 0.62);
+    }
+
+    .hero-visual {
+      position: relative;
+      min-height: 540px;
+      display: grid;
+      place-items: center;
+    }
+
+    .hero-visual::before {
+      content: "";
+      position: absolute;
+      width: 104%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 36% 30%, rgba(255, 214, 235, 0.95), transparent 38%),
+        radial-gradient(circle at 70% 68%, rgba(217, 164, 65, 0.28), transparent 42%);
+      filter: blur(16px);
+    }
+
+    .hero-card {
+      position: relative;
+      width: min(100%, 520px);
+      border: 1px solid rgba(224, 33, 122, 0.13);
+      border-radius: 42px;
+      padding: 34px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.78), rgba(255, 244, 249, 0.92)),
+        rgba(255, 255, 255, 0.6);
+      box-shadow: 0 28px 70px rgba(46, 13, 39, 0.16);
+      backdrop-filter: blur(14px);
+    }
+
+    .hero-card img {
+      width: 100%;
+      filter: drop-shadow(0 28px 42px rgba(46, 13, 39, 0.2));
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .hero-note {
+      position: absolute;
+      right: -10px;
+      bottom: 42px;
+      max-width: 190px;
+      border: 1px solid rgba(217, 164, 65, 0.36);
+      border-radius: 22px;
+      padding: 14px 16px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.86);
+      box-shadow: var(--soft-shadow);
+      font-size: 0.86rem;
+      font-weight: 700;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .marquee {
+      overflow: hidden;
+      color: var(--white);
+      background: linear-gradient(90deg, var(--rose-dark), var(--rose), #ef6baa);
+      padding: 14px 0;
+    }
+
+    .marquee-track {
+      display: flex;
+      width: max-content;
+      animation: marquee 24s linear infinite;
+    }
+
+    .marquee span {
+      padding: 0 28px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+
+    .features, .section-inner, .about, .contact-inner {
+      max-width: var(--max);
+      margin: 0 auto;
+      padding-right: 24px;
+      padding-left: 24px;
+    }
+
+    .features {
+      padding-top: 82px;
+      padding-bottom: 82px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+    }
+
+    .feature-card, .product-card, .contact-card {
+      border: 1px solid rgba(224, 33, 122, 0.1);
+      border-radius: var(--radius);
+      background: rgba(255, 255, 255, 0.82);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(12px);
+    }
+
+    .feature-card {
+      padding: 32px;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 24px 58px rgba(30, 5, 25, 0.14);
+    }
+
+    .feature-icon {
+      width: 54px;
+      height: 54px;
+      margin-bottom: 18px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: var(--rose-soft);
+      font-size: 1.45rem;
+    }
+
+    .feature-card h3, .product-card h3 {
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-family: "Century Gothic", "Montserrat", sans-serif;
+      font-weight: 700;
+      font-size: 1.28rem;
+    }
+
+    .feature-card p, .product-card p, .section-desc, .about p, .contact-card p {
+      color: var(--muted);
+    }
+
+    .products {
+      padding: 84px 0;
+      background:
+        radial-gradient(circle at 80% 8%, rgba(224, 33, 122, 0.12), transparent 28rem),
+        var(--sand);
+    }
+
+    .section-header {
+      max-width: 680px;
+      margin: 0 auto 46px;
+      text-align: center;
+    }
+
+    h2 {
+      margin-bottom: 14px;
+      color: var(--ink);
+      font-family: "Century Gothic", "Montserrat", sans-serif;
+      font-size: clamp(2rem, 3vw, 2.5rem);
+      font-weight: 700;
+      text-transform: uppercase;
+      line-height: 1.1;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 26px;
+    }
+
+    .product-card {
+      overflow: hidden;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .product-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 24px 58px rgba(30, 5, 25, 0.17);
+    }
+
+    .product-image {
+      position: relative;
+      height: 300px;
+      display: grid;
+      place-items: center;
+      background:
+        radial-gradient(circle at 50% 26%, rgba(255, 255, 255, 0.8), transparent 38%),
+        linear-gradient(135deg, rgba(255, 214, 235, 0.95), rgba(255, 248, 244, 0.86)),
+        var(--rose-soft);
+    }
+
+    .product-image img {
+      width: auto;
+      height: 242px;
+      object-fit: contain;
+    }
+
+    .badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      border-radius: 999px;
+      padding: 6px 12px;
+      color: var(--ink);
+      background: linear-gradient(135deg, #ffe3a3, var(--gold));
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .product-body { padding: 28px; }
+
+    .product-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .price {
+      color: var(--ink);
+      font-family: "Montserrat", sans-serif;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+
+    .about {
+      padding-top: 92px;
+      padding-bottom: 92px;
+      display: grid;
+      grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1fr);
+      align-items: center;
+      gap: 58px;
+    }
+
+    .about-logo {
+      border-radius: 40px;
+      padding: 10px;
+      background: var(--white);
+      box-shadow: var(--shadow);
+    }
+
+    .about-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 26px;
+      padding: 0;
+      list-style: none;
+    }
+
+    .about-list li::before {
+      content: "✦";
+      margin-right: 10px;
+      color: var(--rose);
+    }
+
+    .contact {
+      padding: 84px 0;
+      background:
+        linear-gradient(135deg, rgba(46, 13, 39, 0.98), rgba(122, 20, 78, 0.96)),
+        var(--ink);
+    }
+
+    .contact-card {
+      padding: 46px;
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 34px;
+      color: var(--white);
+      background:
+        radial-gradient(circle at 90% 20%, rgba(255, 214, 235, 0.22), transparent 18rem),
+        rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+
+    .contact-card h2,
+    .contact-card p,
+    .contact-card .eyebrow {
+      color: var(--white);
+    }
+
+    .contact-actions {
+      display: grid;
+      gap: 12px;
+      min-width: 220px;
+    }
+
+    .contact-card .btn-outline {
+      color: var(--white);
+      border-color: rgba(255, 255, 255, 0.58);
+    }
+
+    .payment-strip {
+      max-width: var(--max);
+      margin: 40px auto 0;
+      padding: 0 24px;
+    }
+
+    .payment-card {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      border: 1px solid rgba(224, 33, 122, 0.18);
+      border-radius: 16px;
+      padding: 18px 22px;
+      background: #fff;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .payment-copy strong {
+      display: block;
+      margin-bottom: 4px;
+      color: var(--ink);
+      font-size: 1rem;
+      font-weight: 800;
+    }
+
+    .payment-copy span {
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .payment-logos {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .payment-logos img {
+      width: auto;
+      height: 40px;
+    }
+
+    .footer {
+      padding: 34px 24px;
+      color: rgba(255, 255, 255, 0.68);
+      background: var(--ink);
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    .footer strong {
+      color: var(--white);
+      font-family: "Century Gothic", "Montserrat", sans-serif;
+      font-style: normal;
+      font-weight: 700;
+    }
+
+    .checkout-modal {
+      position: fixed;
+      inset: 0;
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(26, 17, 24, 0.58);
+      backdrop-filter: blur(10px);
+    }
+
+    .checkout-modal.open { display: flex; }
+
+    .checkout-dialog {
+      width: min(100%, 520px);
+      max-height: calc(100vh - 48px);
+      overflow: auto;
+      border: 1px solid rgba(224, 33, 122, 0.16);
+      border-radius: 30px;
+      padding: 28px;
+      background: var(--cream);
+      box-shadow: 0 28px 80px rgba(0, 0, 0, 0.24);
+    }
+
+    .checkout-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .checkout-close {
+      width: 42px;
+      height: 42px;
+      border: 0;
+      border-radius: 50%;
+      color: var(--ink);
+      background: var(--white);
+      cursor: pointer;
+      font-size: 24px;
+      line-height: 1;
+      box-shadow: var(--soft-shadow);
+    }
+
+    .checkout-summary {
+      margin-bottom: 18px;
+      border: 1px solid rgba(224, 33, 122, 0.12);
+      border-radius: 20px;
+      padding: 14px 16px;
+      background: rgba(255, 255, 255, 0.72);
+    }
+
+    .checkout-summary strong {
+      display: block;
+      color: var(--ink);
+      font-family: "Century Gothic", "Montserrat", sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .checkout-form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .checkout-form label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-weight: 800;
+    }
+
+    .checkout-form input {
+      width: 100%;
+      border: 1px solid rgba(224, 33, 122, 0.16);
+      border-radius: 14px;
+      padding: 13px 14px;
+      color: var(--ink);
+      background: var(--white);
+      font: inherit;
+    }
+
+    .checkout-form .btn {
+      border: 0;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+
+    .checkout-result {
+      display: none;
+      margin-top: 18px;
+      border: 1px solid rgba(224, 33, 122, 0.14);
+      border-radius: 20px;
+      padding: 16px;
+      color: var(--ink);
+      background: rgba(255, 255, 255, 0.8);
+    }
+
+    .checkout-result.show { display: block; }
+
+    .checkout-result textarea {
+      width: 100%;
+      min-height: 110px;
+      margin-top: 10px;
+      border: 1px solid rgba(224, 33, 122, 0.18);
+      border-radius: 14px;
+      padding: 12px;
+      resize: vertical;
+      font: 13px Consolas, monospace;
+    }
+
+    @media (max-width: 920px) {
+      .nav-links { display: none; }
+      .hero, .about, .contact-card { grid-template-columns: 1fr; }
+      .hero {
+        min-height: auto;
+        text-align: center;
+      }
+      .hero-visual { min-height: auto; }
+      .hero-note { display: none; }
+      .hero-copy, .hero-actions, .hero-kicker {
+        margin-right: auto;
+        margin-left: auto;
+        justify-content: center;
+      }
+      .features, .product-grid { grid-template-columns: 1fr; }
+      .contact-actions { width: 100%; }
+    }
+
+    @media (max-width: 560px) {
+      .nav-inner {
+        height: auto;
+        padding-top: 14px;
+        padding-bottom: 14px;
+        flex-wrap: wrap;
+      }
+      .nav .btn { width: 100%; }
+      h1 { font-size: 3.2rem; }
+      .hero { padding-top: 48px; }
+      .contact-card { padding: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <nav class="nav-inner" aria-label="Navegacao principal">
+      <a class="brand" href="#inicio" aria-label="Jana Cosmeticos - inicio">
+        <img src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+        <span>
+          <strong>Jana Cosmeticos</strong>
+          beleza em cada detalhe
+        </span>
+      </a>
+      <div class="nav-links">
+        <a href="#produtos">Produtos</a>
+        <a href="#favoritos">Favoritos</a>
+        <a href="#sobre">Sobre</a>
+        <a href="#contato">Contato</a>
+      </div>
+      <a class="btn btn-primary" href="#contato">Comprar agora</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero" id="inicio">
+      <div>
+        <span class="eyebrow">Perfumes e cosmeticos selecionados</span>
+        <h1>Realce sua beleza com <em>Jana Cosmeticos</em></h1>
+        <p class="hero-copy">Fragrancias marcantes, produtos de cuidado pessoal e cosmeticos escolhidos para transformar sua rotina em um ritual de autoestima.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#produtos">Ver produtos</a>
+          <a class="btn btn-outline" href="#sobre">Conhecer a marca</a>
+        </div>
+        <div class="hero-kicker" aria-label="Destaques da loja">
+          <span>Curadoria personalizada</span>
+          <span>Presentes especiais</span>
+          <span>Entrega combinada</span>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="hero-card">
+          <img src="assets/logo-jana-cosmeticos.svg" alt="Jana Cosmeticos com frascos de perfume">
+          <div class="hero-note">Fragrancias para marcar presenca sem perder delicadeza.</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="marquee" aria-hidden="true">
+      <div class="marquee-track">
+        <span>Perfumes importados ✦</span>
+        <span>Cosmeticos selecionados ✦</span>
+        <span>Fragrancias femininas ✦</span>
+        <span>Presentes especiais ✦</span>
+        <span>Beleza todos os dias ✦</span>
+        <span>Perfumes importados ✦</span>
+        <span>Cosmeticos selecionados ✦</span>
+        <span>Fragrancias femininas ✦</span>
+        <span>Presentes especiais ✦</span>
+        <span>Beleza todos os dias ✦</span>
+      </div>
+    </section>
+
+    <section class="features" aria-label="Diferenciais">
+      <article class="feature-card">
+        <div class="feature-icon">✦</div>
+        <h3>Fragrancias escolhidas</h3>
+        <p>Produtos selecionados para quem busca presenca, delicadeza e uma assinatura olfativa especial.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon">♡</div>
+        <h3>Beleza com carinho</h3>
+        <p>Opcoes para autocuidado, presente e rotina, com atendimento proximo e consultivo.</p>
+      </article>
+      <article class="feature-card">
+        <div class="feature-icon">💬</div>
+        <h3>Compra facil</h3>
+        <p>Fale pelo WhatsApp para consultar disponibilidade, valores, kits e indicacoes personalizadas.</p>
+      </article>
+    </section>
+
+    <section class="products" id="produtos">
+      <div class="section-inner">
+        <div class="section-header">
+          <span class="eyebrow">Nossa vitrine</span>
+          <h2>Produtos em <em>destaque</em></h2>
+          <p class="section-desc">Uma selecao inicial para apresentar perfumes e cosmeticos da Jana Cosmeticos.</p>
+        </div>
+        <div class="product-grid" id="productGrid">
+          <article class="product-card">
+            <div class="product-image">
+              <img src="assets/perfume-rose.svg" alt="Perfume Rose Elegance">
+              <span class="badge">Mais pedido</span>
+            </div>
+            <div class="product-body">
+              <h3>Perfume Rose Elegance</h3>
+              <p>Fragrancia feminina floral adocicada, ideal para dias marcantes e presentes especiais.</p>
+              <div class="product-meta">
+                <span class="price">R$ 89,90</span>
+                <a class="btn btn-primary" href="produto.html?id=prod-perfume-rose">Comprar</a>
+              </div>
+            </div>
+          </article>
+          <article class="product-card">
+            <div class="product-image">
+              <img src="assets/perfume-gold.svg" alt="Perfume Gold Charm">
+              <span class="badge">Lancamento</span>
+            </div>
+            <div class="product-body">
+              <h3>Perfume Gold Charm</h3>
+              <p>Notas sofisticadas com toque amadeirado e elegante para usar a qualquer hora.</p>
+              <div class="product-meta">
+                <span class="price">R$ 99,90</span>
+                <a class="btn btn-primary" href="produto.html?id=prod-perfume-gold">Comprar</a>
+              </div>
+            </div>
+          </article>
+          <article class="product-card">
+            <div class="product-image">
+              <img src="assets/kit-cosmeticos.svg" alt="Kit de cosmeticos Jana Cosmeticos">
+              <span class="badge">Kit presente</span>
+            </div>
+            <div class="product-body">
+              <h3>Kit Autocuidado</h3>
+              <p>Combinacao de produtos para cuidado pessoal, ideal para montar presentes personalizados.</p>
+              <div class="product-meta">
+                <span class="price">R$ 129,90</span>
+                <a class="btn btn-primary" href="produto.html?id=prod-kit-autocuidado">Comprar</a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="payment-strip" aria-label="Formas de pagamento">
+      <div class="payment-card">
+        <div class="payment-copy">
+          <strong>Aceitamos cartao e Pix.</strong>
+          <span>Mastercard, Visa e Pix para facilitar sua compra.</span>
+        </div>
+        <div class="payment-logos">
+          <img src="assets/mastercard-badge.svg" alt="Bandeira Mastercard">
+          <img src="assets/visa-badge.svg" alt="Bandeira Visa">
+          <img src="assets/pix-badge.svg" alt="Pagamento Pix">
+        </div>
+      </div>
+    </section>
+
+    <section class="about" id="sobre">
+      <img class="about-logo" src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+      <div>
+        <span class="eyebrow">Sobre nos</span>
+        <h2>Uma curadoria de beleza feita para <em>voce</em></h2>
+        <p>A Jana Cosmeticos nasceu para aproximar clientes de perfumes e cosmeticos que combinam com estilo, personalidade e rotina. Aqui, cada produto e escolhido com cuidado para ajudar voce a se sentir ainda mais confiante.</p>
+        <ul class="about-list">
+          <li>Perfumes femininos, masculinos e unissex</li>
+          <li>Kits para presente e autocuidado</li>
+          <li>Atendimento personalizado pelo WhatsApp</li>
+          <li>Produtos para rotina, beleza e bem-estar</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="products" id="favoritos">
+      <div class="section-inner">
+        <div class="section-header">
+          <span class="eyebrow">Favoritos</span>
+          <h2>Escolhas para cada <em>momento</em></h2>
+          <p class="section-desc">Use esta area para divulgar linhas, promocoes, kits da semana ou produtos mais vendidos.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contato">
+      <div class="contact-inner">
+        <div class="contact-card">
+          <div>
+            <span class="eyebrow">Fale com a gente</span>
+            <h2>Quer escolher seu perfume?</h2>
+            <p>Chame no WhatsApp para consultar fragrancias disponiveis, kits, precos e indicacoes para presente.</p>
+          </div>
+          <div class="contact-actions">
+            <a class="btn btn-primary" href="https://wa.me/5500000000000">WhatsApp</a>
+            <a class="btn btn-outline" href="tel:+5500000000000">Telefone</a>
+            <a class="btn btn-outline" href="#produtos">Ver vitrine</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><strong>Jana Cosmeticos</strong> · © 2026 Todos os direitos reservados · Beleza em cada detalhe</p>
+  </footer>
+
+  <div class="checkout-modal" id="checkoutModal" aria-hidden="true">
+    <div class="checkout-dialog" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+      <div class="checkout-top">
+        <div>
+          <span class="eyebrow">Checkout Pix</span>
+          <h2 id="checkoutTitle">Finalizar compra</h2>
+        </div>
+        <button class="checkout-close" type="button" id="checkoutClose" aria-label="Fechar checkout">×</button>
+      </div>
+
+      <div class="checkout-summary">
+        <strong id="checkoutProductName">Produto</strong>
+        <span id="checkoutProductPrice">R$ 0,00</span>
+      </div>
+
+      <form class="checkout-form" id="checkoutForm">
+        <input type="hidden" id="checkoutProductId">
+        <label>
+          Nome do comprador
+          <input id="buyerName" name="buyerName" autocomplete="name" required>
+        </label>
+        <label>
+          CEP
+          <input id="buyerCep" name="cep" inputmode="numeric" placeholder="00000-000" required>
+        </label>
+        <label>
+          Nome da rua
+          <input id="buyerStreet" name="street" autocomplete="street-address" required>
+        </label>
+        <button class="btn btn-primary" type="submit" id="checkoutSubmit">Ir ao pagamento</button>
+      </form>
+
+      <div class="checkout-result" id="checkoutResult">
+        <strong id="checkoutResultTitle">Pix gerado</strong>
+        <p id="checkoutResultText">Confira os dados retornados pela MisticPay.</p>
+        <textarea id="checkoutPayload" readonly></textarea>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const productGrid = document.getElementById("productGrid");
+    const checkoutModal = document.getElementById("checkoutModal");
+    const checkoutForm = document.getElementById("checkoutForm");
+    const checkoutSubmit = document.getElementById("checkoutSubmit");
+    const checkoutResult = document.getElementById("checkoutResult");
+    const checkoutPayload = document.getElementById("checkoutPayload");
+    const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function productLink(id) {
+      return `produto.html?id=${encodeURIComponent(id)}`;
+    }
+
+    function productCard(product) {
+      return `
+        <article class="product-card">
+          <div class="product-image">
+            <img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}">
+            ${product.badge ? `<span class="badge">${escapeHtml(product.badge)}</span>` : ""}
+          </div>
+          <div class="product-body">
+            <h3>${escapeHtml(product.name)}</h3>
+            <p>${escapeHtml(product.description)}</p>
+            <div class="product-meta">
+              <span class="price">${money.format(product.price)}</span>
+              <a class="btn btn-primary" href="${productLink(product.id)}">Comprar</a>
+            </div>
+          </div>
+        </article>
+      `;
+    }
+
+    function openCheckout(product) {
+      document.getElementById("checkoutProductId").value = product.id;
+      document.getElementById("checkoutProductName").textContent = product.name;
+      document.getElementById("checkoutProductPrice").textContent = money.format(Number(product.price));
+      checkoutResult.classList.remove("show");
+      checkoutPayload.value = "";
+      checkoutModal.classList.add("open");
+      checkoutModal.setAttribute("aria-hidden", "false");
+      document.getElementById("buyerName").focus();
+    }
+
+    function closeCheckout() {
+      checkoutModal.classList.remove("open");
+      checkoutModal.setAttribute("aria-hidden", "true");
+      checkoutForm.reset();
+      checkoutSubmit.disabled = false;
+      checkoutSubmit.textContent = "Ir ao pagamento";
+    }
+
+    document.addEventListener("click", (event) => {
+      const button = event.target.closest(".checkout-trigger");
+      if (!button) return;
+      openCheckout({
+        id: button.dataset.productId,
+        name: button.dataset.productName,
+        price: button.dataset.productPrice
+      });
+    });
+
+    document.getElementById("checkoutClose").addEventListener("click", closeCheckout);
+    checkoutModal.addEventListener("click", (event) => {
+      if (event.target === checkoutModal) closeCheckout();
+    });
+
+    checkoutForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      checkoutSubmit.disabled = true;
+      checkoutSubmit.textContent = "Indo ao pagamento...";
+      checkoutResult.classList.remove("show");
+
+      try {
+        const response = await fetch("/api/checkout/pix", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            productId: document.getElementById("checkoutProductId").value,
+            buyerName: document.getElementById("buyerName").value,
+            cep: document.getElementById("buyerCep").value,
+            street: document.getElementById("buyerStreet").value
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Nao foi possivel gerar o Pix.");
+
+        document.getElementById("checkoutResultTitle").textContent = "Pix solicitado com sucesso";
+        document.getElementById("checkoutResultText").textContent = "A resposta da MisticPay esta abaixo. Use o codigo ou QR retornado pelo gateway para concluir o pagamento.";
+        checkoutPayload.value = JSON.stringify(data, null, 2);
+        checkoutResult.classList.add("show");
+      } catch (error) {
+        document.getElementById("checkoutResultTitle").textContent = "Erro ao gerar Pix";
+        document.getElementById("checkoutResultText").textContent = error.message;
+        checkoutPayload.value = "";
+        checkoutResult.classList.add("show");
+      } finally {
+        checkoutSubmit.disabled = false;
+        checkoutSubmit.textContent = "Ir ao pagamento";
+      }
+    });
+
+    fetch("/api/catalog/products")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data) => {
+        if (Array.isArray(data.products) && data.products.length > 0) {
+          productGrid.innerHTML = data.products.map(productCard).join("");
+        }
+      })
+      .catch(() => {
+        console.warn("Catalogo dinamico indisponivel. Usando produtos estaticos.");
+      });
+  </script>
+</body>
+</html>
