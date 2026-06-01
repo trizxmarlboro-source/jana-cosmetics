@@ -3,5 +3,19 @@
     "api/[...path].js": {
       "maxDuration": 30
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/produto",
+      "destination": "/produto.html"
+    },
+    {
+      "source": "/admin",
+      "destination": "/admin.html"
+    }
+  ]
 }
