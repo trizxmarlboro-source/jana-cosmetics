@@ -911,7 +911,7 @@
         return `
           <tr>
             <td><span class="order-id" title="${escapeHtml(order.id)}">${escapeHtml(order.id)}</span></td>
-            <td><span class="order-buyer"><strong>${escapeHtml(order.buyerName || "-")}</strong>${escapeHtml(order.buyerDocument || "")}</span></td>
+            <td><span class="order-buyer"><strong>${escapeHtml(order.buyerName || "-")}</strong>Privacidade preservada</span></td>
             <td>${items || "-"}</td>
             <td><span class="order-address"><strong>${addressLine}</strong>${addressCity}<br>${addressCep}</span></td>
             <td>${money.format(Number(order.total || 0))}</td>

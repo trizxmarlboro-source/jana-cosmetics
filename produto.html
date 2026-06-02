@@ -795,11 +795,6 @@
             <input id="buyerName" name="buyerName" autocomplete="name" required>
           </label>
 
-          <label>
-            CPF do comprador
-            <input id="payerDocument" name="payerDocument" inputmode="numeric" placeholder="000.000.000-00" autocomplete="off" required>
-          </label>
-
           <div class="form-field">
             <label for="buyerCep">CEP</label>
             <div class="cep-row">
@@ -907,7 +902,6 @@
     const pixCopyWrap = document.getElementById("pixCopyWrap");
     const pixCopyCode = document.getElementById("pixCopyCode");
     const copyPixBtn = document.getElementById("copyPixBtn");
-    const payerDocumentInput = document.getElementById("payerDocument");
     const cepInput = document.getElementById("buyerCep");
     const cepMessage = document.getElementById("cepMessage");
     const cepLookupBtn = document.getElementById("cepLookupBtn");
@@ -946,28 +940,6 @@
     function formatCep(value) {
       const digits = onlyDigits(value).slice(0, 8);
       return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
-    }
-
-    function formatCpf(value) {
-      const digits = onlyDigits(value).slice(0, 11);
-      return digits
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d)/, "$1.$2")
-        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-    }
-
-    function isValidCpf(value) {
-      const cpf = onlyDigits(value);
-      if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
-      const calculateDigit = (factor) => {
-        let total = 0;
-        for (let index = 0; index < factor - 1; index += 1) {
-          total += Number(cpf[index]) * (factor - index);
-        }
-        const rest = (total * 10) % 11;
-        return rest === 10 ? 0 : rest;
-      };
-      return calculateDigit(10) === Number(cpf[9]) && calculateDigit(11) === Number(cpf[10]);
     }
 
     function deepFindPixValue(value, patterns) {
@@ -1214,10 +1186,6 @@
       if (onlyDigits(cepInput.value).length === 8) lookupCep();
     });
 
-    payerDocumentInput.addEventListener("input", () => {
-      payerDocumentInput.value = formatCpf(payerDocumentInput.value);
-    });
-
     cepInput.addEventListener("blur", () => {
       if (onlyDigits(cepInput.value).length === 8) lookupCep();
     });
@@ -1251,17 +1219,6 @@
       checkoutResult.classList.remove("show");
       resetPixResult();
 
-      if (!isValidCpf(payerDocumentInput.value)) {
-        document.getElementById("checkoutResultTitle").textContent = "CPF invalido";
-        document.getElementById("checkoutResultText").textContent = "Informe um CPF valido para gerar o Pix.";
-        checkoutResult.classList.add("show");
-        checkoutSubmit.disabled = false;
-        mobileSubmit.disabled = false;
-        checkoutSubmit.textContent = "Finalizar compra";
-        mobileSubmit.textContent = "Finalizar compra";
-        return;
-      }
-
       try {
         const response = await fetch("/api/checkout/pix", {
           method: "POST",
@@ -1270,7 +1227,6 @@
             items: checkoutItems.map(({ product, quantity }) => ({ productId: product.id, quantity })),
             productId: checkoutItems[0]?.product.id,
             buyerName: document.getElementById("buyerName").value,
-            payerDocument: onlyDigits(payerDocumentInput.value),
             cep: cepInput.value,
             number: numberInput.value,
             noNumber: noNumberInput.checked,

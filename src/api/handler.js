@@ -306,28 +306,8 @@ function pixConversionRate(metrics) {
   return metrics.pixInitiated > 0 ? Number(((metrics.pixCompleted / metrics.pixInitiated) * 100).toFixed(1)) : 0;
 }
 
-function maskDocument(documentNumber) {
-  const digits = String(documentNumber ?? "").replace(/\D/g, "");
-  if (digits.length !== 11) return "";
-  return `${digits.slice(0, 3)}.***.***-${digits.slice(-2)}`;
-}
-
-function isValidCpf(document) {
-  const cpf = String(document ?? "").replace(/\D/g, "");
-  if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
-    return false;
-  }
-
-  const calculateDigit = (factor) => {
-    let total = 0;
-    for (let index = 0; index < factor - 1; index += 1) {
-      total += Number(cpf[index]) * (factor - index);
-    }
-    const rest = (total * 10) % 11;
-    return rest === 10 ? 0 : rest;
-  };
-
-  return calculateDigit(10) === Number(cpf[9]) && calculateDigit(11) === Number(cpf[10]);
+function defaultPayerDocument() {
+  return String(DEFAULT_PAYER_DOCUMENT ?? "").replace(/\D/g, "");
 }
 
 function moneyValue(value) {
@@ -589,19 +569,19 @@ async function handleCheckoutApi(request, response, requestUrl) {
 
   const body = await readJsonBody(request);
   const buyerName = String(body.buyerName ?? "").trim();
-  const payerDocument = String(body.payerDocument ?? DEFAULT_PAYER_DOCUMENT).replace(/\D/g, "");
+  const payerDocument = defaultPayerDocument();
   const address = formatCheckoutAddress(body);
   const requestedItems = normalizeCheckoutItems(body);
 
-  if (!buyerName || !payerDocument || !address.cep || !address.street || !address.city || !address.uf || requestedItems.length === 0) {
+  if (!buyerName || !address.cep || !address.street || !address.city || !address.uf || requestedItems.length === 0) {
     sendJson(response, 400, {
-      error: "Nome, CPF, CEP, rua, cidade, UF e pelo menos um produto sao obrigatorios."
+      error: "Nome, CEP, rua, cidade, UF e pelo menos um produto sao obrigatorios."
     });
     return true;
   }
 
-  if (!isValidCpf(payerDocument)) {
-    sendJson(response, 400, { error: "Informe um CPF valido para gerar o Pix." });
+  if (!payerDocument) {
+    sendJson(response, 500, { error: "Documento padrao da loja nao configurado para gerar Pix." });
     return true;
   }
 
@@ -666,7 +646,6 @@ async function handleCheckoutApi(request, response, requestUrl) {
     paymentMethod: "pix",
     status: "Pix gerado",
     buyerName,
-    buyerDocument: maskDocument(payerDocument),
     address,
     createdAt: nowIso()
   });
@@ -682,7 +661,6 @@ async function handleCheckoutApi(request, response, requestUrl) {
     total,
     buyer: {
       name: buyerName,
-      payerDocument,
       ...address
     },
     payment

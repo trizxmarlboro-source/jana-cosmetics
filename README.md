@@ -88,7 +88,6 @@ Com o servidor rodando, envie:
 $body = @{
   amount = 89.90
   payerName = "Cliente Teste"
-  payerDocument = "12345678909"
   transactionId = "pedido-perfume-001"
   description = "Teste Pix Jana Cosmeticos"
 } | ConvertTo-Json
