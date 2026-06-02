@@ -1340,8 +1340,433 @@
     .cart-checkout.disabled { opacity: .45; pointer-events: none; }
 
     /* ────────────────────────────────────────────
+       WHATSAPP FAB
+    ──────────────────────────────────────────── */
+    .whatsapp-fab {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      z-index: 999;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: #25D366;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      box-shadow: 0 6px 28px rgba(37,211,102,.45);
+      transition: transform 220ms ease, box-shadow 220ms ease;
+      text-decoration: none;
+    }
+
+    .whatsapp-fab::before {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: rgba(37,211,102,.3);
+      animation: wa-pulse 2.2s ease-out infinite;
+      pointer-events: none;
+    }
+
+    @keyframes wa-pulse {
+      0%   { transform: scale(1); opacity: .8; }
+      70%  { transform: scale(1.5); opacity: 0; }
+      100% { transform: scale(1.5); opacity: 0; }
+    }
+
+    .whatsapp-fab:hover {
+      transform: scale(1.1);
+      box-shadow: 0 10px 36px rgba(37,211,102,.55);
+    }
+
+    .whatsapp-fab svg {
+      width: 30px;
+      height: 30px;
+      flex-shrink: 0;
+    }
+
+    .whatsapp-tooltip {
+      position: absolute;
+      right: calc(100% + 12px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: var(--ink);
+      color: var(--white);
+      font-size: 0.75rem;
+      font-weight: 700;
+      white-space: nowrap;
+      padding: 7px 13px;
+      border-radius: 100px;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 200ms ease;
+    }
+
+    .whatsapp-tooltip::after {
+      content: "";
+      position: absolute;
+      left: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 6px solid transparent;
+      border-left-color: var(--ink);
+    }
+
+    .whatsapp-fab:hover .whatsapp-tooltip {
+      opacity: 1;
+    }
+
+    /* ────────────────────────────────────────────
        RESPONSIVE
     ──────────────────────────────────────────── */
+    /* PREMIUM UI UPGRADE */
+    body {
+      background:
+        radial-gradient(circle at top left, rgba(255, 224, 237, .72), transparent 34rem),
+        radial-gradient(circle at 92% 12%, rgba(231, 203, 147, .22), transparent 24rem),
+        linear-gradient(180deg, #fffdfb 0%, #fff7f9 48%, #fffdfb 100%);
+    }
+
+    .nav {
+      background: rgba(255, 253, 251, .86);
+      box-shadow: 0 14px 48px rgba(80, 34, 58, .06);
+    }
+
+    .brand img.site-logo,
+    .footer-logo {
+      border: 1px solid rgba(207, 47, 118, .18);
+      box-shadow: 0 10px 30px rgba(207, 47, 118, .10);
+    }
+
+    .brand-text strong {
+      font-family: "Montserrat", sans-serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .brand-text span {
+      color: var(--pink-deep);
+      letter-spacing: .18em;
+    }
+
+    .btn {
+      min-height: 46px;
+      border-radius: 999px;
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #ef5fa8 0%, #d91f78 100%);
+      box-shadow: 0 16px 32px rgba(217, 31, 120, .22);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #d91f78 0%, #b91260 100%);
+      transform: translateY(-3px);
+      box-shadow: 0 20px 44px rgba(217, 31, 120, .30);
+    }
+
+    .btn-outline,
+    .btn-ghost {
+      border-color: rgba(28, 17, 24, .20);
+      background: rgba(255, 255, 255, .74);
+      backdrop-filter: blur(10px);
+    }
+
+    .hero {
+      position: relative;
+      max-width: none;
+      padding: 86px max(24px, calc((100vw - var(--max)) / 2)) 94px;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 18px max(18px, calc((100vw - 1240px) / 2));
+      z-index: -2;
+      border: 1px solid rgba(207, 47, 118, .10);
+      border-radius: 36px;
+      background:
+        linear-gradient(135deg, rgba(255,255,255,.86), rgba(255,245,248,.78)),
+        radial-gradient(circle at 80% 18%, rgba(202,167,103,.16), transparent 20rem);
+      box-shadow: 0 30px 90px rgba(70, 28, 48, .08);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 20rem;
+      height: 20rem;
+      right: max(12px, calc((100vw - var(--max)) / 2));
+      top: 4rem;
+      z-index: -1;
+      border-radius: 999px;
+      background: rgba(255, 207, 226, .38);
+      filter: blur(42px);
+    }
+
+    .hero-text { max-width: 650px; }
+
+    .hero-title { letter-spacing: -.03em; }
+
+    .hero-title .line-1 {
+      width: fit-content;
+      padding: 8px 14px;
+      border: 1px solid rgba(207, 47, 118, .16);
+      border-radius: 999px;
+      background: rgba(255,255,255,.72);
+      color: var(--pink-deep);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    .hero-title .line-2 {
+      margin-top: 18px;
+      font-size: clamp(3.4rem, 7vw, 6.6rem);
+      letter-spacing: -.055em;
+    }
+
+    .hero-title .line-3 {
+      color: #d91f78;
+      font-size: clamp(2.2rem, 5vw, 4.6rem);
+      letter-spacing: -.025em;
+    }
+
+    .hero-desc {
+      color: #6f5362;
+      font-size: clamp(1rem, 1.3vw, 1.14rem);
+      max-width: 560px;
+    }
+
+    .hero-trust { gap: 10px; }
+
+    .trust-item {
+      padding: 9px 12px;
+      border: 1px solid rgba(207, 47, 118, .10);
+      border-radius: 999px;
+      background: rgba(255,255,255,.70);
+      color: #735866;
+    }
+
+    .trust-dot { background: linear-gradient(135deg, #d91f78, #c9a84c); }
+
+    .hero-visual { min-height: 520px; }
+
+    .hero-blob {
+      width: min(88%, 520px);
+      background:
+        radial-gradient(circle at 32% 26%, rgba(255,255,255,.92), transparent 16rem),
+        linear-gradient(135deg, #ffe2ee 0%, #f4e8dc 52%, #fff7fb 100%);
+      box-shadow: inset 0 0 0 1px rgba(207, 47, 118, .10);
+    }
+
+    .hero-img-wrap {
+      width: min(100%, 455px);
+      border: 1px solid rgba(207, 47, 118, .12);
+      border-radius: 38px;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,245,249,.88)),
+        radial-gradient(circle at top, rgba(202,167,103,.20), transparent 14rem);
+      box-shadow:
+        0 34px 80px rgba(93, 39, 65, .16),
+        inset 0 1px 0 rgba(255,255,255,.95);
+    }
+
+    .hero-img-wrap::before {
+      content: "";
+      position: absolute;
+      inset: 18px;
+      border: 1px solid rgba(202,167,103,.22);
+      border-radius: 28px;
+      pointer-events: none;
+    }
+
+    .hero-img-wrap img {
+      width: 88%;
+      height: 88%;
+    }
+
+    .hero-badge {
+      right: 4px;
+      bottom: 34px;
+      max-width: 210px;
+      border-radius: 18px;
+      border-color: rgba(202,167,103,.28);
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(14px);
+      box-shadow: 0 22px 54px rgba(72, 28, 52, .14);
+    }
+
+    .marquee { background: linear-gradient(90deg, #21141c, #4b1731, #21141c); }
+
+    .features-section { padding: 96px 0 80px; }
+
+    .feature-card,
+    .product-card,
+    .payment-card,
+    .about-img-frame {
+      box-shadow: 0 20px 55px rgba(74, 32, 54, .08);
+    }
+
+    .feature-card {
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255,255,255,.96), rgba(255,249,252,.92));
+    }
+
+    .feature-icon {
+      color: #d91f78;
+      background: linear-gradient(135deg, #fff0f7, #f7eadf);
+      border: 1px solid rgba(207, 47, 118, .10);
+    }
+
+    .products-section {
+      background:
+        radial-gradient(circle at 20% 8%, rgba(255, 220, 235, .58), transparent 28rem),
+        linear-gradient(180deg, #fffdfb 0%, #fff4f8 100%);
+    }
+
+    .section-header { margin-bottom: 44px; }
+
+    .section-header h2 { font-size: clamp(2.35rem, 4.8vw, 4.2rem); }
+
+    .product-tools {
+      max-width: 620px;
+      margin-bottom: 54px;
+    }
+
+    .search-box input {
+      min-height: 58px;
+      border-color: rgba(207, 47, 118, .14);
+      border-radius: 22px;
+      background: rgba(255,255,255,.86);
+      box-shadow: 0 16px 38px rgba(85, 37, 60, .06);
+    }
+
+    .product-grid {
+      gap: 32px;
+      align-items: stretch;
+    }
+
+    .product-card {
+      border: 1px solid rgba(207, 47, 118, .12);
+      border-radius: 28px;
+      background: rgba(255,255,255,.88);
+      box-shadow: 0 18px 42px rgba(79, 33, 55, .08);
+    }
+
+    .product-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 30px 70px rgba(79, 33, 55, .14);
+      border-color: rgba(207, 47, 118, .22);
+    }
+
+    .product-image {
+      height: 310px;
+      margin: 12px;
+      border-radius: 22px;
+      background:
+        radial-gradient(circle at 50% 30%, rgba(255,255,255,.95), transparent 10rem),
+        linear-gradient(145deg, #fff0f7 0%, #f8eadf 100%);
+    }
+
+    .product-image::after {
+      content: "";
+      position: absolute;
+      inset: auto 34px 26px;
+      height: 22px;
+      border-radius: 999px;
+      background: rgba(190, 80, 135, .16);
+      filter: blur(10px);
+    }
+
+    .product-image img {
+      height: 220px;
+      z-index: 1;
+    }
+
+    .product-body { padding: 18px 26px 28px; }
+
+    .product-body h3 {
+      font-family: "Montserrat", sans-serif;
+      font-size: 1.02rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+    }
+
+    .product-body p {
+      font-size: .9rem;
+      color: #735866;
+    }
+
+    .product-meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .price {
+      font-family: "Montserrat", sans-serif;
+      font-size: 1.55rem;
+      font-weight: 900;
+      color: #151015;
+    }
+
+    .product-actions {
+      display: grid;
+      grid-template-columns: 1fr 1.1fr;
+      width: 100%;
+    }
+
+    .product-actions .btn {
+      width: 100%;
+      min-height: 44px;
+    }
+
+    .badge {
+      top: 16px;
+      left: 16px;
+      z-index: 2;
+      background: rgba(29, 18, 26, .86);
+      backdrop-filter: blur(10px);
+    }
+
+    .payment-strip {
+      padding: 64px 24px;
+      background: #fffdfb;
+    }
+
+    .payment-card {
+      padding: 28px 32px;
+      border: 1px solid rgba(202,167,103,.18);
+      border-radius: 28px;
+      background: linear-gradient(135deg, #fff 0%, #fff7fa 56%, #fbf0e5 100%);
+    }
+
+    .payment-logos img {
+      height: 44px;
+      border-radius: 12px;
+      box-shadow: 0 12px 26px rgba(78, 37, 58, .08);
+    }
+
+    .about-section { background: linear-gradient(180deg, #fffdfb 0%, #fff7f9 100%); }
+
+    .about-content > p,
+    .contact-inner p { font-size: 1rem; }
+
+    .contact-section {
+      background:
+        radial-gradient(circle at 20% 20%, rgba(255, 93, 168, .20), transparent 18rem),
+        linear-gradient(135deg, #1d121a 0%, #4a1631 100%);
+    }
+
+    .footer { background: #140d12; }
+
     @media (max-width: 1024px) {
       .product-grid { grid-template-columns: repeat(2, 1fr); }
       .features-grid { grid-template-columns: repeat(2, 1fr); }
@@ -1395,6 +1820,153 @@
       .product-actions { flex-direction: column; }
       .product-actions .btn { width: 100%; }
     }
+
+    @media (max-width: 860px) {
+      .hero {
+        padding: 42px 20px 70px;
+        gap: 32px;
+      }
+
+      .hero::before {
+        inset: 10px;
+        border-radius: 28px;
+      }
+
+      .hero-title .line-1 {
+        margin-inline: auto;
+      }
+
+      .hero-visual {
+        order: 0;
+        min-height: auto;
+      }
+
+      .hero-img-wrap {
+        width: min(100%, 315px);
+        border-radius: 30px;
+        padding: 24px;
+      }
+
+      .hero-badge {
+        position: relative;
+        right: auto;
+        bottom: auto;
+        margin: -18px auto 0;
+      }
+
+      .features-section,
+      .products-section,
+      .about-section {
+        padding: 72px 0;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .container,
+      .about-grid,
+      .contact-inner {
+        padding-inline: 18px;
+      }
+
+      .nav-inner {
+        padding-inline: 14px;
+        gap: 10px;
+      }
+
+      .brand img.site-logo {
+        width: 48px;
+        height: 48px;
+      }
+
+      .brand-text strong {
+        font-size: .96rem;
+      }
+
+      .brand-text span {
+        font-size: .58rem;
+      }
+
+      .icon-button {
+        width: 40px;
+        height: 40px;
+      }
+
+      .hero-title .line-2 {
+        font-size: clamp(3.05rem, 14vw, 4.4rem);
+      }
+
+      .hero-title .line-3 {
+        font-size: clamp(2.2rem, 11vw, 3.4rem);
+      }
+
+      .hero-desc {
+        font-size: .98rem;
+        margin-bottom: 26px;
+      }
+
+      .hero-actions {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 26px;
+      }
+
+      .hero-actions .btn {
+        width: 100%;
+      }
+
+      .hero-trust {
+        display: grid;
+        gap: 8px;
+      }
+
+      .trust-item {
+        justify-content: center;
+      }
+
+      .section-header {
+        margin-bottom: 34px;
+      }
+
+      .product-tools {
+        margin-bottom: 30px;
+      }
+
+      .product-grid {
+        max-width: 420px;
+        gap: 22px;
+      }
+
+      .product-image {
+        height: 245px;
+      }
+
+      .product-image img {
+        height: 178px;
+      }
+
+      .product-actions {
+        grid-template-columns: 1fr;
+      }
+
+      .payment-card {
+        padding: 24px 20px;
+        text-align: center;
+        align-items: center;
+      }
+
+      .payment-logos {
+        justify-content: center;
+      }
+
+      .about-deco {
+        right: 8px;
+      }
+
+      .whatsapp-fab {
+        right: 18px;
+        bottom: 86px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1437,19 +2009,19 @@
     <!-- ── HERO ── -->
     <section class="hero" id="inicio">
       <div class="hero-text">
-        <span class="eyebrow">✦ Coleção 2026</span>
+        <span class="eyebrow">Coleção 2026</span>
         <h1 class="hero-title">
-          <span class="line-1">Descubra sua</span>
-          <span class="line-2">Fragrância</span>
-          <span class="line-3">perfeita.</span>
+          <span class="line-1">Perfumes e cosméticos selecionados</span>
+          <span class="line-2">Beleza que</span>
+          <span class="line-3">fica na pele.</span>
         </h1>
         <p class="hero-desc">
-          Perfumes marcantes, cosméticos selecionados e kits de autocuidado
-          para transformar sua rotina em um ritual de elegância e autoestima.
+          Uma curadoria delicada de fragrâncias, kits e cuidados pessoais para
+          transformar sua rotina em um ritual de autoestima, presença e elegância.
         </p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#produtos">Explorar coleção</a>
-          <a class="btn btn-outline" href="#sobre">Nossa história</a>
+          <a class="btn btn-outline" href="#sobre">Conhecer a marca</a>
         </div>
         <div class="hero-trust">
           <span class="trust-item"><span class="trust-dot"></span>Curadoria personalizada</span>
@@ -1464,7 +2036,7 @@
           <img class="site-logo" src="assets/logo-jana-cosmeticos.svg" alt="Jana Cosméticos – fragrâncias selecionadas">
         </div>
         <div class="hero-badge">
-          <span>✦ Destaque da semana</span>
+          <span>Destaque da semana</span>
           Fragrâncias para cada personalidade
         </div>
       </div>
@@ -1505,17 +2077,17 @@
         </div>
         <div class="features-grid">
           <article class="feature-card">
-            <div class="feature-icon">✦</div>
+            <div class="feature-icon">JC</div>
             <h3>Fragrâncias Escolhidas</h3>
             <p>Produtos selecionados para quem busca presença, delicadeza e uma assinatura olfativa especial e marcante.</p>
           </article>
           <article class="feature-card">
-            <div class="feature-icon">♡</div>
+            <div class="feature-icon">+</div>
             <h3>Beleza com Carinho</h3>
-            <p>Opções para autocuidado, presente e rotina — com atendimento próximo, consultivo e personalizado.</p>
+            <p>Opções para autocuidado, presente e rotina, com atendimento próximo, consultivo e personalizado.</p>
           </article>
           <article class="feature-card">
-            <div class="feature-icon">💬</div>
+            <div class="feature-icon">OK</div>
             <h3>Compra Fácil</h3>
             <p>Fale pelo WhatsApp para consultar disponibilidade, valores, kits e indicações personalizadas para você.</p>
           </article>
@@ -1529,7 +2101,7 @@
         <div class="section-header">
           <span class="eyebrow">Nossa Vitrine</span>
           <h2>Produtos em <em>destaque</em></h2>
-          <p>Uma seleção especial de perfumes e cosméticos da Jana Cosméticos.</p>
+          <p>Uma seleção especial de perfumes e cosméticos para presentear, cuidar e marcar presença.</p>
         </div>
 
         <div class="product-tools">
@@ -1602,7 +2174,7 @@
       <div class="payment-card">
         <div class="payment-copy">
           <strong>Aceitamos cartão e Pix.</strong>
-          <span>Mastercard, Visa e Pix para facilitar sua compra.</span>
+          <span>Compra segura, prática e com pagamento facilitado para sua rotina.</span>
         </div>
         <div class="payment-logos">
           <img src="assets/mastercard-badge.svg" alt="Bandeira Mastercard">
@@ -1664,7 +2236,7 @@
           e indicações personalizadas para seu estilo ou ocasião especial.
         </p>
         <div class="contact-actions">
-          <a class="btn btn-primary" href="https://wa.me/5500000000000" target="_blank" rel="noopener">
+          <a class="btn btn-primary" href="https://wa.me/+5521986558392" target="_blank" rel="noopener noreferrer">
             WhatsApp
           </a>
           <a class="btn btn-outline" href="tel:+5500000000000">Telefone</a>
@@ -2109,5 +2681,20 @@
     renderSearchResults();
     renderCart();
   </script>
+
+  <!-- ── WHATSAPP FLOATING BUTTON ── -->
+  <a
+    class="whatsapp-fab"
+    href="https://wa.me/+5521986558392"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Falar no WhatsApp"
+  >
+    <svg viewBox="0 0 24 24" aria-hidden="true" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+      <path d="M12.003 2C6.477 2 2 6.477 2 12.003c0 1.771.46 3.434 1.265 4.878L2 22l5.27-1.233A9.957 9.957 0 0 0 12.003 22C17.53 22 22 17.523 22 12.003 22 6.477 17.53 2 12.003 2zm0 18.174a8.15 8.15 0 0 1-4.16-1.138l-.298-.177-3.127.732.757-3.045-.194-.312A8.174 8.174 0 1 1 12.003 20.174z"/>
+    </svg>
+    <span class="whatsapp-tooltip">Fale conosco!</span>
+  </a>
 </body>
 </html>
