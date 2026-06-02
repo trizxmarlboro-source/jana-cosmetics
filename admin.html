@@ -45,6 +45,35 @@
       padding: 24px;
     }
 
+    .login-shell {
+      width: min(100%, 420px);
+      display: grid;
+      gap: 18px;
+    }
+
+    .login-brand-top {
+      display: grid;
+      place-items: center;
+      gap: 10px;
+      text-align: center;
+    }
+
+    .login-brand-logo {
+      width: 156px;
+      height: 156px;
+      border: 4px solid var(--rose-light);
+      border-radius: 50%;
+      object-fit: contain;
+      background: var(--white);
+      box-shadow: 0 18px 44px rgba(224, 33, 122, .2);
+    }
+
+    .login-brand-top strong {
+      color: var(--rose);
+      font-size: 28px;
+      line-height: 1;
+    }
+
     .login-card,
     .panel,
     .card {
@@ -55,20 +84,8 @@
     }
 
     .login-card {
-      width: min(100%, 420px);
+      width: 100%;
       padding: 30px;
-      text-align: center;
-    }
-
-    .login-logo {
-      width: 136px;
-      height: 136px;
-      margin: 0 auto 18px;
-      border: 3px solid var(--rose-light);
-      border-radius: 50%;
-      object-fit: contain;
-      background: var(--white);
-      box-shadow: 0 12px 30px rgba(224, 33, 122, .18);
     }
 
     .login-card label {
@@ -420,8 +437,12 @@
 </head>
 <body>
   <section class="login" id="loginView">
-    <form class="login-card" id="loginForm" autocomplete="off">
-      <img class="login-logo" id="loginLogo" src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+    <div class="login-shell">
+      <div class="login-brand-top">
+        <img class="login-brand-logo" id="loginLogo" src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+        <strong>Jana Cosmeticos</strong>
+      </div>
+      <form class="login-card" id="loginForm" autocomplete="off">
       <h1>Jana Cosmeticos</h1>
       <p>Entre para gerenciar produtos, categorias e metricas.</p>
       <label for="user">Usuario</label>
@@ -434,7 +455,8 @@
       </div>
       <p class="login-session-note">Sessao administrativa expira automaticamente em 30 minutos.</p>
       <p class="message" id="loginMessage"></p>
-    </form>
+      </form>
+    </div>
   </section>
 
   <section class="app hidden" id="appView">
