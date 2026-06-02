@@ -142,6 +142,37 @@
       gap: 10px;
     }
 
+    .icon-button {
+      position: relative;
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(224, 33, 122, 0.18);
+      border-radius: 8px;
+      display: inline-grid;
+      place-items: center;
+      color: var(--ink);
+      background: var(--white);
+      box-shadow: var(--soft-shadow);
+      cursor: pointer;
+      transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .icon-button:hover {
+      border-color: rgba(255, 0, 128, 0.45);
+      transform: translateY(-2px);
+      box-shadow: 0 10px 24px rgba(224, 33, 122, 0.14);
+    }
+
+    .icon-button svg {
+      width: 23px;
+      height: 23px;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
     .btn {
       display: inline-flex;
       min-height: 46px;
@@ -188,21 +219,7 @@
       background: #fff5fb;
     }
 
-    .cart-toggle {
-      position: relative;
-      width: 48px;
-      height: 48px;
-      border: 1px solid rgba(224, 33, 122, 0.22);
-      border-radius: 8px;
-      display: inline-grid;
-      place-items: center;
-      color: var(--ink);
-      background: var(--white);
-      box-shadow: var(--soft-shadow);
-      cursor: pointer;
-      font-size: 1.35rem;
-      font-weight: 900;
-    }
+    .cart-toggle { font-weight: 900; }
 
     .cart-count {
       position: absolute;
@@ -732,6 +749,169 @@
       background: rgba(0, 0, 0, 0.5);
     }
 
+    .side-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 210;
+      display: none;
+      background: rgba(0, 0, 0, 0.5);
+    }
+
+    .side-overlay.open {
+      display: block;
+    }
+
+    .side-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: min(100vw, 430px);
+      height: 100dvh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      background: var(--white);
+      box-shadow: -24px 0 60px rgba(0, 0, 0, 0.22);
+      transform: translateX(100%);
+      transition: transform 220ms ease;
+    }
+
+    .side-overlay.open .side-drawer {
+      transform: translateX(0);
+    }
+
+    .side-head {
+      padding: 24px 26px 20px;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+    }
+
+    .side-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--ink);
+      font-size: 1.45rem;
+      font-weight: 900;
+      text-transform: lowercase;
+    }
+
+    .side-title svg,
+    .cart-title svg {
+      width: 24px;
+      height: 24px;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .side-close {
+      width: 44px;
+      height: 44px;
+      border: 0;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: var(--ink);
+      background: var(--white);
+      cursor: pointer;
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .side-body {
+      overflow: auto;
+      padding: 24px 26px 32px;
+    }
+
+    .side-search-field {
+      position: relative;
+      margin-bottom: 22px;
+    }
+
+    .side-search-field input {
+      width: 100%;
+      border: 1px solid rgba(224, 33, 122, 0.2);
+      border-radius: 8px;
+      padding: 15px 16px 15px 44px;
+      color: var(--ink);
+      background: #fff8fc;
+      font: inherit;
+      font-weight: 700;
+      outline: none;
+    }
+
+    .side-search-field svg {
+      position: absolute;
+      left: 15px;
+      top: 50%;
+      width: 20px;
+      height: 20px;
+      transform: translateY(-50%);
+      stroke: var(--rose);
+      stroke-width: 2.4;
+      fill: none;
+    }
+
+    .search-results {
+      display: grid;
+      gap: 12px;
+    }
+
+    .search-result {
+      display: grid;
+      grid-template-columns: 72px minmax(0, 1fr);
+      gap: 12px;
+      border: 1px solid rgba(224, 33, 122, 0.12);
+      border-radius: 8px;
+      padding: 10px;
+      background: #fff;
+    }
+
+    .search-result img {
+      width: 72px;
+      height: 72px;
+      border-radius: 8px;
+      object-fit: contain;
+      background: var(--rose-soft);
+    }
+
+    .search-result strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: .94rem;
+      line-height: 1.25;
+    }
+
+    .search-result span {
+      color: var(--rose);
+      font-weight: 900;
+    }
+
+    .menu-links {
+      display: grid;
+      gap: 12px;
+    }
+
+    .menu-links a {
+      border: 1px solid rgba(224, 33, 122, 0.14);
+      border-radius: 8px;
+      padding: 16px;
+      color: var(--ink);
+      background: #fff8fc;
+      font-size: 1rem;
+      font-weight: 900;
+    }
+
+    .menu-links a:hover {
+      color: var(--white);
+      background: var(--rose);
+    }
+
     .cart-overlay.open {
       display: block;
     }
@@ -958,11 +1138,11 @@
       .nav-actions {
         width: 100%;
         display: grid;
-        grid-template-columns: minmax(0, 1fr) 52px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
       }
-      .nav .btn { width: 100%; }
-      .cart-toggle {
-        width: 52px;
+      .icon-button {
+        width: 100%;
         height: 52px;
       }
       h1 { font-size: 3.2rem; }
@@ -980,6 +1160,9 @@
       }
       .cart-drawer {
         width: 100vw;
+      }
+      .side-drawer {
+        width: min(100vw, 420px);
       }
       .cart-item {
         grid-template-columns: 82px minmax(0, 1fr);
@@ -1016,10 +1199,15 @@
         <a href="#contato">Contato</a>
       </div>
       <div class="nav-actions">
-        <a class="btn btn-primary" href="#produtos">Comprar agora</a>
-        <button class="cart-toggle" id="cartOpen" type="button" aria-label="Abrir carrinho">
-          <span aria-hidden="true">&#128722;</span>
+        <button class="icon-button" id="searchOpen" type="button" aria-label="Buscar produtos">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4.2-4.2"></path></svg>
+        </button>
+        <button class="icon-button cart-toggle" id="cartOpen" type="button" aria-label="Abrir carrinho">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h15l-2 8H8L6 3H3"></path><circle cx="9" cy="20" r="1.7"></circle><circle cx="18" cy="20" r="1.7"></circle></svg>
           <span class="cart-count" id="cartCount">0</span>
+        </button>
+        <button class="icon-button" id="menuOpen" type="button" aria-label="Abrir menu">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path></svg>
         </button>
       </div>
     </nav>
@@ -1215,10 +1403,53 @@
     </div>
   </footer>
 
+  <div class="side-overlay" id="searchOverlay" aria-hidden="true">
+    <aside class="side-drawer" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
+      <div class="side-head">
+        <h2 class="side-title" id="searchTitle">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4.2-4.2"></path></svg>
+          buscar
+        </h2>
+        <button class="side-close" id="searchClose" type="button" aria-label="Fechar busca">&times;</button>
+      </div>
+      <div class="side-body">
+        <div class="side-search-field">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4.2-4.2"></path></svg>
+          <input id="drawerSearch" type="search" placeholder="Buscar perfume, kit ou fragrancia" autocomplete="off">
+        </div>
+        <div class="search-results" id="searchResults"></div>
+      </div>
+    </aside>
+  </div>
+
+  <div class="side-overlay" id="menuOverlay" aria-hidden="true">
+    <aside class="side-drawer" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+      <div class="side-head">
+        <h2 class="side-title" id="menuTitle">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16"></path><path d="M4 12h16"></path><path d="M4 17h16"></path></svg>
+          menu
+        </h2>
+        <button class="side-close" id="menuClose" type="button" aria-label="Fechar menu">&times;</button>
+      </div>
+      <div class="side-body">
+        <nav class="menu-links" aria-label="Menu lateral">
+          <a href="#inicio">Inicio</a>
+          <a href="#produtos">Produtos</a>
+          <a href="#favoritos">Favoritos</a>
+          <a href="#sobre">Sobre</a>
+          <a href="#contato">Contato</a>
+        </nav>
+      </div>
+    </aside>
+  </div>
+
   <div class="cart-overlay" id="cartOverlay" aria-hidden="true">
     <aside class="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
       <div class="cart-head">
-        <h2 class="cart-title" id="cartTitle"><span aria-hidden="true">&#128722;</span> seu carrinho</h2>
+        <h2 class="cart-title" id="cartTitle">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h15l-2 8H8L6 3H3"></path><circle cx="9" cy="20" r="1.7"></circle><circle cx="18" cy="20" r="1.7"></circle></svg>
+          seu carrinho
+        </h2>
         <button class="cart-close" id="cartClose" type="button" aria-label="Fechar carrinho">&times;</button>
       </div>
 
@@ -1239,6 +1470,14 @@
   <script>
     const productGrid = document.getElementById("productGrid");
     const productSearch = document.getElementById("productSearch");
+    const searchOverlay = document.getElementById("searchOverlay");
+    const searchOpen = document.getElementById("searchOpen");
+    const searchClose = document.getElementById("searchClose");
+    const drawerSearch = document.getElementById("drawerSearch");
+    const searchResults = document.getElementById("searchResults");
+    const menuOverlay = document.getElementById("menuOverlay");
+    const menuOpen = document.getElementById("menuOpen");
+    const menuClose = document.getElementById("menuClose");
     const cartOverlay = document.getElementById("cartOverlay");
     const cartOpen = document.getElementById("cartOpen");
     const cartClose = document.getElementById("cartClose");
@@ -1348,12 +1587,36 @@
       `;
     }
 
-    function renderProducts() {
-      const query = productSearch.value.trim().toLowerCase();
-      const visibleProducts = catalogProducts.filter((product) => {
+    function filterProducts(query) {
+      const normalizedQuery = String(query || "").trim().toLowerCase();
+      return catalogProducts.filter((product) => {
         const haystack = `${product.name} ${product.description} ${product.categoryName || ""}`.toLowerCase();
-        return haystack.includes(query);
+        return haystack.includes(normalizedQuery);
       });
+    }
+
+    function searchResultCard(product) {
+      return `
+        <a class="search-result" href="${productLink(product.id)}">
+          <img src="${escapeHtml(product.imageUrl)}" alt="${escapeHtml(product.name)}" onerror="this.src='assets/kit-cosmeticos.svg'">
+          <span>
+            <strong>${escapeHtml(product.name)}</strong>
+            <small>${escapeHtml(product.categoryName || "Produto")}</small>
+            <b>${money.format(Number(product.price))}</b>
+          </span>
+        </a>
+      `;
+    }
+
+    function renderSearchResults() {
+      const visibleProducts = filterProducts(drawerSearch.value);
+      searchResults.innerHTML = visibleProducts.length
+        ? visibleProducts.map(searchResultCard).join("")
+        : '<div class="empty-products">Nenhum produto encontrado na busca.</div>';
+    }
+
+    function renderProducts() {
+      const visibleProducts = filterProducts(productSearch.value);
 
       productGrid.innerHTML = visibleProducts.length
         ? visibleProducts.map(productCard).join("")
@@ -1446,6 +1709,37 @@
       document.body.style.overflow = "";
     }
 
+    function openSidePanel(overlay) {
+      overlay.classList.add("open");
+      overlay.setAttribute("aria-hidden", "false");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSidePanel(overlay) {
+      overlay.classList.remove("open");
+      overlay.setAttribute("aria-hidden", "true");
+      document.body.style.overflow = "";
+    }
+
+    function openSearchPanel() {
+      drawerSearch.value = productSearch.value;
+      renderSearchResults();
+      openSidePanel(searchOverlay);
+      window.setTimeout(() => drawerSearch.focus(), 80);
+    }
+
+    function closeSearchPanel() {
+      closeSidePanel(searchOverlay);
+    }
+
+    function openMenuPanel() {
+      openSidePanel(menuOverlay);
+    }
+
+    function closeMenuPanel() {
+      closeSidePanel(menuOverlay);
+    }
+
     document.addEventListener("click", (event) => {
       const addButton = event.target.closest(".add-to-cart");
       if (!addButton) return;
@@ -1490,7 +1784,35 @@
       }
       saveCart();
     });
-    productSearch.addEventListener("input", renderProducts);
+    searchOpen.addEventListener("click", openSearchPanel);
+    searchClose.addEventListener("click", closeSearchPanel);
+    searchOverlay.addEventListener("click", (event) => {
+      if (event.target === searchOverlay) closeSearchPanel();
+    });
+    searchResults.addEventListener("click", (event) => {
+      if (event.target.closest("a")) closeSearchPanel();
+    });
+    drawerSearch.addEventListener("input", () => {
+      productSearch.value = drawerSearch.value;
+      renderProducts();
+      renderSearchResults();
+    });
+    menuOpen.addEventListener("click", openMenuPanel);
+    menuClose.addEventListener("click", closeMenuPanel);
+    menuOverlay.addEventListener("click", (event) => {
+      if (event.target === menuOverlay || event.target.closest(".menu-links a")) closeMenuPanel();
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key !== "Escape") return;
+      closeSearchPanel();
+      closeMenuPanel();
+      closeCart();
+    });
+    productSearch.addEventListener("input", () => {
+      drawerSearch.value = productSearch.value;
+      renderProducts();
+      renderSearchResults();
+    });
 
     fetch("/api/catalog/products")
       .then((response) => response.ok ? response.json() : Promise.reject())
@@ -1498,6 +1820,7 @@
         if (Array.isArray(data.products) && data.products.length > 0) {
           catalogProducts = data.products;
           renderProducts();
+          renderSearchResults();
           renderCart();
         }
       })
@@ -1511,6 +1834,7 @@
       .catch(() => {});
 
     renderProducts();
+    renderSearchResults();
     renderCart();
   </script>
 </body>
