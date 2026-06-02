@@ -488,6 +488,22 @@
       font-weight: 800;
     }
 
+    .order-buyer,
+    .order-address {
+      display: block;
+      max-width: 260px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+
+    .order-buyer strong,
+    .order-address strong {
+      display: block;
+      color: var(--ink);
+      font-size: 14px;
+    }
+
     .status.warning {
       background: #d9a441;
       color: var(--ink);
@@ -636,10 +652,10 @@
             </div>
           </div>
           <div class="panel orders-table">
-            <h2>Ultimos pedidos</h2>
+            <h2>Checkout dos enderecos</h2>
             <table>
-              <thead><tr><th>ID</th><th>Itens</th><th>Valor</th><th>Data</th><th>Status</th></tr></thead>
-              <tbody id="ordersTableBody"><tr><td colspan="5" style="color:var(--muted);text-align:center">Nenhum pedido registrado ainda.</td></tr></tbody>
+              <thead><tr><th>ID</th><th>Comprador</th><th>Itens</th><th>Endereco</th><th>Valor</th><th>Data</th><th>Status</th></tr></thead>
+              <tbody id="ordersTableBody"><tr><td colspan="7" style="color:var(--muted);text-align:center">Nenhum pedido registrado ainda.</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -774,6 +790,16 @@
       return data;
     }
 
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        '"': "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
     function clearSessionTimer() {
       if (sessionTimeoutId) {
         window.clearTimeout(sessionTimeoutId);
@@ -867,22 +893,30 @@
     function renderRecentOrders(orders) {
       const table = document.getElementById("ordersTableBody");
       if (!orders.length) {
-        table.innerHTML = '<tr><td colspan="5" style="color:var(--muted);text-align:center">Nenhum pedido registrado ainda.</td></tr>';
+        table.innerHTML = '<tr><td colspan="7" style="color:var(--muted);text-align:center">Nenhum pedido registrado ainda.</td></tr>';
         return;
       }
 
       table.innerHTML = orders.map((order) => {
         const items = (order.items || [])
-          .map((item) => `${item.quantity || 1}x ${item.name}`)
+          .map((item) => `${Number(item.quantity || 1)}x ${escapeHtml(item.name)}`)
           .join(", ");
         const createdAt = order.createdAt ? new Date(order.createdAt).toLocaleString("pt-BR") : "-";
+        const address = order.address || {};
+        const addressLine = address.street
+          ? `${escapeHtml(address.street)}, ${escapeHtml(address.number || "S/N")}${address.complement ? ` - ${escapeHtml(address.complement)}` : ""}`
+          : "Endereco nao registrado";
+        const addressCity = address.city ? `${escapeHtml(address.neighborhood || "Bairro nao informado")} - ${escapeHtml(address.city)}/${escapeHtml(address.uf || "")}` : "";
+        const addressCep = address.cep ? `CEP ${escapeHtml(address.cep)}` : "";
         return `
           <tr>
-            <td><span class="order-id" title="${order.id}">${order.id}</span></td>
+            <td><span class="order-id" title="${escapeHtml(order.id)}">${escapeHtml(order.id)}</span></td>
+            <td><span class="order-buyer"><strong>${escapeHtml(order.buyerName || "-")}</strong>${escapeHtml(order.buyerDocument || "")}</span></td>
             <td>${items || "-"}</td>
+            <td><span class="order-address"><strong>${addressLine}</strong>${addressCity}<br>${addressCep}</span></td>
             <td>${money.format(Number(order.total || 0))}</td>
             <td>${createdAt}</td>
-            <td><span class="status warning">${order.status || "Pix gerado"}</span></td>
+            <td><span class="status warning">${escapeHtml(order.status || "Pix gerado")}</span></td>
           </tr>
         `;
       }).join("");

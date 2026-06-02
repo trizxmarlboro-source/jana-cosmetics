@@ -306,6 +306,12 @@ function pixConversionRate(metrics) {
   return metrics.pixInitiated > 0 ? Number(((metrics.pixCompleted / metrics.pixInitiated) * 100).toFixed(1)) : 0;
 }
 
+function maskDocument(documentNumber) {
+  const digits = String(documentNumber ?? "").replace(/\D/g, "");
+  if (digits.length !== 11) return "";
+  return `${digits.slice(0, 3)}.***.***-${digits.slice(-2)}`;
+}
+
 function isValidCpf(document) {
   const cpf = String(document ?? "").replace(/\D/g, "");
   if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
@@ -654,10 +660,14 @@ async function handleCheckoutApi(request, response, requestUrl) {
       name: item.name,
       quantity: item.quantity
     })),
+    subtotal,
+    pixDiscount,
     total,
     paymentMethod: "pix",
     status: "Pix gerado",
     buyerName,
+    buyerDocument: maskDocument(payerDocument),
+    address,
     createdAt: nowIso()
   });
   data.orders = data.orders.slice(0, 50);

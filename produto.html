@@ -24,6 +24,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; }
+    .hidden, [hidden] { display: none !important; }
     html { scroll-behavior: smooth; }
 
     body {
@@ -873,7 +874,6 @@
             <button class="btn btn-primary" id="copyPixBtn" type="button">Copiar codigo Pix</button>
           </div>
         </div>
-        <textarea id="checkoutPayload" class="hidden" readonly></textarea>
       </div>
     </section>
   </main>
@@ -901,7 +901,6 @@
     const checkoutSubmit = document.getElementById("checkoutSubmit");
     const mobileSubmit = document.getElementById("mobileSubmit");
     const checkoutResult = document.getElementById("checkoutResult");
-    const checkoutPayload = document.getElementById("checkoutPayload");
     const pixSuccess = document.getElementById("pixSuccess");
     const pixQrWrap = document.getElementById("pixQrWrap");
     const pixQrImage = document.getElementById("pixQrImage");
@@ -999,7 +998,6 @@
     function showPixResult(data) {
       const { copyCode, qrImage } = extractPixData(data);
       pixSuccess.hidden = false;
-      checkoutPayload.value = JSON.stringify(data, null, 2);
 
       if (qrImage) {
         pixQrImage.src = qrImage.startsWith("data:image") || qrImage.startsWith("http") ? qrImage : `data:image/png;base64,${qrImage}`;
@@ -1242,7 +1240,6 @@
       if (paymentMethod !== "pix") {
         document.getElementById("checkoutResultTitle").textContent = "Forma de pagamento indisponivel";
         document.getElementById("checkoutResultText").textContent = "No momento, apenas Pix esta ativo para este checkout.";
-        checkoutPayload.value = "";
         checkoutResult.classList.add("show");
         return;
       }
@@ -1257,7 +1254,6 @@
       if (!isValidCpf(payerDocumentInput.value)) {
         document.getElementById("checkoutResultTitle").textContent = "CPF invalido";
         document.getElementById("checkoutResultText").textContent = "Informe um CPF valido para gerar o Pix.";
-        checkoutPayload.value = "";
         checkoutResult.classList.add("show");
         checkoutSubmit.disabled = false;
         mobileSubmit.disabled = false;
@@ -1299,7 +1295,6 @@
       } catch (error) {
         document.getElementById("checkoutResultTitle").textContent = "Erro ao gerar Pix";
         document.getElementById("checkoutResultText").textContent = error.message;
-        checkoutPayload.value = "";
         resetPixResult();
         checkoutResult.classList.add("show");
       } finally {
