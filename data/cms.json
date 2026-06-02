@@ -61,6 +61,7 @@
     "pixRevenue": 0,
     "pixDiscounts": 0
   },
+  "orders": [],
   "settings": {
     "logoUrl": "assets/logo-jana-cosmeticos.svg",
     "faviconUrl": "assets/logo-jana-cosmeticos.svg",

@@ -1,7 +1,21 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="132" height="40" viewBox="0 0 132 40" role="img" aria-labelledby="title desc">
-  <title id="title">Pix</title>
-  <desc id="desc">Pagamento Pix</desc>
-  <rect width="132" height="40" rx="8" fill="#fff" stroke="#e6d8e2"/>
-  <path fill="#32BCAD" d="M48.9 20l-5.6-5.6c-1-1-1-2.7 0-3.8l5.6-5.6 2.8 2.8-3.7 3.7c-.5.5-.5 1.4 0 1.9l3.7 3.7-2.8 2.9zM67.1 10.6l5.6 5.6c1 1 1 2.7 0 3.8l-5.6 5.6-2.8-2.8 3.7-3.7c.5-.5.5-1.4 0-1.9l-3.7-3.7 2.8-2.9zM58 25c-3.2 0-5.9-2.6-5.9-5.9 0-3.2 2.6-5.9 5.9-5.9 3.2 0 5.9 2.6 5.9 5.9 0 3.2-2.6 5.9-5.9 5.9zm0-14.4l-5.6-5.6c-1-1-2.7-1-3.8 0l-2.8 2.8 3.7 3.7c.5.5 1.4.5 1.9 0l3.7-3.7 2.9 2.8zm0 17l5.6 5.6c1 1 2.7 1 3.8 0l2.8-2.8-3.7-3.7c-.5-.5-1.4-.5-1.9 0L58 27.6z"/>
-  <text x="82" y="24" fill="#32BCAD" font-family="Montserrat, Arial, sans-serif" font-size="14" font-weight="800">pix</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="48" viewBox="0 0 150 48" role="img" aria-labelledby="pix-title pix-desc">
+  <title id="pix-title">Pix</title>
+  <desc id="pix-desc">Pagamento Pix aceito pela Jana Cosmeticos</desc>
+  <defs>
+    <linearGradient id="pix-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f1fffc"/>
+      <stop offset="1" stop-color="#ffffff"/>
+    </linearGradient>
+    <filter id="pix-shadow" x="-10%" y="-20%" width="120%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#32bcad" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <rect x="1" y="1" width="148" height="46" rx="10" fill="url(#pix-bg)" stroke="#bfeee8"/>
+  <g transform="translate(31 8) scale(.7)" filter="url(#pix-shadow)">
+    <path d="M30.4 33.2a6.12 6.12 0 0 1-4.36-1.8l-6.1-6.1a1.54 1.54 0 0 0-2.14 0l-6.14 6.14a6.17 6.17 0 0 1-4.36 1.8h-.8l7.76 7.76a6.18 6.18 0 0 0 8.74 0l7.8-7.8h-1.4z" fill="#32bcad"/>
+    <path d="M7.3 10.5a6.12 6.12 0 0 1 4.36 1.8l6.14 6.14c.58.58 1.56.58 2.14 0l6.1-6.1a6.17 6.17 0 0 1 4.36-1.8h1.4l-7.8-7.8a6.18 6.18 0 0 0-8.74 0L7.5 10.5h-.2z" fill="#32bcad"/>
+    <path d="M39.1 15.3l-4.52-4.52a1.3 1.3 0 0 0-.18.13l-6.1 6.1a3.54 3.54 0 0 1-5 0l-6.14-6.14a1.3 1.3 0 0 0-.16-.12L12.5 15.3a6.18 6.18 0 0 0 0 8.74l4.5 4.5c.05-.04.1-.08.16-.12l6.14-6.14a3.53 3.53 0 0 1 5 0l6.1 6.1c.06.05.12.09.18.13l4.52-4.52a6.18 6.18 0 0 0 0-8.74z" fill="#32bcad"/>
+  </g>
+  <text x="83" y="26" fill="#148f83" font-family="Arial, sans-serif" font-size="18" font-weight="900" letter-spacing=".3">Pix</text>
+  <text x="83" y="35" fill="#148f83" font-family="Arial, sans-serif" font-size="7" font-weight="700" letter-spacing=".8">instantaneo</text>
 </svg>

@@ -427,11 +427,132 @@
 
     .hidden { display: none !important; }
 
+    .chart-section {
+      margin-top: 20px;
+    }
+
+    .bar-chart {
+      display: grid;
+      gap: 12px;
+      padding: 8px 0;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 120px minmax(0, 1fr) 40px;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .bar-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .bar-track {
+      height: 28px;
+      background: var(--sand);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--rose), var(--rose-dark));
+      border-radius: 6px;
+      min-width: 4px;
+      transition: width 400ms ease;
+    }
+
+    .bar-value {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .orders-table {
+      margin-top: 20px;
+    }
+
+    .order-id {
+      max-width: 180px;
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .status.warning {
+      background: #d9a441;
+      color: var(--ink);
+    }
+
+    .file-dropzone {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 120px;
+      border: 2px dashed var(--line);
+      border-radius: 12px;
+      padding: 18px;
+      background: #fffaf8;
+      cursor: pointer;
+      transition: border-color 180ms ease, background 180ms ease;
+      text-align: center;
+    }
+
+    .file-dropzone:hover,
+    .file-dropzone.dragover {
+      border-color: var(--rose);
+      background: #fff2f8;
+    }
+
+    .file-dropzone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .file-dropzone-icon {
+      width: 36px;
+      height: 36px;
+      color: var(--rose);
+    }
+
+    .file-dropzone-text {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .file-dropzone-text strong {
+      color: var(--rose);
+    }
+
+    .file-dropzone-hint {
+      color: #b99aab;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
     @media (max-width: 920px) {
       .app { grid-template-columns: 1fr; }
       .sidebar { position: static; }
       .metrics, .grid, .dashboard-grid { grid-template-columns: 1fr; }
       .topbar { flex-direction: column; }
+      .bar-row { grid-template-columns: 80px minmax(0, 1fr) 36px; }
     }
   </style>
 </head>
@@ -489,27 +610,37 @@
           <article class="card metric"><span>Produtos ativos</span><strong id="metricProducts">0</strong></article>
           <article class="card metric"><span>Categorias</span><strong id="metricCategories">0</strong></article>
         </div>
-        <div class="dashboard-grid">
-          <div class="panel">
-            <h2>Produtos por categoria</h2>
-            <table>
-              <thead><tr><th>Categoria</th><th>Total</th></tr></thead>
-              <tbody id="categoryMetrics"></tbody>
-            </table>
-          </div>
-          <div class="panel">
-            <h2>Conversao Pix</h2>
-            <div class="donut-wrap">
-              <div class="donut-chart" id="pixDonut"></div>
-              <div class="donut-center">
-                <strong id="pixDonutRate">0%</strong>
-                <span>conversao</span>
+        <div class="chart-section">
+          <div class="dashboard-grid">
+            <div class="panel">
+              <h2>Produtos por categoria</h2>
+              <div class="bar-chart" id="categoryBarChart"></div>
+              <table style="margin-top:16px">
+                <thead><tr><th>Categoria</th><th>Total</th></tr></thead>
+                <tbody id="categoryMetrics"></tbody>
+              </table>
+            </div>
+            <div class="panel">
+              <h2>Conversao Pix</h2>
+              <div class="donut-wrap">
+                <div class="donut-chart" id="pixDonut"></div>
+                <div class="donut-center">
+                  <strong id="pixDonutRate">0%</strong>
+                  <span>conversao</span>
+                </div>
+              </div>
+              <div class="donut-legend">
+                <div class="legend-row"><span><i class="legend-dot"></i>Concluidas</span><strong id="legendPixCompleted">0</strong></div>
+                <div class="legend-row"><span><i class="legend-dot muted"></i>Iniciadas sem conclusao</span><strong id="legendPixOpen">0</strong></div>
               </div>
             </div>
-            <div class="donut-legend">
-              <div class="legend-row"><span><i class="legend-dot"></i>Concluidas</span><strong id="legendPixCompleted">0</strong></div>
-              <div class="legend-row"><span><i class="legend-dot muted"></i>Iniciadas sem conclusao</span><strong id="legendPixOpen">0</strong></div>
-            </div>
+          </div>
+          <div class="panel orders-table">
+            <h2>Ultimos pedidos</h2>
+            <table>
+              <thead><tr><th>ID</th><th>Itens</th><th>Valor</th><th>Data</th><th>Status</th></tr></thead>
+              <tbody id="ordersTableBody"><tr><td colspan="5" style="color:var(--muted);text-align:center">Nenhum pedido registrado ainda.</td></tr></tbody>
+            </table>
           </div>
         </div>
       </section>
@@ -528,11 +659,16 @@
           <label>Nome</label><input id="productName" required>
           <label>Descricao</label><textarea id="productDescription" required></textarea>
           <label>Preco</label><input id="productPrice" type="number" min="0.01" step="0.01" required>
-          <label>Imagem URL</label><input id="productImage" required placeholder="https://seu-link-direto-da-imagem.jpg">
-          <p class="image-help">Use o link direto da imagem (ex: .jpg, .png, .webp).</p>
+          <label>Imagem do produto</label>
+          <div class="file-dropzone" id="productDropzone">
+            <input id="productImageFile" type="file" accept="image/png,image/jpeg" />
+            <svg class="file-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            <span class="file-dropzone-text"><strong>Clique ou arraste</strong> a imagem aqui</span>
+            <span class="file-dropzone-hint">Apenas PNG e JPG (max 850 KB)</span>
+          </div>
           <div class="image-preview-wrap">
             <img id="productImagePreview" class="image-preview hidden" alt="Preview da imagem do produto">
-            <span class="image-preview-text" id="productImagePreviewText">Cole a URL da imagem para visualizar.</span>
+            <span class="image-preview-text" id="productImagePreviewText">Nenhuma imagem selecionada.</span>
           </div>
           <label>Categoria</label><select id="productCategory" required></select>
           <label>Badge</label><input id="productBadge" placeholder="Ex: Mais pedido">
@@ -608,9 +744,11 @@
       pendingFaviconUrl: ""
     };
     const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
-    const productImageInput = document.getElementById("productImage");
+    const productImageFile = document.getElementById("productImageFile");
+    const productDropzone = document.getElementById("productDropzone");
     const productImagePreview = document.getElementById("productImagePreview");
     const productImagePreviewText = document.getElementById("productImagePreviewText");
+    let pendingProductImageUrl = "";
     const logoUploadInput = document.getElementById("logoUpload");
     const faviconUploadInput = document.getElementById("faviconUpload");
     const loginView = document.getElementById("loginView");
@@ -702,7 +840,52 @@
       document.getElementById("categoryMetrics").innerHTML = data.productsByCategory.map((row) =>
         `<tr><td>${row.category}</td><td>${row.total}</td></tr>`
       ).join("");
+      renderCategoryBarChart(data.productsByCategory);
+      renderRecentOrders(data.recentOrders || []);
       renderPixDonut(data);
+    }
+
+    function renderCategoryBarChart(categories) {
+      const chart = document.getElementById("categoryBarChart");
+      if (!categories || categories.length === 0) {
+        chart.innerHTML = '<p style="color:var(--muted);font-size:13px">Nenhuma categoria cadastrada.</p>';
+        return;
+      }
+      const max = Math.max(...categories.map((c) => c.total), 1);
+      chart.innerHTML = categories.map((row) => {
+        const pct = Math.round((row.total / max) * 100);
+        return `
+          <div class="bar-row">
+            <span class="bar-label" title="${row.category}">${row.category}</span>
+            <div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div>
+            <span class="bar-value">${row.total}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderRecentOrders(orders) {
+      const table = document.getElementById("ordersTableBody");
+      if (!orders.length) {
+        table.innerHTML = '<tr><td colspan="5" style="color:var(--muted);text-align:center">Nenhum pedido registrado ainda.</td></tr>';
+        return;
+      }
+
+      table.innerHTML = orders.map((order) => {
+        const items = (order.items || [])
+          .map((item) => `${item.quantity || 1}x ${item.name}`)
+          .join(", ");
+        const createdAt = order.createdAt ? new Date(order.createdAt).toLocaleString("pt-BR") : "-";
+        return `
+          <tr>
+            <td><span class="order-id" title="${order.id}">${order.id}</span></td>
+            <td>${items || "-"}</td>
+            <td>${money.format(Number(order.total || 0))}</td>
+            <td>${createdAt}</td>
+            <td><span class="status warning">${order.status || "Pix gerado"}</span></td>
+          </tr>
+        `;
+      }).join("");
     }
 
     function renderPixDonut(data) {
@@ -803,12 +986,33 @@
       if (!imageUrl) {
         productImagePreview.classList.add("hidden");
         productImagePreview.removeAttribute("src");
-        productImagePreviewText.textContent = "Cole a URL da imagem para visualizar.";
+        productImagePreviewText.textContent = "Nenhuma imagem selecionada.";
         return;
       }
       productImagePreview.classList.remove("hidden");
       productImagePreview.src = imageUrl;
-      productImagePreviewText.textContent = "Carregando preview...";
+      productImagePreviewText.textContent = "Preview carregado.";
+    }
+
+    async function handleProductImageFile(file) {
+      if (!file) return;
+      const validTypes = ["image/png", "image/jpeg"];
+      if (!validTypes.includes(file.type)) {
+        productImageFile.value = "";
+        productImagePreviewText.textContent = "Formato invalido. Envie apenas PNG ou JPG.";
+        return;
+      }
+      if (file.size > 850 * 1024) {
+        productImageFile.value = "";
+        productImagePreviewText.textContent = "Imagem muito grande (max 850 KB).";
+        return;
+      }
+      try {
+        pendingProductImageUrl = await fileToDataUrl(file);
+        renderImagePreview(pendingProductImageUrl);
+      } catch (error) {
+        productImagePreviewText.textContent = error.message;
+      }
     }
 
     function renderCategories() {
@@ -831,8 +1035,8 @@
       document.getElementById("productName").value = product.name;
       document.getElementById("productDescription").value = product.description;
       document.getElementById("productPrice").value = product.price;
-      document.getElementById("productImage").value = product.imageUrl;
-      renderImagePreview(product.imageUrl);
+      pendingProductImageUrl = product.imageUrl || "";
+      renderImagePreview(pendingProductImageUrl);
       document.getElementById("productCategory").value = product.categoryId;
       document.getElementById("productBadge").value = product.badge || "";
       document.getElementById("productStatus").checked = product.status;
@@ -864,6 +1068,8 @@
       document.getElementById("productId").value = "";
       document.getElementById("productStatus").checked = true;
       document.getElementById("productMessage").textContent = "";
+      productImageFile.value = "";
+      pendingProductImageUrl = "";
       renderImagePreview("");
     }
 
@@ -922,7 +1128,7 @@
         name: document.getElementById("productName").value,
         description: document.getElementById("productDescription").value,
         price: Number(document.getElementById("productPrice").value),
-        imageUrl: document.getElementById("productImage").value,
+        imageUrl: pendingProductImageUrl,
         categoryId: document.getElementById("productCategory").value,
         badge: document.getElementById("productBadge").value,
         status: document.getElementById("productStatus").checked
@@ -1027,14 +1233,29 @@
 
     document.getElementById("clearProductBtn").addEventListener("click", clearProductForm);
     document.getElementById("clearCategoryBtn").addEventListener("click", clearCategoryForm);
-    productImageInput.addEventListener("input", () => renderImagePreview(productImageInput.value));
-    productImagePreview.addEventListener("load", () => {
-      productImagePreviewText.textContent = "Preview carregado com sucesso.";
+
+    productImageFile.addEventListener("change", () => {
+      handleProductImageFile(productImageFile.files[0]);
     });
+
+    productDropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      productDropzone.classList.add("dragover");
+    });
+    productDropzone.addEventListener("dragleave", () => {
+      productDropzone.classList.remove("dragover");
+    });
+    productDropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      productDropzone.classList.remove("dragover");
+      const file = e.dataTransfer?.files?.[0];
+      if (file) handleProductImageFile(file);
+    });
+
     productImagePreview.addEventListener("error", () => {
       productImagePreview.classList.add("hidden");
       productImagePreview.removeAttribute("src");
-      productImagePreviewText.textContent = "Link invalido ou bloqueado. Use URL direta da imagem.";
+      productImagePreviewText.textContent = "Imagem invalida. Envie outra imagem PNG ou JPG.";
     });
     renderImagePreview("");
     fetch("/api/site/settings")

@@ -1,6 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="132" height="40" viewBox="0 0 132 40" role="img" aria-labelledby="title desc">
-  <title id="title">Visa</title>
-  <desc id="desc">Bandeira Visa</desc>
-  <rect width="132" height="40" rx="8" fill="#fff" stroke="#e6d8e2"/>
-  <text x="66" y="27" fill="#1434CB" font-family="Arial, sans-serif" font-size="22" font-weight="900" font-style="italic" text-anchor="middle" letter-spacing="-1">VISA</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="150" height="48" viewBox="0 0 150 48" role="img" aria-labelledby="visa-title visa-desc">
+  <title id="visa-title">Visa</title>
+  <desc id="visa-desc">Bandeira Visa aceita pela Jana Cosmeticos</desc>
+  <defs>
+    <linearGradient id="visa-bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#f6f8ff"/>
+    </linearGradient>
+    <filter id="visa-shadow" x="-10%" y="-20%" width="120%" height="160%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#1434cb" flood-opacity=".14"/>
+    </filter>
+  </defs>
+  <rect x="1" y="1" width="148" height="46" rx="10" fill="url(#visa-bg)" stroke="#dbe2ff"/>
+  <g filter="url(#visa-shadow)">
+    <path d="M41.4 32.7h-6.1l-4.58-17.35c-.22-.8-.7-1.48-1.4-1.82a19.2 19.2 0 0 0-5.65-1.88l.14-.65h9.82c1.24 0 2.3.95 2.45 2.14l2.4 12.52 6.13-14.66h6l-9.21 21.7zm13.01 0h-5.72l3.58-21.7h5.72l-3.58 21.7zm18.85-21.17a14.82 14.82 0 0 0-5.13-.94c-5.66 0-9.64 2.83-9.68 6.9-.04 3 2.85 4.68 5.03 5.69 2.24 1.02 2.99 1.68 2.98 2.6-.02 1.4-1.78 2.03-3.43 2.05-2.89.05-4.56-.73-5.9-1.32l-.82 4.82c1.34.58 3.82 1.1 6.38 1.13 6.02 0 9.95-2.8 10-7.14.02-2.38-1.5-4.2-4.8-5.69-2-.97-3.22-1.6-3.21-2.58 0-.86 1.03-1.8 3.24-1.8 2.36-.03 4.07.47 5.4.96l.94-4.7zm14.74-.53h-4.42c-1.38 0-2.4.75-2.91 1.9l-8.18 19.8h5.8l1.14-3h7.08l.66 3h5.1l-4.27-21.7zm-6.98 15.34l2.87-7.45 1.62 7.45h-4.49z" fill="#1434cb"/>
+  </g>
+  <rect x="12" y="39" width="126" height="3" rx="1.5" fill="#f7b600"/>
 </svg>

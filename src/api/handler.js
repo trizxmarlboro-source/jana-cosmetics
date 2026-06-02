@@ -16,6 +16,7 @@ const SESSION_SECRET = env.admin.sessionSecret || env.admin.password || "change-
 const JSON_BODY_CACHE_KEY = Symbol.for("jana-cosmeticos.json-body");
 const PIX_DISCOUNT_RATE = env.checkout.pixDiscountRate;
 const MAX_ASSET_DATA_URL_LENGTH = Number(process.env.MAX_ASSET_DATA_URL_LENGTH ?? 900000);
+const MAX_PRODUCT_IMAGE_DATA_URL_LENGTH = Number(process.env.MAX_PRODUCT_IMAGE_DATA_URL_LENGTH ?? 1200000);
 
 export function sendJson(response, statusCode, payload) {
   response.writeHead(statusCode, { "Content-Type": "application/json; charset=utf-8" });
@@ -210,7 +211,16 @@ function validateProduct(input, categories) {
   if (!String(input.name ?? "").trim()) return "Nome do produto e obrigatorio.";
   if (!String(input.description ?? "").trim()) return "Descricao do produto e obrigatoria.";
   if (!Number(input.price) || Number(input.price) <= 0) return "Preco deve ser maior que zero.";
-  if (!String(input.imageUrl ?? "").trim()) return "URL da imagem e obrigatoria.";
+  const imageUrl = String(input.imageUrl ?? "").trim();
+  if (!imageUrl) return "Imagem do produto e obrigatoria.";
+  if (imageUrl.startsWith("data:image/")) {
+    if (!imageUrl.startsWith("data:image/png;") && !imageUrl.startsWith("data:image/jpeg;")) {
+      return "Imagem do produto deve ser PNG ou JPG.";
+    }
+    if (imageUrl.length > MAX_PRODUCT_IMAGE_DATA_URL_LENGTH) {
+      return "Imagem do produto excede o limite permitido.";
+    }
+  }
   if (!categories.some((category) => category.id === input.categoryId)) return "Categoria invalida.";
   return "";
 }
@@ -282,6 +292,14 @@ function ensureMetrics(data) {
   };
 
   return data.metrics;
+}
+
+function ensureOrders(data) {
+  if (!Array.isArray(data.orders)) {
+    data.orders = [];
+  }
+
+  return data.orders;
 }
 
 function pixConversionRate(metrics) {
@@ -366,6 +384,10 @@ async function handleAdminApi(request, response, requestUrl) {
     const activeProducts = data.products.filter((product) => product.status).length;
     const categories = data.categories.length;
     const metrics = ensureMetrics(data);
+    const recentOrders = ensureOrders(data)
+      .slice()
+      .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)))
+      .slice(0, 8);
     const productsByCategory = data.categories.map((category) => ({
       category: category.name,
       total: data.products.filter((product) => product.categoryId === category.id).length
@@ -382,7 +404,8 @@ async function handleAdminApi(request, response, requestUrl) {
       activeProducts,
       categories,
       topProducts: data.products.slice(0, 5).map((product) => ({ name: product.name, sales: 0 })),
-      productsByCategory
+      productsByCategory,
+      recentOrders
     });
     return true;
   }
@@ -601,6 +624,19 @@ async function handleCheckoutApi(request, response, requestUrl) {
   metrics.totalSales = moneyValue(metrics.totalSales + total);
   metrics.pixRevenue = moneyValue(metrics.pixRevenue + total);
   metrics.pixDiscounts = moneyValue(metrics.pixDiscounts + pixDiscount);
+  ensureOrders(data).unshift({
+    id: transactionId,
+    items: checkoutItems.map((item) => ({
+      name: item.name,
+      quantity: item.quantity
+    })),
+    total,
+    paymentMethod: "pix",
+    status: "Pix gerado",
+    buyerName,
+    createdAt: nowIso()
+  });
+  data.orders = data.orders.slice(0, 50);
   await writeCms(data);
 
   sendJson(response, 201, {
