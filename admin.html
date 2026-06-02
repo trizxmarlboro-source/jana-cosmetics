@@ -570,6 +570,61 @@
       .topbar { flex-direction: column; }
       .bar-row { grid-template-columns: 80px minmax(0, 1fr) 36px; }
     }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-overlay.hidden {
+      display: none !important;
+    }
+
+    .modal-content {
+      background: var(--white);
+      border-radius: var(--radius);
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+      padding: 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: transparent;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--rose);
+    }
+
+    .ephemeral-warning {
+      background: #fff3cd;
+      color: #856404;
+      padding: 12px 16px;
+      border-radius: var(--radius);
+      margin-bottom: 24px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid #ffeeba;
+    }
   </style>
 </head>
 <body>
@@ -616,6 +671,9 @@
       </div>
 
       <section id="dashboardView">
+        <div class="ephemeral-warning">
+          <strong>Aviso sobre Hospedagem:</strong> Se o sistema estiver rodando na Vercel (gratuita), produtos criados aqui podem desaparecer após alguns minutos porque a Vercel apaga arquivos criados dinamicamente. Para criar produtos permanentemente, rode o sistema localmente (seu PC) e depois envie o arquivo atualizado (cms.json) para o GitHub.
+        </div>
         <div class="metrics">
           <article class="card metric"><span>Total de vendas</span><strong id="metricSales">R$ 0,00</strong></article>
           <article class="card metric"><span>Pedidos</span><strong id="metricOrders">0</strong></article>
@@ -661,41 +719,69 @@
         </div>
       </section>
 
-      <section class="grid hidden" id="productsView">
+      <section class="hidden" id="productsView">
         <div class="panel">
-          <h2>Produtos</h2>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 24px;">
+            <h2>Produtos</h2>
+            <button class="btn btn-primary" id="newProductBtn">Criar Produto</button>
+          </div>
           <table>
             <thead><tr><th>Nome</th><th>Imagem</th><th>Categoria</th><th>Preco</th><th>Status</th><th>Acoes</th></tr></thead>
             <tbody id="productsTable"></tbody>
           </table>
         </div>
-        <form class="panel" id="productForm">
-          <h2 id="productFormTitle">Novo produto</h2>
-          <input type="hidden" id="productId">
-          <label>Nome</label><input id="productName" required>
-          <label>Descricao</label><textarea id="productDescription" required></textarea>
-          <label>Preco</label><input id="productPrice" type="number" min="0.01" step="0.01" required>
-          <label>Imagem do produto</label>
-          <div class="file-dropzone" id="productDropzone">
-            <input id="productImageFile" type="file" accept="image/png,image/jpeg" />
-            <svg class="file-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-            <span class="file-dropzone-text"><strong>Clique ou arraste</strong> a imagem aqui</span>
-            <span class="file-dropzone-hint">Apenas PNG e JPG (max 850 KB)</span>
-          </div>
-          <div class="image-preview-wrap">
-            <img id="productImagePreview" class="image-preview hidden" alt="Preview da imagem do produto">
-            <span class="image-preview-text" id="productImagePreviewText">Nenhuma imagem selecionada.</span>
-          </div>
-          <label>Categoria</label><select id="productCategory" required></select>
-          <label>Badge</label><input id="productBadge" placeholder="Ex: Mais pedido">
-          <label><input id="productStatus" type="checkbox" checked style="width:auto"> Produto ativo</label>
-          <div class="btn-row">
-            <button class="btn btn-primary" type="submit">Salvar</button>
-            <button class="btn btn-ghost" type="button" id="clearProductBtn">Limpar</button>
-          </div>
           <p class="message" id="productMessage"></p>
         </form>
       </section>
+
+      <div class="modal-overlay hidden" id="productModal">
+        <div class="modal-content">
+          <button class="modal-close" id="closeProductModal">&times;</button>
+          <form id="productForm" style="display:flex; flex-direction:column; gap:12px;">
+            <h2 id="productFormTitle" style="margin-bottom:12px; font-size:18px;">Novo produto</h2>
+            <input type="hidden" id="productId">
+            
+            <label>Nome</label>
+            <input id="productName" required>
+            
+            <label>Descricao</label>
+            <textarea id="productDescription" required></textarea>
+            
+            <label>Preco</label>
+            <input id="productPrice" type="number" min="0.01" step="0.01" required>
+            
+            <label>Imagem do produto</label>
+            <div class="file-dropzone" id="productDropzone">
+              <input id="productImageFile" type="file" accept="image/png,image/jpeg" />
+              <svg class="file-dropzone-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span class="file-dropzone-text"><strong>Clique ou arraste</strong> a imagem aqui</span>
+              <span class="file-dropzone-hint">Apenas PNG e JPG (max 850 KB)</span>
+            </div>
+            
+            <div class="image-preview-wrap">
+              <img id="productImagePreview" class="image-preview hidden" alt="Preview da imagem do produto">
+              <span class="image-preview-text" id="productImagePreviewText">Nenhuma imagem selecionada.</span>
+            </div>
+            
+            <label>Categoria</label>
+            <select id="productCategory" required></select>
+            
+            <label>Badge</label>
+            <input id="productBadge" placeholder="Ex: Mais pedido">
+            
+            <label style="display:flex; align-items:center; gap:8px;">
+              <input id="productStatus" type="checkbox" checked style="width:auto"> 
+              Produto ativo
+            </label>
+            
+            <div class="btn-row" style="margin-top:16px;">
+              <button class="btn btn-primary" type="submit">Salvar</button>
+              <button class="btn btn-ghost" type="button" id="clearProductBtn">Limpar</button>
+            </div>
+            <p class="message" id="productMessage"></p>
+          </form>
+        </div>
+      </div>
 
       <section class="grid hidden" id="categoriesView">
         <div class="panel">
@@ -1074,7 +1160,17 @@
       document.getElementById("productCategory").value = product.categoryId;
       document.getElementById("productBadge").value = product.badge || "";
       document.getElementById("productStatus").checked = product.status;
+      document.getElementById("productModal").classList.remove("hidden");
     };
+
+    document.getElementById("newProductBtn").addEventListener("click", () => {
+      clearProductForm();
+      document.getElementById("productModal").classList.remove("hidden");
+    });
+
+    document.getElementById("closeProductModal").addEventListener("click", () => {
+      document.getElementById("productModal").classList.add("hidden");
+    });
 
     window.deleteProduct = async function(id) {
       if (!confirm("Excluir este produto?")) return;
@@ -1175,6 +1271,9 @@
         clearProductForm();
         await loadAll();
         document.getElementById("productMessage").textContent = "Produto salvo com sucesso.";
+        setTimeout(() => {
+          document.getElementById("productModal").classList.add("hidden");
+        }, 1000);
       } catch (error) {
         document.getElementById("productMessage").textContent = error.message;
       }

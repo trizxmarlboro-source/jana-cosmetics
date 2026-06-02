@@ -307,7 +307,8 @@ function pixConversionRate(metrics) {
 }
 
 function defaultPayerDocument() {
-  return String(DEFAULT_PAYER_DOCUMENT ?? "").replace(/\D/g, "");
+  const doc = String(DEFAULT_PAYER_DOCUMENT ?? "").replace(/\D/g, "");
+  return doc.length > 0 ? doc : "00000000000";
 }
 
 function moneyValue(value) {
