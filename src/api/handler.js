@@ -14,7 +14,7 @@ const SESSION_COOKIE_NAME = "admin_session";
 const SESSION_TTL_SECONDS = Math.min(Math.max(Number(env.admin.sessionTtlSeconds) || 1800, 60), 1800);
 const SESSION_SECRET = env.admin.sessionSecret || env.admin.password || "change-this-admin-session-secret";
 const JSON_BODY_CACHE_KEY = Symbol.for("jana-cosmeticos.json-body");
-const PIX_DISCOUNT_RATE = env.checkout.pixDiscountRate;
+const PIX_DISCOUNT_RATE = Math.max(0, Math.min(0.05, Number(env.checkout.pixDiscountRate) || 0.05));
 const MAX_ASSET_DATA_URL_LENGTH = Number(process.env.MAX_ASSET_DATA_URL_LENGTH ?? 900000);
 const MAX_PRODUCT_IMAGE_DATA_URL_LENGTH = Number(process.env.MAX_PRODUCT_IMAGE_DATA_URL_LENGTH ?? 1200000);
 
@@ -625,7 +625,7 @@ async function handleCheckoutApi(request, response, requestUrl) {
   }
 
   const subtotal = moneyValue(checkoutItems.reduce((sum, item) => sum + item.subtotal, 0));
-  const pixDiscountRate = Math.max(0, Math.min(0.8, PIX_DISCOUNT_RATE));
+  const pixDiscountRate = PIX_DISCOUNT_RATE;
   const pixDiscount = moneyValue(subtotal * pixDiscountRate);
   const total = moneyValue(subtotal - pixDiscount);
   const itemSummary = checkoutItems.map((item) => `${item.quantity}x ${item.name}`).join(", ");

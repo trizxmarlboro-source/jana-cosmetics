@@ -53,7 +53,7 @@ export const env = {
     baseUrl: "https://api.misticpay.com/api"
   },
   checkout: {
-    pixDiscountRate: Number(readEnv("PIX_DISCOUNT_RATE", "0.15"))
+    pixDiscountRate: Number(readEnv("PIX_DISCOUNT_RATE", "0.05"))
   }
 };
 

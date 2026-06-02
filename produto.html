@@ -775,7 +775,7 @@
               </label>
               <label class="payment-option active">
                 <input type="radio" name="paymentMethod" value="pix" checked>
-                <span>Pix <small class="benefit">Tenha até 15% de desconto pagando à vista no Pix</small></span>
+                <span>Pix <small class="benefit">Tenha até 5% de desconto pagando à vista no Pix</small></span>
               </label>
             </div>
             <div class="pix-panel">
@@ -873,7 +873,7 @@
             <button class="btn btn-primary" id="copyPixBtn" type="button">Copiar codigo Pix</button>
           </div>
         </div>
-        <textarea id="checkoutPayload" readonly></textarea>
+        <textarea id="checkoutPayload" class="hidden" readonly></textarea>
       </div>
     </section>
   </main>
@@ -888,7 +888,7 @@
     const selectedId = params.get("id");
     const isCartCheckout = params.get("cart") === "1";
     const CART_KEY = "janaCosmeticosCart";
-    const PIX_DISCOUNT_RATE = 0.15;
+    const PIX_DISCOUNT_RATE = 0.05;
 
     const productImage = document.getElementById("productImage");
     const productName = document.getElementById("productName");
@@ -1140,7 +1140,7 @@
       orderSummary.innerHTML = `
         ${rows}
         <div class="summary-total discount">
-          <span>Desconto Pix 15%</span>
+          <span>Desconto Pix 5%</span>
           <strong>- ${money.format(pixDiscountValue())}</strong>
         </div>
         <div class="summary-total">
