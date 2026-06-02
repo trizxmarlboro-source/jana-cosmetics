@@ -5,7 +5,13 @@ import { randomUUID } from "node:crypto";
 
 const DEFAULT_CMS_PATH = resolve(process.cwd(), "data", "cms.json");
 const configuredCmsPath = (process.env.CMS_DATA_PATH ?? "").trim();
-const runtimeCmsPath = process.env.VERCEL === "1" && !configuredCmsPath ? "/tmp/jana-cms.json" : "";
+const isVercelRuntime = Boolean(
+  process.env.VERCEL ||
+  process.env.VERCEL_ENV ||
+  process.env.NOW_REGION ||
+  process.cwd().startsWith("/var/task")
+);
+const runtimeCmsPath = isVercelRuntime && !configuredCmsPath ? "/tmp/jana-cms.json" : "";
 const selectedCmsPath = runtimeCmsPath || configuredCmsPath || DEFAULT_CMS_PATH;
 const CMS_PATH = isAbsolute(selectedCmsPath) ? selectedCmsPath : resolve(process.cwd(), selectedCmsPath);
 
