@@ -590,6 +590,45 @@
       background: #fffbfe;
     }
 
+    .pix-success {
+      display: grid;
+      gap: 14px;
+      margin: 12px 0;
+    }
+
+    .pix-qr {
+      display: grid;
+      place-items: center;
+      gap: 10px;
+      border: 1px solid #ead6e2;
+      border-radius: 8px;
+      padding: 18px;
+      background: #fff;
+      text-align: center;
+    }
+
+    .pix-qr img {
+      width: min(100%, 240px);
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .pix-copy {
+      display: grid;
+      gap: 8px;
+    }
+
+    .pix-copy label {
+      color: #3f2e38;
+      font-size: .9rem;
+      font-weight: 900;
+    }
+
+    .pix-copy textarea {
+      min-height: 118px;
+      font-size: .78rem;
+    }
+
     .empty-state {
       padding: 40px 24px;
       text-align: center;
@@ -755,6 +794,11 @@
             <input id="buyerName" name="buyerName" autocomplete="name" required>
           </label>
 
+          <label>
+            CPF do comprador
+            <input id="payerDocument" name="payerDocument" inputmode="numeric" placeholder="000.000.000-00" autocomplete="off" required>
+          </label>
+
           <div class="form-field">
             <label for="buyerCep">CEP</label>
             <div class="cep-row">
@@ -818,6 +862,17 @@
       <div class="checkout-result" id="checkoutResult">
         <strong id="checkoutResultTitle">Pix gerado</strong>
         <p id="checkoutResultText">Confira os dados retornados pela MisticPay.</p>
+        <div class="pix-success" id="pixSuccess" hidden>
+          <div class="pix-qr" id="pixQrWrap" hidden>
+            <img id="pixQrImage" alt="QR Code Pix">
+            <small>Escaneie o QR Code para pagar.</small>
+          </div>
+          <div class="pix-copy" id="pixCopyWrap" hidden>
+            <label for="pixCopyCode">Pix copia e cola</label>
+            <textarea id="pixCopyCode" readonly></textarea>
+            <button class="btn btn-primary" id="copyPixBtn" type="button">Copiar codigo Pix</button>
+          </div>
+        </div>
         <textarea id="checkoutPayload" readonly></textarea>
       </div>
     </section>
@@ -847,6 +902,13 @@
     const mobileSubmit = document.getElementById("mobileSubmit");
     const checkoutResult = document.getElementById("checkoutResult");
     const checkoutPayload = document.getElementById("checkoutPayload");
+    const pixSuccess = document.getElementById("pixSuccess");
+    const pixQrWrap = document.getElementById("pixQrWrap");
+    const pixQrImage = document.getElementById("pixQrImage");
+    const pixCopyWrap = document.getElementById("pixCopyWrap");
+    const pixCopyCode = document.getElementById("pixCopyCode");
+    const copyPixBtn = document.getElementById("copyPixBtn");
+    const payerDocumentInput = document.getElementById("payerDocument");
     const cepInput = document.getElementById("buyerCep");
     const cepMessage = document.getElementById("cepMessage");
     const cepLookupBtn = document.getElementById("cepLookupBtn");
@@ -885,6 +947,94 @@
     function formatCep(value) {
       const digits = onlyDigits(value).slice(0, 8);
       return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+    }
+
+    function formatCpf(value) {
+      const digits = onlyDigits(value).slice(0, 11);
+      return digits
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d)/, "$1.$2")
+        .replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    }
+
+    function isValidCpf(value) {
+      const cpf = onlyDigits(value);
+      if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) return false;
+      const calculateDigit = (factor) => {
+        let total = 0;
+        for (let index = 0; index < factor - 1; index += 1) {
+          total += Number(cpf[index]) * (factor - index);
+        }
+        const rest = (total * 10) % 11;
+        return rest === 10 ? 0 : rest;
+      };
+      return calculateDigit(10) === Number(cpf[9]) && calculateDigit(11) === Number(cpf[10]);
+    }
+
+    function deepFindPixValue(value, patterns) {
+      if (!value || typeof value !== "object") return "";
+      for (const [key, entry] of Object.entries(value)) {
+        const normalizedKey = key.toLowerCase();
+        if (patterns.some((pattern) => normalizedKey.includes(pattern)) && typeof entry === "string" && entry.trim()) {
+          return entry.trim();
+        }
+        if (entry && typeof entry === "object") {
+          const found = deepFindPixValue(entry, patterns);
+          if (found) return found;
+        }
+      }
+      return "";
+    }
+
+    function extractPixData(data) {
+      const payment = data?.payment || data;
+      const qrImage = deepFindPixValue(payment, ["qrcodebase64", "qr_code_base64", "qrcodeurl", "qr_code_url", "qrcodeimage", "qr_code_image"]);
+      const copyCode = deepFindPixValue(payment, ["copypaste", "copy_paste", "brcode", "emv"]);
+      return {
+        qrImage,
+        copyCode: copyCode === qrImage ? "" : copyCode
+      };
+    }
+
+    function showPixResult(data) {
+      const { copyCode, qrImage } = extractPixData(data);
+      pixSuccess.hidden = false;
+      checkoutPayload.value = JSON.stringify(data, null, 2);
+
+      if (qrImage) {
+        pixQrImage.src = qrImage.startsWith("data:image") || qrImage.startsWith("http") ? qrImage : `data:image/png;base64,${qrImage}`;
+        pixQrWrap.hidden = false;
+      } else {
+        pixQrImage.removeAttribute("src");
+        pixQrWrap.hidden = true;
+      }
+
+      if (copyCode) {
+        pixCopyCode.value = copyCode;
+        pixCopyWrap.hidden = false;
+      } else {
+        pixCopyCode.value = "";
+        pixCopyWrap.hidden = true;
+      }
+    }
+
+    function resetPixResult() {
+      pixSuccess.hidden = true;
+      pixQrWrap.hidden = true;
+      pixCopyWrap.hidden = true;
+      pixQrImage.removeAttribute("src");
+      pixCopyCode.value = "";
+    }
+
+    function providerErrorMessage(data) {
+      const details = data?.details;
+      const detailMessage =
+        details?.message ||
+        details?.error ||
+        details?.errors?.[0]?.message ||
+        details?.data?.message ||
+        "";
+      return [data?.error, detailMessage].filter(Boolean).join(" - ") || "Nao foi possivel gerar o Pix.";
     }
 
     function loadCart() {
@@ -1066,6 +1216,10 @@
       if (onlyDigits(cepInput.value).length === 8) lookupCep();
     });
 
+    payerDocumentInput.addEventListener("input", () => {
+      payerDocumentInput.value = formatCpf(payerDocumentInput.value);
+    });
+
     cepInput.addEventListener("blur", () => {
       if (onlyDigits(cepInput.value).length === 8) lookupCep();
     });
@@ -1098,6 +1252,19 @@
       checkoutSubmit.textContent = "Indo ao pagamento...";
       mobileSubmit.textContent = "Indo ao pagamento...";
       checkoutResult.classList.remove("show");
+      resetPixResult();
+
+      if (!isValidCpf(payerDocumentInput.value)) {
+        document.getElementById("checkoutResultTitle").textContent = "CPF invalido";
+        document.getElementById("checkoutResultText").textContent = "Informe um CPF valido para gerar o Pix.";
+        checkoutPayload.value = "";
+        checkoutResult.classList.add("show");
+        checkoutSubmit.disabled = false;
+        mobileSubmit.disabled = false;
+        checkoutSubmit.textContent = "Finalizar compra";
+        mobileSubmit.textContent = "Finalizar compra";
+        return;
+      }
 
       try {
         const response = await fetch("/api/checkout/pix", {
@@ -1107,6 +1274,7 @@
             items: checkoutItems.map(({ product, quantity }) => ({ productId: product.id, quantity })),
             productId: checkoutItems[0]?.product.id,
             buyerName: document.getElementById("buyerName").value,
+            payerDocument: onlyDigits(payerDocumentInput.value),
             cep: cepInput.value,
             number: numberInput.value,
             noNumber: noNumberInput.checked,
@@ -1120,24 +1288,37 @@
         });
 
         const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Nao foi possivel gerar o Pix.");
+        if (!response.ok) throw new Error(providerErrorMessage(data));
 
         if (isCartCheckout) saveCart([]);
         document.getElementById("checkoutResultTitle").textContent = "Pix solicitado com sucesso";
-        document.getElementById("checkoutResultText").textContent = "A resposta da MisticPay esta abaixo. Use o codigo ou QR retornado para pagamento.";
-        checkoutPayload.value = JSON.stringify(data, null, 2);
+        document.getElementById("checkoutResultText").textContent = "Use o QR Code ou o Pix copia e cola para finalizar o pagamento.";
+        showPixResult(data);
         checkoutResult.classList.add("show");
         checkoutResult.scrollIntoView({ behavior: "smooth", block: "start" });
       } catch (error) {
         document.getElementById("checkoutResultTitle").textContent = "Erro ao gerar Pix";
         document.getElementById("checkoutResultText").textContent = error.message;
         checkoutPayload.value = "";
+        resetPixResult();
         checkoutResult.classList.add("show");
       } finally {
         checkoutSubmit.disabled = false;
         mobileSubmit.disabled = false;
         checkoutSubmit.textContent = "Finalizar compra";
         mobileSubmit.textContent = "Finalizar compra";
+      }
+    });
+
+    copyPixBtn.addEventListener("click", async () => {
+      if (!pixCopyCode.value) return;
+      try {
+        await navigator.clipboard.writeText(pixCopyCode.value);
+        copyPixBtn.textContent = "Codigo copiado";
+        setTimeout(() => { copyPixBtn.textContent = "Copiar codigo Pix"; }, 1800);
+      } catch {
+        pixCopyCode.select();
+        document.execCommand("copy");
       }
     });
 

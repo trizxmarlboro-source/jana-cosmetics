@@ -19,7 +19,14 @@ export async function requestJson(url, options = {}, provider = "payment-provide
   });
 
   const text = await response.text();
-  const responseBody = text ? JSON.parse(text) : null;
+  let responseBody = null;
+  if (text) {
+    try {
+      responseBody = JSON.parse(text);
+    } catch {
+      responseBody = { message: text };
+    }
+  }
 
   if (!response.ok) {
     throw new PaymentApiError(`${provider} respondeu com status ${response.status}`, {
@@ -31,4 +38,3 @@ export async function requestJson(url, options = {}, provider = "payment-provide
 
   return responseBody;
 }
-
