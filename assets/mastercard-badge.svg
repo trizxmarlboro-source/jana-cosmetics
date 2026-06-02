@@ -2,7 +2,8 @@
   <title id="title">Mastercard</title>
   <desc id="desc">Bandeira Mastercard</desc>
   <rect width="132" height="40" rx="8" fill="#fff" stroke="#e6d8e2"/>
-  <circle cx="43" cy="20" r="10" fill="#EB001B"/>
-  <circle cx="56" cy="20" r="10" fill="#FF5F00" fill-opacity=".95"/>
-  <text x="70" y="24" fill="#1a1118" font-family="Arial, sans-serif" font-size="10" font-weight="700">mastercard</text>
+  <circle cx="48" cy="20" r="12" fill="#eb001b"/>
+  <circle cx="64" cy="20" r="12" fill="#f79e1b"/>
+  <path d="M56 10a12 12 0 0 0 0 20 12 12 0 0 0 0-20z" fill="#ff5f00"/>
+  <text x="82" y="24" fill="#1a1118" font-family="Montserrat, Arial, sans-serif" font-size="12" font-weight="800">mastercard</text>
 </svg>
