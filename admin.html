@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin | Jana Cosmeticos</title>
+  <link id="siteFavicon" rel="icon" href="assets/logo-jana-cosmeticos.svg">
   <style>
     :root {
       --rose: #e0217a;
@@ -56,6 +57,29 @@
     .login-card {
       width: min(100%, 420px);
       padding: 30px;
+      text-align: center;
+    }
+
+    .login-logo {
+      width: 136px;
+      height: 136px;
+      margin: 0 auto 18px;
+      border: 3px solid var(--rose-light);
+      border-radius: 50%;
+      object-fit: contain;
+      background: var(--white);
+      box-shadow: 0 12px 30px rgba(224, 33, 122, .18);
+    }
+
+    .login-card label {
+      text-align: left;
+    }
+
+    .login-session-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
     }
 
     h1, h2, h3, p { margin-top: 0; }
@@ -397,6 +421,7 @@
 <body>
   <section class="login" id="loginView">
     <form class="login-card" id="loginForm" autocomplete="off">
+      <img class="login-logo" id="loginLogo" src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
       <h1>Jana Cosmeticos</h1>
       <p>Entre para gerenciar produtos, categorias e metricas.</p>
       <label for="user">Usuario</label>
@@ -407,6 +432,7 @@
         <button class="btn btn-primary" type="submit">Entrar</button>
         <a class="btn btn-ghost" href="/">Voltar ao site</a>
       </div>
+      <p class="login-session-note">Sessao administrativa expira automaticamente em 30 minutos.</p>
       <p class="message" id="loginMessage"></p>
     </form>
   </section>
@@ -551,6 +577,7 @@
 
   <script>
     const DEFAULT_LOGO = "assets/logo-jana-cosmeticos.svg";
+    const SESSION_TIMEOUT_SECONDS = 30 * 60;
     const state = {
       products: [],
       categories: [],
@@ -564,6 +591,10 @@
     const productImagePreviewText = document.getElementById("productImagePreviewText");
     const logoUploadInput = document.getElementById("logoUpload");
     const faviconUploadInput = document.getElementById("faviconUpload");
+    const loginView = document.getElementById("loginView");
+    const appView = document.getElementById("appView");
+    const loginMessage = document.getElementById("loginMessage");
+    let sessionTimeoutId = null;
 
     async function api(path, options = {}) {
       const response = await fetch(path, {
@@ -574,16 +605,61 @@
         }
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok) throw new Error(data.error || "Erro na requisicao.");
+      if (!response.ok) {
+        if (response.status === 401 && path !== "/api/admin/login") {
+          showLogin("Sessao expirada. Entre novamente.");
+        }
+        throw new Error(data.error || "Erro na requisicao.");
+      }
       return data;
+    }
+
+    function clearSessionTimer() {
+      if (sessionTimeoutId) {
+        window.clearTimeout(sessionTimeoutId);
+      }
+      sessionTimeoutId = null;
+    }
+
+    function startSessionTimer(expiresInSeconds = SESSION_TIMEOUT_SECONDS) {
+      clearSessionTimer();
+      const seconds = Math.max(1, Math.min(Number(expiresInSeconds) || SESSION_TIMEOUT_SECONDS, SESSION_TIMEOUT_SECONDS));
+      sessionTimeoutId = window.setTimeout(() => {
+        showLogin("Sessao expirada. Entre novamente.");
+      }, seconds * 1000);
+    }
+
+    function showLogin(message = "") {
+      clearSessionTimer();
+      loginView.classList.remove("hidden");
+      appView.classList.add("hidden");
+      if (message) {
+        loginMessage.textContent = message;
+      }
+    }
+
+    function showApp(expiresInSeconds) {
+      loginView.classList.add("hidden");
+      appView.classList.remove("hidden");
+      loginMessage.textContent = "";
+      startSessionTimer(expiresInSeconds);
+    }
+
+    function applyBrandSettings(settings) {
+      if (!settings) return;
+      const logoUrl = settings.logoUrl || DEFAULT_LOGO;
+      const faviconUrl = settings.faviconUrl || logoUrl;
+      document.getElementById("loginLogo").src = logoUrl;
+      document.getElementById("siteFavicon").href = faviconUrl;
     }
 
     async function checkSession() {
       const data = await api("/api/admin/me");
-      document.getElementById("loginView").classList.toggle("hidden", data.authenticated);
-      document.getElementById("appView").classList.toggle("hidden", !data.authenticated);
       if (data.authenticated) {
+        showApp(data.expiresInSeconds);
         await loadAll();
+      } else {
+        showLogin();
       }
     }
 
@@ -640,6 +716,7 @@
       state.pendingFaviconUrl = "";
       logoUploadInput.value = "";
       faviconUploadInput.value = "";
+      applyBrandSettings(state.settings);
       renderSettings();
     }
 
@@ -787,13 +864,16 @@
         });
         await checkSession();
       } catch (error) {
-        document.getElementById("loginMessage").textContent = error.message;
+        loginMessage.textContent = error.message;
       }
     });
 
     document.getElementById("logoutBtn").addEventListener("click", async () => {
-      await api("/api/admin/logout", { method: "POST" });
-      await checkSession();
+      try {
+        await api("/api/admin/logout", { method: "POST" });
+      } finally {
+        showLogin();
+      }
     });
 
     document.querySelectorAll("[data-view]").forEach((button) => {
@@ -898,6 +978,7 @@
         state.pendingFaviconUrl = "";
         logoUploadInput.value = "";
         faviconUploadInput.value = "";
+        applyBrandSettings(state.settings);
         renderSettings();
         document.getElementById("settingsMessage").textContent = "Personalizacao salva com sucesso.";
       } catch (error) {
@@ -914,6 +995,7 @@
         state.settings = data.settings;
         state.pendingLogoUrl = "";
         state.pendingFaviconUrl = "";
+        applyBrandSettings(state.settings);
         renderSettings();
         document.getElementById("settingsMessage").textContent = "Identidade visual restaurada.";
       } catch (error) {
@@ -933,6 +1015,10 @@
       productImagePreviewText.textContent = "Link invalido ou bloqueado. Use URL direta da imagem.";
     });
     renderImagePreview("");
+    fetch("/api/site/settings")
+      .then((response) => response.ok ? response.json() : Promise.reject())
+      .then((data) => applyBrandSettings(data.settings))
+      .catch(() => {});
     checkSession();
   </script>
 </body>

@@ -43,7 +43,7 @@ export const env = {
     user: readEnv("ADMIN_USER"),
     password: readEnv("ADMIN_PASSWORD"),
     sessionSecret: readEnv("ADMIN_SESSION_SECRET"),
-    sessionTtlSeconds: Number(readEnv("ADMIN_SESSION_TTL_SECONDS", "86400"))
+    sessionTtlSeconds: Number(readEnv("ADMIN_SESSION_TTL_SECONDS", "1800"))
   },
   misticPay: {
     clientId: readEnv("MISTIC_PAY_CLIENT_ID"),

@@ -19,7 +19,7 @@ PIX_DISCOUNT_RATE="0.15"
 ADMIN_USER="YOUR_ADMIN_EMAIL"
 ADMIN_PASSWORD="YOUR_STRONG_ADMIN_PASSWORD"
 ADMIN_SESSION_SECRET="CHANGE_THIS_TO_A_RANDOM_SECRET"
-ADMIN_SESSION_TTL_SECONDS="86400"
+ADMIN_SESSION_TTL_SECONDS="1800"
 CMS_DATA_PATH=""
 NODE_ENV="development"
 ```
@@ -63,7 +63,7 @@ O projeto esta pronto para Vercel com API em `api/[...path].js`.
    - `ADMIN_USER`
    - `ADMIN_PASSWORD`
    - `ADMIN_SESSION_SECRET` (obrigatoria em producao)
-   - `ADMIN_SESSION_TTL_SECONDS` (opcional, padrao `86400`)
+   - `ADMIN_SESSION_TTL_SECONDS` (opcional, padrao `1800`, equivalente a 30 minutos)
 3. Deploy.
 
 Observacao sobre dados CMS:

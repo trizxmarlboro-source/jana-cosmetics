@@ -11,7 +11,7 @@ const ADMIN_USER = env.admin.user;
 const ADMIN_PASSWORD = env.admin.password;
 const DEFAULT_PAYER_DOCUMENT = env.misticPay.defaultDocument;
 const SESSION_COOKIE_NAME = "admin_session";
-const SESSION_TTL_SECONDS = env.admin.sessionTtlSeconds;
+const SESSION_TTL_SECONDS = Math.min(Math.max(Number(env.admin.sessionTtlSeconds) || 1800, 60), 1800);
 const SESSION_SECRET = env.admin.sessionSecret || env.admin.password || "change-this-admin-session-secret";
 const JSON_BODY_CACHE_KEY = Symbol.for("jana-cosmeticos.json-body");
 const PIX_DISCOUNT_RATE = env.checkout.pixDiscountRate;
@@ -59,14 +59,18 @@ function shouldUseSecureCookie(request) {
 }
 
 function createSessionToken(user) {
+  const issuedAt = Math.floor(Date.now() / 1000);
   const payload = {
     user,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + SESSION_TTL_SECONDS
+    iat: issuedAt,
+    exp: issuedAt + SESSION_TTL_SECONDS
   };
   const encodedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
   const signature = createHmac("sha256", SESSION_SECRET).update(encodedPayload).digest("base64url");
-  return `${encodedPayload}.${signature}`;
+  return {
+    token: `${encodedPayload}.${signature}`,
+    payload
+  };
 }
 
 function parseSessionToken(token) {
@@ -104,18 +108,35 @@ function setSessionCookie(response, request, token, maxAgeSeconds) {
 }
 
 function createSession(response, request) {
-  const token = createSessionToken(ADMIN_USER);
-  setSessionCookie(response, request, token, SESSION_TTL_SECONDS);
+  const session = createSessionToken(ADMIN_USER);
+  setSessionCookie(response, request, session.token, SESSION_TTL_SECONDS);
+  return session.payload;
 }
 
 function clearSession(response, request) {
   setSessionCookie(response, request, "", 0);
 }
 
-function isAuthenticated(request) {
+function authenticatedSession(request) {
   const token = parseCookies(request)[SESSION_COOKIE_NAME];
   const payload = parseSessionToken(token);
-  return Boolean(payload?.user && payload.user === ADMIN_USER);
+  if (payload?.user && payload.user === ADMIN_USER) {
+    return payload;
+  }
+  return null;
+}
+
+function isAuthenticated(request) {
+  return Boolean(authenticatedSession(request));
+}
+
+function sessionResponse(payload) {
+  const now = Math.floor(Date.now() / 1000);
+  return {
+    expiresAt: new Date(payload.exp * 1000).toISOString(),
+    expiresInSeconds: Math.max(0, payload.exp - now),
+    maxAgeSeconds: SESSION_TTL_SECONDS
+  };
 }
 
 function requireAuth(request, response) {
@@ -305,8 +326,8 @@ async function handleAdminApi(request, response, requestUrl) {
     }
 
     if (isSameSecret(body.user ?? "", ADMIN_USER) && isSameSecret(body.password ?? "", ADMIN_PASSWORD)) {
-      createSession(response, request);
-      sendJson(response, 200, { ok: true });
+      const session = createSession(response, request);
+      sendJson(response, 200, { ok: true, ...sessionResponse(session) });
       return true;
     }
 
@@ -321,10 +342,12 @@ async function handleAdminApi(request, response, requestUrl) {
   }
 
   if (request.method === "GET" && requestUrl.pathname === "/api/admin/me") {
-    const authenticated = isAuthenticated(request);
+    const session = authenticatedSession(request);
+    const authenticated = Boolean(session);
     sendJson(response, 200, {
       authenticated,
-      user: authenticated ? ADMIN_USER : null
+      user: authenticated ? ADMIN_USER : null,
+      ...(session ? sessionResponse(session) : { expiresAt: null, expiresInSeconds: 0, maxAgeSeconds: SESSION_TTL_SECONDS })
     });
     return true;
   }
