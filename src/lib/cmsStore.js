@@ -1,51 +1,34 @@
-import { readFile, writeFile, mkdir, access, copyFile } from "node:fs/promises";
-import { constants } from "node:fs";
-import { dirname, resolve, isAbsolute } from "node:path";
+import { supabaseAdmin } from "./supabase.js";
 import { randomUUID } from "node:crypto";
 
-const DEFAULT_CMS_PATH = resolve(process.cwd(), "data", "cms.json");
-const configuredCmsPath = (process.env.CMS_DATA_PATH ?? "").trim();
-const isVercelRuntime = Boolean(
-  process.env.VERCEL ||
-  process.env.VERCEL_ENV ||
-  process.env.NOW_REGION ||
-  process.cwd().startsWith("/var/task")
-);
-const runtimeCmsPath = isVercelRuntime && !configuredCmsPath ? "/tmp/jana-cms.json" : "";
-const selectedCmsPath = runtimeCmsPath || configuredCmsPath || DEFAULT_CMS_PATH;
-const CMS_PATH = isAbsolute(selectedCmsPath) ? selectedCmsPath : resolve(process.cwd(), selectedCmsPath);
-
-async function ensureStore() {
-  await mkdir(dirname(CMS_PATH), { recursive: true });
-}
-
-async function ensureSeedData() {
-  try {
-    await access(CMS_PATH, constants.F_OK);
-    return;
-  } catch {
-    // segue para seed inicial
-  }
-
-  if (CMS_PATH !== DEFAULT_CMS_PATH) {
-    await copyFile(DEFAULT_CMS_PATH, CMS_PATH);
-    return;
-  }
-
-  throw new Error(`Arquivo de dados nao encontrado em ${CMS_PATH}.`);
-}
-
 export async function readCms() {
-  await ensureStore();
-  await ensureSeedData();
-  const content = await readFile(CMS_PATH, "utf8");
-  return JSON.parse(content);
+  const [cat, prod, set, ord, met] = await Promise.all([
+    supabaseAdmin.from('categories').select('*'),
+    supabaseAdmin.from('products').select('*'),
+    supabaseAdmin.from('settings').select('*').eq('id', 1).maybeSingle(),
+    supabaseAdmin.from('orders').select('*'),
+    supabaseAdmin.from('metrics').select('*').eq('id', 1).maybeSingle()
+  ]);
+
+  return {
+    categories: cat.data || [],
+    products: prod.data || [],
+    settings: set.data || {},
+    orders: ord.data || [],
+    metrics: met.data || { id: 1, totalSales: 0, orderCount: 0, pixInitiated: 0, pixCompleted: 0, pixRevenue: 0, pixDiscounts: 0 }
+  };
 }
 
 export async function writeCms(data) {
-  await ensureStore();
-  await ensureSeedData();
-  await writeFile(CMS_PATH, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+  // Use Promise.all to write concurrently for speed
+  const promises = [];
+  if (data.categories?.length) promises.push(supabaseAdmin.from('categories').upsert(data.categories, { onConflict: 'id' }));
+  if (data.products?.length) promises.push(supabaseAdmin.from('products').upsert(data.products, { onConflict: 'id' }));
+  if (data.settings) promises.push(supabaseAdmin.from('settings').upsert({ id: 1, ...data.settings }, { onConflict: 'id' }));
+  if (data.orders?.length) promises.push(supabaseAdmin.from('orders').upsert(data.orders, { onConflict: 'id' }));
+  if (data.metrics) promises.push(supabaseAdmin.from('metrics').upsert({ id: 1, ...data.metrics }, { onConflict: 'id' }));
+  
+  await Promise.all(promises);
   return data;
 }
 

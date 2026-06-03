@@ -1990,6 +1990,9 @@
       </div>
 
       <div class="nav-actions">
+        <button class="icon-button" id="authOpen" type="button" aria-label="Minha conta">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        </button>
         <button class="icon-button" id="searchOpen" type="button" aria-label="Buscar produtos">
           <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4.2-4.2"></path></svg>
         </button>
@@ -2255,6 +2258,33 @@
     </div>
   </footer>
 
+  <!-- ── AUTH DRAWER ── -->
+  <div class="side-overlay" id="authOverlay" aria-hidden="true">
+    <aside class="side-drawer" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div class="side-head">
+        <h2 class="side-title" id="authTitle">Minha Conta</h2>
+        <button class="side-close" id="authClose" type="button" aria-label="Fechar">&times;</button>
+      </div>
+      <div class="side-body">
+        <div id="authLoggedOut">
+          <button id="btnGoogleLogin" class="btn btn-outline">Entrar com Google</button>
+          <hr>
+          <form id="authForm">
+            <input type="email" id="authEmail" placeholder="E-mail" required>
+            <input type="password" id="authPassword" placeholder="Senha" required>
+            <button type="submit" class="btn btn-primary">Entrar ou Cadastrar</button>
+          </form>
+          <p id="authError" style="display:none; color:red; font-size: 0.8rem; margin-top: 10px;"></p>
+        </div>
+        <div id="authLoggedIn" style="display:none;">
+          <p>Olá, <span id="authUserName"></span></p>
+          <small id="authUserEmail"></small>
+          <button id="btnLogout" class="btn btn-ghost">Sair</button>
+        </div>
+      </div>
+    </aside>
+  </div>
+
   <!-- ── SEARCH DRAWER ── -->
   <div class="side-overlay" id="searchOverlay" aria-hidden="true">
     <aside class="side-drawer" role="dialog" aria-modal="true" aria-labelledby="searchTitle">
@@ -2323,6 +2353,7 @@
     </aside>
   </div>
 
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const productGrid    = document.getElementById("productGrid");
     const productSearch  = document.getElementById("productSearch");
@@ -2334,6 +2365,75 @@
     const menuOverlay    = document.getElementById("menuOverlay");
     const menuOpen       = document.getElementById("menuOpen");
     const menuClose      = document.getElementById("menuClose");
+
+    // Supabase
+    const SUPABASE_URL = "https://qidbudksvbfpaurdjpmo.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_pJQT54d-Ff7Ic3yfvrQuqA_M_EPyPgM";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    let currentUser = null;
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      currentUser = session?.user || null;
+      renderAuthUI();
+    });
+
+    async function handleGoogleLogin() {
+      await supabaseClient.auth.signInWithOAuth({ provider: "google" });
+    }
+
+    async function handleEmailAuth(e) {
+      e.preventDefault();
+      const email = document.getElementById("authEmail").value;
+      const password = document.getElementById("authPassword").value;
+      const errEl = document.getElementById("authError");
+      errEl.style.display = "none";
+      
+      const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+      
+      if (error && error.message.includes("Invalid login")) {
+        const { error: signUpError } = await supabaseClient.auth.signUp({ email, password });
+        if (signUpError) {
+          errEl.textContent = signUpError.message;
+          errEl.style.display = "block";
+        } else {
+          errEl.textContent = "Sucesso! Verifique seu e-mail para confirmar.";
+          errEl.style.display = "block";
+          errEl.style.color = "var(--ink)";
+        }
+      } else if (error) {
+        errEl.textContent = error.message;
+        errEl.style.display = "block";
+      }
+    }
+
+    async function handleLogout() {
+      await supabaseClient.auth.signOut();
+    }
+
+    function renderAuthUI() {
+      const loggedOut = document.getElementById("authLoggedOut");
+      const loggedIn = document.getElementById("authLoggedIn");
+      
+      if (currentUser) {
+        loggedOut.style.display = "none";
+        loggedIn.style.display = "block";
+        document.getElementById("authUserName").textContent = currentUser.user_metadata?.name || currentUser.user_metadata?.full_name || "Cliente";
+        document.getElementById("authUserEmail").textContent = currentUser.email;
+      } else {
+        loggedOut.style.display = "block";
+        loggedIn.style.display = "none";
+      }
+    }
+
+    document.getElementById("btnGoogleLogin").addEventListener("click", handleGoogleLogin);
+    document.getElementById("authForm").addEventListener("submit", handleEmailAuth);
+    document.getElementById("btnLogout").addEventListener("click", handleLogout);
+
+    const authOverlay = document.getElementById("authOverlay");
+    document.getElementById("authOpen").addEventListener("click", () => authOverlay.classList.add("open"));
+    document.getElementById("authClose").addEventListener("click", () => authOverlay.classList.remove("open"));
+    authOverlay.addEventListener("click", (e) => { if (e.target === authOverlay) authOverlay.classList.remove("open"); });
+
     const cartOverlay    = document.getElementById("cartOverlay");
     const cartOpen       = document.getElementById("cartOpen");
     const cartClose      = document.getElementById("cartClose");

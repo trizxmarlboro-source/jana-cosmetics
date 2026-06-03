@@ -1296,5 +1296,22 @@
 
     loadCheckout();
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Supabase Autofill
+    const SUPABASE_URL = "https://qidbudksvbfpaurdjpmo.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_pJQT54d-Ff7Ic3yfvrQuqA_M_EPyPgM";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      const user = session?.user;
+      if (user) {
+        const nameInput = document.getElementById("buyerName");
+        const emailInput = document.getElementById("buyerEmail");
+        if (!nameInput.value) nameInput.value = user.user_metadata?.name || user.user_metadata?.full_name || "";
+        if (!emailInput.value) emailInput.value = user.email || "";
+      }
+    });
+  </script>
 </body>
 </html>

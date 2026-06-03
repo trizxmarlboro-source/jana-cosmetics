@@ -61,6 +61,11 @@ export const env = {
   },
   checkout: {
     pixDiscountRate: Number(readEnv("PIX_DISCOUNT_RATE", "0.05"))
+  },
+  supabase: {
+    url: readEnv("SUPABASE_URL"),
+    anonKey: readEnv("SUPABASE_ANON_KEY"),
+    serviceKey: readEnv("SUPABASE_SERVICE_KEY")
   }
 };
 

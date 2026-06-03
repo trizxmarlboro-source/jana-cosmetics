@@ -12,6 +12,7 @@
     "node": ">=18"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.107.0",
     "google-auth-library": "^10.6.2"
   }
 }
