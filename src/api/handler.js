@@ -531,6 +531,23 @@ async function handleAdminApi(request, response, requestUrl) {
     }
   }
 
+  if (request.method === "GET" && requestUrl.pathname === "/api/admin/orders") {
+    sendJson(response, 200, { orders: ensureOrders(data) });
+    return true;
+  }
+
+  if (request.method === "PUT" && requestUrl.pathname.startsWith("/api/admin/orders/") && requestUrl.pathname.endsWith("/status")) {
+    const id = decodeURIComponent(requestUrl.pathname.split("/")[4]);
+    const index = ensureOrders(data).findIndex((order) => order.id === id);
+    if (index === -1) return sendJson(response, 404, { error: "Pedido nao encontrado." }), true;
+
+    const body = await readJsonBody(request);
+    data.orders[index].status = String(body.status ?? "Pix gerado");
+    await writeCms(data);
+    sendJson(response, 200, { order: data.orders[index] });
+    return true;
+  }
+
   return false;
 }
 
@@ -570,6 +587,8 @@ async function handleCheckoutApi(request, response, requestUrl) {
 
   const body = await readJsonBody(request);
   const buyerName = String(body.buyerName ?? "").trim();
+  const buyerEmail = String(body.buyerEmail ?? "").trim();
+  const buyerWhatsapp = String(body.buyerWhatsapp ?? "").trim();
   const payerDocument = defaultPayerDocument();
   const address = formatCheckoutAddress(body);
   const requestedItems = normalizeCheckoutItems(body);
@@ -647,6 +666,8 @@ async function handleCheckoutApi(request, response, requestUrl) {
     paymentMethod: "pix",
     status: "Pix gerado",
     buyerName,
+    buyerEmail,
+    buyerWhatsapp,
     address,
     createdAt: nowIso()
   });

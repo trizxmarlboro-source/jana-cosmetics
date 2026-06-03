@@ -45,6 +45,13 @@ export const env = {
     sessionSecret: readEnv("ADMIN_SESSION_SECRET"),
     sessionTtlSeconds: Number(readEnv("ADMIN_SESSION_TTL_SECONDS", "1800"))
   },
+  customer: {
+    sessionSecret: readEnv("CUSTOMER_SESSION_SECRET"),
+    sessionTtlSeconds: Number(readEnv("CUSTOMER_SESSION_TTL_SECONDS", "2592000"))
+  },
+  google: {
+    clientId: readEnv("GOOGLE_CLIENT_ID")
+  },
   misticPay: {
     clientId: readEnv("MISTIC_PAY_CLIENT_ID"),
     clientSecret: readEnv("MISTIC_PAY_CLIENT_SECRET"),

@@ -655,6 +655,7 @@
     <aside class="sidebar">
       <strong>Jana Admin</strong>
       <button class="btn nav-btn active" data-view="dashboard">Dashboard</button>
+      <button class="btn nav-btn" data-view="sales">Vendas</button>
       <button class="btn nav-btn" data-view="products">Produtos</button>
       <button class="btn nav-btn" data-view="categories">Categorias</button>
       <button class="btn nav-btn" data-view="settings">Personalizacao</button>
@@ -714,6 +715,18 @@
             <table>
               <thead><tr><th>ID</th><th>Comprador</th><th>Itens</th><th>Endereco</th><th>Valor</th><th>Data</th><th>Status</th></tr></thead>
               <tbody id="ordersTableBody"><tr><td colspan="7" style="color:var(--muted);text-align:center">Nenhum pedido registrado ainda.</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="hidden" id="salesView">
+        <div class="panel">
+          <h2>Vendas</h2>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>ID</th><th>Cliente</th><th>Contato</th><th>Itens</th><th>Endereco</th><th>Valor</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
+              <tbody id="salesTableBody"></tbody>
             </table>
           </div>
         </div>
@@ -839,6 +852,7 @@
     const DEFAULT_LOGO = "assets/logo-jana-cosmeticos.svg";
     const SESSION_TIMEOUT_SECONDS = 30 * 60;
     const state = {
+      orders: [],
       products: [],
       categories: [],
       settings: { logoUrl: DEFAULT_LOGO, faviconUrl: DEFAULT_LOGO },
@@ -936,7 +950,7 @@
     }
 
     async function loadAll() {
-      await Promise.all([loadDashboard(), loadProducts(), loadCategories(), loadSettings()]);
+      await Promise.all([loadDashboard(), loadOrders(), loadProducts(), loadCategories(), loadSettings()]);
     }
 
     async function loadDashboard() {
@@ -976,6 +990,13 @@
       }).join("");
     }
 
+    function getStatusClass(status) {
+      const s = String(status || "").toLowerCase();
+      if (s.includes("concluido") || s.includes("efetuada") || s.includes("pago")) return "active";
+      if (s.includes("problema") || s.includes("erro") || s.includes("cancelado")) return "";
+      return "warning";
+    }
+
     function renderRecentOrders(orders) {
       const table = document.getElementById("ordersTableBody");
       if (!orders.length) {
@@ -1002,7 +1023,7 @@
             <td><span class="order-address"><strong>${addressLine}</strong>${addressCity}<br>${addressCep}</span></td>
             <td>${money.format(Number(order.total || 0))}</td>
             <td>${createdAt}</td>
-            <td><span class="status warning">${escapeHtml(order.status || "Pix gerado")}</span></td>
+            <td><span class="status ${getStatusClass(order.status)}">${escapeHtml(order.status || "Pix gerado")}</span></td>
           </tr>
         `;
       }).join("");
@@ -1018,6 +1039,74 @@
       document.getElementById("legendPixCompleted").textContent = completed;
       document.getElementById("legendPixOpen").textContent = open;
     }
+
+    async function loadOrders() {
+      const data = await api("/api/admin/orders");
+      state.orders = data.orders || [];
+      renderSales(state.orders);
+    }
+
+    function renderSales(orders) {
+      const table = document.getElementById("salesTableBody");
+      if (!orders || !orders.length) {
+        table.innerHTML = '<tr><td colspan="9" style="color:var(--muted);text-align:center">Nenhuma venda registrada.</td></tr>';
+        return;
+      }
+      table.innerHTML = orders.map((order) => {
+        const items = (order.items || []).map((item) => `${Number(item.quantity || 1)}x ${escapeHtml(item.name)}`).join(", ");
+        const createdAt = order.createdAt ? new Date(order.createdAt).toLocaleString("pt-BR") : "-";
+        const address = order.address || {};
+        const addressLine = address.street ? `${escapeHtml(address.street)}, ${escapeHtml(address.number || "S/N")}${address.complement ? ` - ${escapeHtml(address.complement)}` : ""}` : "Endereco nao registrado";
+        const addressCity = address.city ? `${escapeHtml(address.neighborhood || "Bairro")} - ${escapeHtml(address.city)}/${escapeHtml(address.uf || "")}` : "";
+        
+        return `
+          <tr>
+            <td><span class="order-id" title="${escapeHtml(order.id)}">${escapeHtml(order.id)}</span></td>
+            <td><strong>${escapeHtml(order.buyerName || "-")}</strong></td>
+            <td><span style="display:block;font-size:12px;color:var(--muted)">E: ${escapeHtml(order.buyerEmail || "-")}<br>W: ${escapeHtml(order.buyerWhatsapp || "-")}</span></td>
+            <td>${items || "-"}</td>
+            <td><span class="order-address"><strong>${addressLine}</strong>${addressCity}</span></td>
+            <td>${money.format(Number(order.total || 0))}</td>
+            <td>${createdAt}</td>
+            <td><span class="status ${getStatusClass(order.status)}">${escapeHtml(order.status || "Pix gerado")}</span></td>
+            <td style="position:relative;">
+              <button class="btn btn-ghost" onclick="toggleMenu('${order.id}')">⋮</button>
+              <div id="menu-${order.id}" class="hidden" style="position:absolute; right:0; top:100%; background:#fff; border:1px solid var(--line); border-radius:8px; padding:8px; z-index:10; display:flex; flex-direction:column; gap:4px; box-shadow:var(--shadow);">
+                <button class="btn" onclick="updateOrderStatus('${order.id}', 'Entrega efetuada')" style="font-size:11px; padding:6px 10px; width:100%; background:var(--red); color:#fff; white-space:nowrap;">Entrega efetuada</button>
+                <button class="btn" onclick="updateOrderStatus('${order.id}', 'Problema no produto')" style="font-size:11px; padding:6px 10px; width:100%; background:#d9a441; color:var(--ink); white-space:nowrap;">Problema no produto</button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    window.toggleMenu = function(id) {
+      document.querySelectorAll("[id^='menu-']").forEach(m => {
+        if (m.id !== `menu-${id}`) m.classList.add("hidden");
+      });
+      document.getElementById(`menu-${id}`).classList.toggle("hidden");
+    };
+
+    window.updateOrderStatus = async function(id, status) {
+      window.toggleMenu(id);
+      if (!confirm(`Mudar status para "${status}"?`)) return;
+      try {
+        await api(`/api/admin/orders/${encodeURIComponent(id)}/status`, {
+          method: "PUT",
+          body: JSON.stringify({ status })
+        });
+        await loadAll();
+      } catch (error) {
+        alert(error.message);
+      }
+    };
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("td[style*='position:relative']")) {
+        document.querySelectorAll("[id^='menu-']").forEach(m => m.classList.add("hidden"));
+      }
+    });
 
     async function loadProducts() {
       const data = await api("/api/admin/products");
@@ -1240,11 +1329,13 @@
         document.querySelectorAll("[data-view]").forEach((item) => item.classList.remove("active"));
         button.classList.add("active");
         document.getElementById("dashboardView").classList.toggle("hidden", view !== "dashboard");
+        document.getElementById("salesView").classList.toggle("hidden", view !== "sales");
         document.getElementById("productsView").classList.toggle("hidden", view !== "products");
         document.getElementById("categoriesView").classList.toggle("hidden", view !== "categories");
         document.getElementById("settingsView").classList.toggle("hidden", view !== "settings");
         document.getElementById("pageTitle").textContent =
           view === "dashboard" ? "Dashboard" :
+          view === "sales" ? "Vendas" :
           view === "products" ? "Produtos" :
           view === "categories" ? "Categorias" :
           "Personalizacao";

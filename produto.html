@@ -795,6 +795,16 @@
             <input id="buyerName" name="buyerName" autocomplete="name" required>
           </label>
 
+          <label>
+            E-mail
+            <input id="buyerEmail" name="buyerEmail" type="email" autocomplete="email" required>
+          </label>
+
+          <label>
+            WhatsApp
+            <input id="buyerWhatsapp" name="buyerWhatsapp" type="tel" autocomplete="tel" required>
+          </label>
+
           <div class="form-field">
             <label for="buyerCep">CEP</label>
             <div class="cep-row">
@@ -1227,6 +1237,8 @@
             items: checkoutItems.map(({ product, quantity }) => ({ productId: product.id, quantity })),
             productId: checkoutItems[0]?.product.id,
             buyerName: document.getElementById("buyerName").value,
+            buyerEmail: document.getElementById("buyerEmail").value,
+            buyerWhatsapp: document.getElementById("buyerWhatsapp").value,
             cep: cepInput.value,
             number: numberInput.value,
             noNumber: noNumberInput.checked,
