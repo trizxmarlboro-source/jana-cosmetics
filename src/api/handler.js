@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { env } from "../config/env.js";
 import { readCms, writeCms, makeId, nowIso, publicProduct } from "../lib/cmsStore.js";
+import { uploadAdminImage } from "../lib/storage.js";
 import {
   checkMisticPayTransaction,
   createMisticPayPixTransaction,
@@ -380,6 +381,18 @@ async function handleAdminApi(request, response, requestUrl) {
   }
 
   if (!requireAuth(request, response)) {
+    return true;
+  }
+
+  if (request.method === "POST" && requestUrl.pathname === "/api/admin/upload") {
+    const body = await readJsonBody(request);
+    const upload = await uploadAdminImage({
+      kind: String(body.kind ?? "").trim(),
+      filename: String(body.filename ?? "").trim(),
+      dataUrl: body.dataUrl
+    });
+
+    sendJson(response, 201, upload);
     return true;
   }
 

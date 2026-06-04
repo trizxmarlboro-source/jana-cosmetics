@@ -64,8 +64,11 @@ export const env = {
   },
   supabase: {
     url: readEnv("SUPABASE_URL"),
-    anonKey: readEnv("SUPABASE_ANON_KEY"),
-    serviceKey: readEnv("SUPABASE_SERVICE_KEY")
+    publishableKey: readEnv("SUPABASE_PUBLISHABLE_KEY", readEnv("SUPABASE_ANON_KEY")),
+    anonKey: readEnv("SUPABASE_PUBLISHABLE_KEY", readEnv("SUPABASE_ANON_KEY")),
+    secretKey: readEnv("SUPABASE_SECRET_KEY", readEnv("SUPABASE_SERVICE_KEY")),
+    serviceKey: readEnv("SUPABASE_SECRET_KEY", readEnv("SUPABASE_SERVICE_KEY")),
+    storageBucket: readEnv("SUPABASE_STORAGE_BUCKET", "site-assets")
   }
 };
 

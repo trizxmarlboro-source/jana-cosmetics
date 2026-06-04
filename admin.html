@@ -743,8 +743,6 @@
             <tbody id="productsTable"></tbody>
           </table>
         </div>
-          <p class="message" id="productMessage"></p>
-        </form>
       </section>
 
       <div class="modal-overlay hidden" id="productModal">
@@ -824,7 +822,7 @@
           <label for="logoUpload">Upload de logo (PNG/SVG)</label>
           <input id="logoUpload" type="file" accept="image/png,image/svg+xml,image/jpeg,image/webp">
           <label for="faviconUpload">Upload de favicon (.ico/PNG)</label>
-          <input id="faviconUpload" type="file" accept="image/png,image/x-icon,image/vnd.microsoft.icon,image/svg+xml">
+          <input id="faviconUpload" type="file" accept="image/png,image/jpeg,image/webp,image/x-icon,image/vnd.microsoft.icon,image/svg+xml,.ico">
           <div class="btn-row">
             <button class="btn btn-primary" type="submit">Salvar personalizacao</button>
             <button class="btn btn-ghost" type="button" id="resetBrandBtn">Restaurar padrao</button>
@@ -1160,6 +1158,24 @@
       });
     }
 
+    async function uploadAdminAsset(kind, file) {
+      if (!file) {
+        return "";
+      }
+
+      const dataUrl = await fileToDataUrl(file);
+      const response = await api("/api/admin/upload", {
+        method: "POST",
+        body: JSON.stringify({
+          kind,
+          filename: file.name,
+          dataUrl
+        })
+      });
+
+      return response.url || "";
+    }
+
     function categoryName(id) {
       return state.categories.find((category) => category.id === id)?.name || "Sem categoria";
     }
@@ -1217,10 +1233,17 @@
         return;
       }
       try {
-        pendingProductImageUrl = await fileToDataUrl(file);
+        document.getElementById("productMessage").textContent = "Enviando imagem para o Storage...";
+        pendingProductImageUrl = await uploadAdminAsset("product", file);
         renderImagePreview(pendingProductImageUrl);
+        productImagePreviewText.textContent = "Imagem enviada para o Storage.";
+        document.getElementById("productMessage").textContent = "Imagem enviada. Agora salve o produto.";
       } catch (error) {
+        productImageFile.value = "";
+        pendingProductImageUrl = "";
+        renderImagePreview("");
         productImagePreviewText.textContent = error.message;
+        document.getElementById("productMessage").textContent = error.message;
       }
     }
 
@@ -1392,9 +1415,10 @@
 
     logoUploadInput.addEventListener("change", async () => {
       try {
-        state.pendingLogoUrl = await fileToDataUrl(logoUploadInput.files[0]);
+        document.getElementById("settingsMessage").textContent = "Enviando logo para o Storage...";
+        state.pendingLogoUrl = await uploadAdminAsset("logo", logoUploadInput.files[0]);
         renderSettings();
-        document.getElementById("settingsMessage").textContent = "Logo carregada para preview. Clique em salvar.";
+        document.getElementById("settingsMessage").textContent = "Logo enviada. Clique em salvar para aplicar.";
       } catch (error) {
         logoUploadInput.value = "";
         state.pendingLogoUrl = "";
@@ -1404,9 +1428,10 @@
 
     faviconUploadInput.addEventListener("change", async () => {
       try {
-        state.pendingFaviconUrl = await fileToDataUrl(faviconUploadInput.files[0]);
+        document.getElementById("settingsMessage").textContent = "Enviando favicon para o Storage...";
+        state.pendingFaviconUrl = await uploadAdminAsset("favicon", faviconUploadInput.files[0]);
         renderSettings();
-        document.getElementById("settingsMessage").textContent = "Favicon carregado para preview. Clique em salvar.";
+        document.getElementById("settingsMessage").textContent = "Favicon enviado. Clique em salvar para aplicar.";
       } catch (error) {
         faviconUploadInput.value = "";
         state.pendingFaviconUrl = "";

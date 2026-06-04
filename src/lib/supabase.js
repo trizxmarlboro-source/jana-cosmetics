@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { env } from "../config/env.js";
 
-if (!env.supabase.url || !env.supabase.anonKey || !env.supabase.serviceKey) {
+if (!env.supabase.url || !env.supabase.serviceKey) {
   console.warn("Supabase configuration is missing. Please check your .env file.");
 }
 
@@ -16,3 +16,7 @@ export const supabaseAdmin = createClient(
     }
   }
 );
+
+export function isSupabaseStorageConfigured() {
+  return Boolean(env.supabase.url && env.supabase.serviceKey && env.supabase.storageBucket);
+}
