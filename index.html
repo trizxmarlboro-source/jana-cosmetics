@@ -2696,6 +2696,7 @@
     const SUPABASE_URL = "https://qidbudksvbfpaurdjpmo.supabase.co";
     const SUPABASE_KEY = "sb_publishable_pJQT54d-Ff7Ic3yfvrQuqA_M_EPyPgM";
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const authEmailRedirectTo = new URL("/minha-conta.html", window.location.origin).toString();
     let currentUser = null;
     const authOverlay = document.getElementById("authOverlay");
     const authLoggedOut = document.getElementById("authLoggedOut");
@@ -2769,7 +2770,13 @@
         const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
 
         if (error && error.message.toLowerCase().includes("invalid login")) {
-          const { error: signUpError } = await supabaseClient.auth.signUp({ email, password });
+          const { error: signUpError } = await supabaseClient.auth.signUp({
+            email,
+            password,
+            options: {
+              emailRedirectTo: authEmailRedirectTo
+            }
+          });
           if (signUpError) {
             setAuthMessage(signUpError.message || "Nao foi possivel criar sua conta.");
           } else {
