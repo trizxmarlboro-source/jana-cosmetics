@@ -39,6 +39,9 @@ function readEnv(name, fallback = "") {
 
 export const env = {
   nodeEnv: readEnv("NODE_ENV", "development"),
+  app: {
+    publicBaseUrl: readEnv("PUBLIC_BASE_URL", "http://localhost:3000")
+  },
   admin: {
     user: readEnv("ADMIN_USER"),
     password: readEnv("ADMIN_PASSWORD"),
@@ -48,6 +51,14 @@ export const env = {
   customer: {
     sessionSecret: readEnv("CUSTOMER_SESSION_SECRET"),
     sessionTtlSeconds: Number(readEnv("CUSTOMER_SESSION_TTL_SECONDS", "2592000"))
+  },
+  store: {
+    whatsappNumber: readEnv("STORE_WHATSAPP_NUMBER"),
+    whatsappPrefill: readEnv("STORE_WHATSAPP_PREFILL", "Oi! Quero acompanhar meu pedido na Jana Cosmeticos.")
+  },
+  resend: {
+    apiKey: readEnv("RESEND_API_KEY"),
+    fromEmail: readEnv("RESEND_FROM_EMAIL")
   },
   google: {
     clientId: readEnv("GOOGLE_CLIENT_ID")

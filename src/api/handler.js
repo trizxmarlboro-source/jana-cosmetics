@@ -1,7 +1,21 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { env } from "../config/env.js";
 import { readCms, writeCms, makeId, nowIso, publicProduct } from "../lib/cmsStore.js";
+import { getCustomerFromRequest } from "../lib/customerAuth.js";
+import { sendConfirmedOrderEmail } from "../lib/orderNotifications.js";
+import {
+  normalizeEmail,
+  orderStatusFromProviderResponse,
+  paidStatus,
+  pendingStatus,
+  serializeOrderForCustomer,
+  summarizeCustomers,
+  syncMetricsFromOrders,
+  verifyOrderTrackToken
+} from "../lib/orderUtils.js";
+import { upsertReview, loadReviewsByEmail } from "../lib/reviewsStore.js";
 import { uploadAdminImage } from "../lib/storage.js";
+import { supabaseAdmin } from "../lib/supabase.js";
 import {
   checkMisticPayTransaction,
   createMisticPayPixTransaction,
@@ -283,16 +297,7 @@ function settingsPayload(input, currentSettings) {
 }
 
 function ensureMetrics(data) {
-  data.metrics = {
-    totalSales: Number(data.metrics?.totalSales ?? 0),
-    orderCount: Number(data.metrics?.orderCount ?? 0),
-    pixInitiated: Number(data.metrics?.pixInitiated ?? 0),
-    pixCompleted: Number(data.metrics?.pixCompleted ?? 0),
-    pixRevenue: Number(data.metrics?.pixRevenue ?? data.metrics?.totalSales ?? 0),
-    pixDiscounts: Number(data.metrics?.pixDiscounts ?? 0)
-  };
-
-  return data.metrics;
+  return syncMetricsFromOrders(data);
 }
 
 function ensureOrders(data) {
@@ -316,6 +321,75 @@ function moneyValue(value) {
   return Number(Number(value).toFixed(2));
 }
 
+async function listAdminUsers() {
+  const users = [];
+  let page = 1;
+
+  while (page <= 10) {
+    const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 100 });
+    if (error) {
+      console.error("Falha ao listar usuarios do Supabase Auth:", error.message);
+      break;
+    }
+
+    const batch = data?.users || [];
+    users.push(...batch);
+    if (batch.length < 100) {
+      break;
+    }
+    page += 1;
+  }
+
+  return users;
+}
+
+async function maybeSendConfirmationEmail(order) {
+  if (!paidStatus(order?.status)) {
+    return;
+  }
+
+  try {
+    await sendConfirmedOrderEmail(order);
+  } catch (error) {
+    console.error("Falha ao enviar email de confirmacao:", error.message);
+  }
+}
+
+async function syncOrderWithProvider(data, order, providerPayload) {
+  const nextStatus = orderStatusFromProviderResponse(providerPayload);
+  if (!nextStatus || nextStatus === order.status) {
+    await maybeSendConfirmationEmail(order);
+    return { order, changed: false };
+  }
+
+  order.status = nextStatus;
+  syncMetricsFromOrders(data);
+  await writeCms(data);
+  await maybeSendConfirmationEmail(order);
+  return { order, changed: true };
+}
+
+function orderById(data, orderId) {
+  return ensureOrders(data).find((order) => String(order.id) === String(orderId));
+}
+
+function publicTrackResponse(order) {
+  return {
+    order: serializeOrderForCustomer(order),
+    confirmed: paidStatus(order.status)
+  };
+}
+
+async function requireCustomer(request, response) {
+  const user = await getCustomerFromRequest(request);
+  if (!user?.email) {
+    sendJson(response, 401, { error: "Login do cliente obrigatorio." });
+    return null;
+  }
+
+  return user;
+}
+
 async function handleCatalogApi(request, response, requestUrl) {
   const data = await readCms();
   const categoriesById = new Map(data.categories.map((category) => [category.id, category]));
@@ -335,6 +409,13 @@ async function handleCatalogApi(request, response, requestUrl) {
 
   if (request.method === "GET" && requestUrl.pathname === "/api/site/settings") {
     sendJson(response, 200, { settings: publicSettings(data) });
+    return true;
+  }
+
+  if (request.method === "GET" && requestUrl.pathname === "/api/site/contact") {
+    sendJson(response, 200, {
+      whatsappNumber: env.store.whatsappNumber || ""
+    });
     return true;
   }
 
@@ -549,6 +630,13 @@ async function handleAdminApi(request, response, requestUrl) {
     return true;
   }
 
+  if (request.method === "GET" && requestUrl.pathname === "/api/admin/customers") {
+    const authUsers = await listAdminUsers();
+    const customers = summarizeCustomers(ensureOrders(data), authUsers);
+    sendJson(response, 200, { customers });
+    return true;
+  }
+
   if (request.method === "PUT" && requestUrl.pathname.startsWith("/api/admin/orders/") && requestUrl.pathname.endsWith("/status")) {
     const id = decodeURIComponent(requestUrl.pathname.split("/")[4]);
     const index = ensureOrders(data).findIndex((order) => order.id === id);
@@ -556,12 +644,172 @@ async function handleAdminApi(request, response, requestUrl) {
 
     const body = await readJsonBody(request);
     data.orders[index].status = String(body.status ?? "Pix gerado");
+    syncMetricsFromOrders(data);
     await writeCms(data);
     sendJson(response, 200, { order: data.orders[index] });
     return true;
   }
 
   return false;
+}
+
+async function handleCustomerApi(request, response, requestUrl) {
+  if (!requestUrl.pathname.startsWith("/api/customer/")) {
+    return false;
+  }
+
+  const user = await requireCustomer(request, response);
+  if (!user) {
+    return true;
+  }
+
+  const userEmail = normalizeEmail(user.email);
+  const data = await readCms();
+
+  if (request.method === "GET" && requestUrl.pathname === "/api/customer/orders") {
+    const orders = ensureOrders(data)
+      .filter((order) => normalizeEmail(order.buyerEmail) === userEmail)
+      .sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+
+    const { reviews, enabled } = await loadReviewsByEmail(userEmail);
+    const reviewMap = new Map(reviews.map((review) => [`${review.orderId}:${review.productId}`, review]));
+
+    sendJson(response, 200, {
+      reviewFeatureEnabled: enabled,
+      orders: orders.map((order) => {
+        const serialized = serializeOrderForCustomer(order);
+        serialized.items = serialized.items.map((item) => ({
+          ...item,
+          review: reviewMap.get(`${order.id}:${item.productId}`) || null
+        }));
+        return serialized;
+      })
+    });
+    return true;
+  }
+
+  if (request.method === "POST" && requestUrl.pathname === "/api/customer/reviews") {
+    const body = await readJsonBody(request);
+    const order = ensureOrders(data).find((entry) =>
+      String(entry.id) === String(body.orderId) && normalizeEmail(entry.buyerEmail) === userEmail
+    );
+
+    if (!order) {
+      sendJson(response, 404, { error: "Pedido nao encontrado para este usuario." });
+      return true;
+    }
+
+    if (!paidStatus(order.status)) {
+      sendJson(response, 400, { error: "A avaliacao so fica disponivel depois do pagamento confirmado." });
+      return true;
+    }
+
+    const productId = String(body.productId ?? "").trim();
+    const item = (order.items || []).find((entry) => String(entry.productId || "") === productId);
+    if (!item) {
+      sendJson(response, 400, { error: "Produto nao encontrado dentro deste pedido." });
+      return true;
+    }
+
+    const rating = Math.max(1, Math.min(5, Number.parseInt(body.rating, 10) || 0));
+    if (!rating) {
+      sendJson(response, 400, { error: "Escolha uma nota de 1 a 5." });
+      return true;
+    }
+
+    const review = await upsertReview({
+      orderId: order.id,
+      productId,
+      buyerEmail: user.email,
+      buyerName: order.buyerName,
+      rating,
+      comment: String(body.comment ?? "").trim().slice(0, 800),
+      createdAt: nowIso(),
+      updatedAt: nowIso()
+    });
+
+    sendJson(response, 201, { review });
+    return true;
+  }
+
+  return false;
+}
+
+async function handleOrderTrackingApi(request, response, requestUrl) {
+  if (request.method !== "POST" || requestUrl.pathname !== "/api/orders/track") {
+    return false;
+  }
+
+  const body = await readJsonBody(request);
+  const orderId = String(body.transactionId ?? body.orderId ?? "").trim();
+  if (!orderId) {
+    sendJson(response, 400, { error: "Pedido invalido." });
+    return true;
+  }
+
+  const data = await readCms();
+  const order = orderById(data, orderId);
+  if (!order) {
+    sendJson(response, 404, { error: "Pedido nao encontrado." });
+    return true;
+  }
+
+  const hasValidToken = verifyOrderTrackToken(body.trackToken, order.id, order.buyerEmail);
+  const customer = await getCustomerFromRequest(request);
+  const isCustomerOwner = normalizeEmail(customer?.email) === normalizeEmail(order.buyerEmail);
+
+  if (!hasValidToken && !isCustomerOwner) {
+    sendJson(response, 403, { error: "Acesso negado a este pedido." });
+    return true;
+  }
+
+  let providerError = "";
+  if (pendingStatus(order.status)) {
+    try {
+      const providerPayload = await checkMisticPayTransaction(order.id);
+      await syncOrderWithProvider(data, order, providerPayload);
+    } catch (error) {
+      providerError = error.message || "";
+    }
+  } else if (paidStatus(order.status)) {
+    await maybeSendConfirmationEmail(order);
+  }
+
+  sendJson(response, 200, {
+    ...publicTrackResponse(order),
+    providerError
+  });
+  return true;
+}
+
+async function handleMisticPayWebhook(request, response, requestUrl) {
+  if (request.method !== "POST" || requestUrl.pathname !== "/api/misticpay/webhook") {
+    return false;
+  }
+
+  const body = await readJsonBody(request);
+  const providerOrderId = String(
+    body.transactionId ??
+    body.data?.transactionId ??
+    body.transaction?.transactionId ??
+    ""
+  ).trim();
+
+  if (!providerOrderId) {
+    sendJson(response, 200, { ok: true, ignored: true });
+    return true;
+  }
+
+  const data = await readCms();
+  const order = orderById(data, providerOrderId);
+  if (!order) {
+    sendJson(response, 200, { ok: true, ignored: true });
+    return true;
+  }
+
+  await syncOrderWithProvider(data, order, body);
+  sendJson(response, 200, { ok: true, status: order.status });
+  return true;
 }
 
 function normalizeCheckoutItems(body) {
@@ -650,9 +898,6 @@ async function handleCheckoutApi(request, response, requestUrl) {
   const itemSummary = checkoutItems.map((item) => `${item.quantity}x ${item.name}`).join(", ");
   const addressSummary = `${address.street}, ${address.number} - ${address.neighborhood || "Bairro nao informado"} - ${address.city}/${address.uf} - CEP ${address.cep}`;
   const transactionId = `jana-${Date.now()}-${checkoutItems.length}itens`.replace(/[^a-zA-Z0-9-]/g, "-");
-  const metrics = ensureMetrics(data);
-  metrics.pixInitiated += 1;
-  await writeCms(data);
 
   const payment = await createMisticPayPixTransaction({
     amount: total,
@@ -662,33 +907,33 @@ async function handleCheckoutApi(request, response, requestUrl) {
     description: `${itemSummary} | Comprador: ${buyerName} | Endereco: ${addressSummary}`
   });
 
-  metrics.pixCompleted += 1;
-  metrics.orderCount += 1;
-  metrics.totalSales = moneyValue(metrics.totalSales + total);
-  metrics.pixRevenue = moneyValue(metrics.pixRevenue + total);
-  metrics.pixDiscounts = moneyValue(metrics.pixDiscounts + pixDiscount);
+  const initialStatus = orderStatusFromProviderResponse(payment) || "Pix gerado";
   ensureOrders(data).unshift({
     id: transactionId,
     items: checkoutItems.map((item) => ({
+      productId: item.id,
       name: item.name,
-      quantity: item.quantity
+      quantity: item.quantity,
+      unitPrice: item.price
     })),
     subtotal,
     pixDiscount,
     total,
     paymentMethod: "pix",
-    status: "Pix gerado",
+    status: initialStatus,
     buyerName,
     buyerEmail,
     buyerWhatsapp,
     address,
     createdAt: nowIso()
   });
-  data.orders = data.orders.slice(0, 50);
+  data.orders = data.orders.slice(0, 250);
+  syncMetricsFromOrders(data);
   await writeCms(data);
 
   sendJson(response, 201, {
     transactionId,
+    trackToken: serializeOrderForCustomer(orderById(data, transactionId)).trackToken,
     items: checkoutItems,
     subtotal,
     pixDiscountRate,
@@ -712,11 +957,23 @@ export async function handleApiRequest(request, response) {
       return;
     }
 
+    if (await handleCustomerApi(request, response, requestUrl)) {
+      return;
+    }
+
     if (await handleAdminApi(request, response, requestUrl)) {
       return;
     }
 
+    if (await handleOrderTrackingApi(request, response, requestUrl)) {
+      return;
+    }
+
     if (await handleCheckoutApi(request, response, requestUrl)) {
+      return;
+    }
+
+    if (await handleMisticPayWebhook(request, response, requestUrl)) {
       return;
     }
 

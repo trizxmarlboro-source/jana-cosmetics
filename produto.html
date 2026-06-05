@@ -893,6 +893,7 @@
     const selectedId = params.get("id");
     const isCartCheckout = params.get("cart") === "1";
     const CART_KEY = "janaCosmeticosCart";
+    const LAST_ORDER_KEY = "janaCosmeticosLastOrder";
     const PIX_DISCOUNT_RATE = 0.05;
 
     const productImage = document.getElementById("productImage");
@@ -920,6 +921,7 @@
 
     let catalogProducts = [];
     let checkoutItems = [];
+    let orderTrackTimer = null;
 
     function applySiteSettings(settings) {
       if (!settings) return;
@@ -1015,6 +1017,79 @@
         details?.data?.message ||
         "";
       return [data?.error, detailMessage].filter(Boolean).join(" - ") || "Nao foi possivel gerar o Pix.";
+    }
+
+    async function customerAuthHeaders() {
+      try {
+        const session = await supabaseClient.auth.getSession();
+        const token = session?.data?.session?.access_token;
+        return token ? { Authorization: `Bearer ${token}` } : {};
+      } catch {
+        return {};
+      }
+    }
+
+    function persistLastOrder(payload) {
+      localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(payload));
+    }
+
+    function confirmationPageUrl(orderId, trackToken) {
+      const next = new URL("/pedido-confirmado.html", window.location.origin);
+      next.searchParams.set("id", orderId);
+      next.searchParams.set("token", trackToken);
+      return next.toString();
+    }
+
+    function stopOrderTracking() {
+      if (orderTrackTimer) {
+        window.clearInterval(orderTrackTimer);
+        orderTrackTimer = null;
+      }
+    }
+
+    async function pollOrderStatus(orderId, trackToken) {
+      const response = await fetch("/api/orders/track", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(await customerAuthHeaders())
+        },
+        body: JSON.stringify({
+          transactionId: orderId,
+          trackToken
+        })
+      });
+
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(providerErrorMessage(data));
+      }
+
+      if (data.confirmed) {
+        stopOrderTracking();
+        window.location.href = confirmationPageUrl(orderId, trackToken);
+        return;
+      }
+
+      if (data.order?.status) {
+        document.getElementById("checkoutResultTitle").textContent = data.order.status;
+      }
+      document.getElementById("checkoutResultText").textContent =
+        "Pagamento aguardando confirmacao. Assim que o Pix cair, voce sera redirecionado para o resumo do pedido.";
+    }
+
+    function startOrderTracking(orderId, trackToken) {
+      stopOrderTracking();
+      const run = async () => {
+        try {
+          await pollOrderStatus(orderId, trackToken);
+        } catch (error) {
+          console.warn("Falha ao acompanhar o pedido:", error.message);
+        }
+      };
+
+      run();
+      orderTrackTimer = window.setInterval(run, 8000);
     }
 
     function loadCart() {
@@ -1255,11 +1330,16 @@
         if (!response.ok) throw new Error(providerErrorMessage(data));
 
         if (isCartCheckout) saveCart([]);
+        persistLastOrder({
+          orderId: data.transactionId,
+          trackToken: data.trackToken
+        });
         document.getElementById("checkoutResultTitle").textContent = "Pix solicitado com sucesso";
-        document.getElementById("checkoutResultText").textContent = "Use o QR Code ou o Pix copia e cola para finalizar o pagamento.";
+        document.getElementById("checkoutResultText").textContent = "Use o QR Code ou o Pix copia e cola. Assim que o pagamento for confirmado, voce sera redirecionado automaticamente.";
         showPixResult(data);
         checkoutResult.classList.add("show");
         checkoutResult.scrollIntoView({ behavior: "smooth", block: "start" });
+        startOrderTracking(data.transactionId, data.trackToken);
       } catch (error) {
         document.getElementById("checkoutResultTitle").textContent = "Erro ao gerar Pix";
         document.getElementById("checkoutResultText").textContent = error.message;
@@ -1288,6 +1368,8 @@
     productImage.onerror = () => {
       productImage.src = "assets/kit-cosmeticos.svg";
     };
+
+    window.addEventListener("beforeunload", stopOrderTracking);
 
     fetch("/api/site/settings")
       .then((response) => response.ok ? response.json() : Promise.reject())

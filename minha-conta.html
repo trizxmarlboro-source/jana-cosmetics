@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minha conta | Jana Cosmeticos</title>
+  <link rel="icon" id="siteFavicon" href="assets/logo-jana-cosmeticos.svg">
+  <style>
+    :root {
+      --bg: #fff8fb;
+      --card: #ffffff;
+      --ink: #2f2430;
+      --muted: #7d6774;
+      --line: #ecd9e5;
+      --rose: #e21b70;
+      --rose-soft: #fff0f7;
+      --success: #22c55e;
+      --warning: #d09a2d;
+      --radius: 24px;
+      --shadow: 0 18px 42px rgba(90, 41, 69, .10);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: Arial, sans-serif; background: linear-gradient(180deg, #fff8fb 0%, #fff 100%); color: var(--ink); }
+    .page { max-width: 1160px; margin: 0 auto; padding: 28px 20px 80px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:16px; margin-bottom: 26px; }
+    .brand { display:flex; align-items:center; gap:14px; text-decoration:none; color:inherit; }
+    .brand img { width:70px; height:70px; border-radius:20px; border:1px solid var(--line); background:#fff; object-fit:cover; }
+    .brand strong { display:block; font-size:30px; }
+    .brand span { color: var(--rose); font-weight:700; }
+    .btn {
+      display:inline-flex; align-items:center; justify-content:center; min-height:52px;
+      padding:0 22px; border-radius:999px; border:0; font-size:15px; font-weight:700; text-decoration:none; cursor:pointer;
+    }
+    .btn-primary { background: var(--rose); color:#fff; }
+    .btn-outline { background:#fff; color:var(--ink); border:1px solid var(--line); }
+    .btn-ghost { background: var(--rose-soft); color: var(--rose); }
+    .hero, .panel, .order-card {
+      background: var(--card); border:1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .hero { padding: 34px; margin-bottom: 22px; }
+    .hero h1 { margin: 0 0 10px; font-size: clamp(30px, 4vw, 46px); }
+    .hero p { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.7; max-width: 720px; }
+    .hero-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:22px; }
+    .account-shell { display:grid; gap:18px; }
+    .order-card { padding: 22px; }
+    .order-head {
+      display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom: 18px; flex-wrap:wrap;
+    }
+    .order-head h2 { margin: 0 0 6px; font-size: 21px; }
+    .status-chip {
+      display:inline-flex; align-items:center; gap:8px; padding:10px 14px; border-radius:999px;
+      font-size:13px; font-weight:700; background: var(--rose-soft); color: var(--rose);
+    }
+    .status-chip.success { background: rgba(34,197,94,.12); color:#15803d; }
+    .status-chip.warning { background: rgba(208,154,45,.14); color:#b7791f; }
+    .status-chip.danger { background: rgba(226,27,112,.12); color:#be185d; }
+    .meta { color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .grid { display:grid; grid-template-columns: 1.2fr .8fr; gap:16px; }
+    .box {
+      border:1px solid var(--line); border-radius: 18px; padding: 16px; background: #fffdfd;
+    }
+    .items { display:grid; gap:12px; }
+    .item {
+      display:grid; grid-template-columns:1fr auto; gap:12px; padding:14px 16px;
+      border:1px solid var(--line); border-radius:16px; background:#fff;
+    }
+    .item strong { display:block; margin-bottom:4px; }
+    .item small, .box div { color: var(--muted); }
+    .total { font-size: 21px; font-weight: 800; color: var(--rose); }
+    .review-card {
+      margin-top: 14px; border:1px dashed var(--line); border-radius:16px; padding:14px; background:#fffdfd;
+    }
+    .review-card h3 { margin: 0 0 10px; font-size: 16px; }
+    .review-card label { display:block; font-size:13px; font-weight:700; margin-bottom:6px; color: var(--muted); }
+    .review-card select, .review-card textarea {
+      width:100%; border:1px solid var(--line); border-radius:12px; padding:12px 14px; font: inherit;
+    }
+    .review-card textarea { min-height: 92px; resize: vertical; }
+    .review-card button { margin-top: 12px; }
+    .message { margin-top:10px; font-size:13px; color:var(--muted); }
+    .empty, .login-required {
+      text-align:center; padding: 56px 24px;
+    }
+    .empty p, .login-required p { color: var(--muted); line-height: 1.7; }
+    @media (max-width: 900px) {
+      .topbar { flex-direction: column; align-items:flex-start; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="topbar">
+      <a class="brand" href="/index.html">
+        <img id="brandLogo" src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+        <div>
+          <strong>Jana Cosmeticos</strong>
+          <span>beleza em cada detalhe</span>
+        </div>
+      </a>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <a class="btn btn-outline" href="/index.html#produtos">Voltar para vitrine</a>
+        <button class="btn btn-ghost" id="logoutBtn" type="button">Sair da conta</button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <h1>Seus pedidos e suas compras</h1>
+      <p>Veja o historico das compras feitas com seu e-mail, acompanhe status e avalie os produtos que voce ja adquiriu.</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="/index.html#produtos">Comprar mais produtos</a>
+      </div>
+    </section>
+
+    <section class="login-required panel" id="loginRequired" hidden>
+      <h2>Entre com sua conta para continuar</h2>
+      <p>Use o mesmo e-mail da compra. Depois, volte aqui para ver pedidos e avaliar os produtos adquiridos.</p>
+      <a class="btn btn-primary" href="/index.html">Ir para o login da loja</a>
+    </section>
+
+    <section class="account-shell" id="accountContent" hidden></section>
+
+    <section class="empty panel" id="emptyOrders" hidden>
+      <h2>Nenhuma compra encontrada</h2>
+      <p>Ainda nao encontramos pedidos vinculados a este e-mail. Assim que voce comprar, seus pedidos aparecem aqui.</p>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+    const SUPABASE_URL = "https://qidbudksvbfpaurdjpmo.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_pJQT54d-Ff7Ic3yfvrQuqA_M_EPyPgM";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const accountContent = document.getElementById("accountContent");
+    const loginRequired = document.getElementById("loginRequired");
+    const emptyOrders = document.getElementById("emptyOrders");
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#039;"
+      }[char]));
+    }
+
+    function statusClass(status) {
+      const normalized = String(status || "").toLowerCase();
+      if (normalized.includes("confirmado") || normalized.includes("efetuada")) return "success";
+      if (normalized.includes("problema") || normalized.includes("cancelado") || normalized.includes("falhou")) return "danger";
+      return "warning";
+    }
+
+    async function authHeaders() {
+      const session = await supabaseClient.auth.getSession();
+      const token = session?.data?.session?.access_token;
+      return token ? { Authorization: `Bearer ${token}` } : {};
+    }
+
+    function renderOrderCard(order, reviewFeatureEnabled) {
+      const itemsHtml = (order.items || []).map((item) => `
+        <div class="item">
+          <div>
+            <strong>${escapeHtml(item.name)}</strong>
+            <small>${Number(item.quantity || 1)} unidade${Number(item.quantity || 1) > 1 ? "s" : ""}</small>
+          </div>
+          <div class="total">${money.format(Number(item.unitPrice || 0) * Number(item.quantity || 1))}</div>
+        </div>
+        ${order.statusTone === "success" && reviewFeatureEnabled ? renderReviewBox(order, item) : ""}
+      `).join("");
+
+      const address = order.address || {};
+      const addressHtml = `${escapeHtml(address.street || "-")}, ${escapeHtml(address.number || "S/N")}<br>${escapeHtml(address.neighborhood || "Bairro nao informado")} - ${escapeHtml(address.city || "-")} / ${escapeHtml(address.uf || "-")}<br>CEP ${escapeHtml(address.cep || "-")}`;
+
+      return `
+        <article class="order-card">
+          <div class="order-head">
+            <div>
+              <h2>Pedido ${escapeHtml(order.id)}</h2>
+              <div class="meta">${new Date(order.createdAt).toLocaleString("pt-BR")} · ${escapeHtml(order.buyerEmail || "")}</div>
+            </div>
+            <span class="status-chip ${statusClass(order.status)}">${escapeHtml(order.status)}</span>
+          </div>
+          <div class="grid">
+            <section class="box">
+              <h3 style="margin-top:0;">Produtos comprados</h3>
+              <div class="items">${itemsHtml}</div>
+            </section>
+            <aside class="box">
+              <h3 style="margin-top:0;">Resumo</h3>
+              <div>Endereco usado:<br>${addressHtml}</div>
+              <div style="margin-top:14px;">WhatsApp informado: ${escapeHtml(order.buyerWhatsapp || "-")}</div>
+              <div style="margin-top:14px;">Total gasto: <span class="total">${money.format(Number(order.total || 0))}</span></div>
+              <div style="margin-top:18px;">
+                <a class="btn btn-outline" href="/pedido-confirmado.html?id=${encodeURIComponent(order.id)}&token=${encodeURIComponent(order.trackToken)}">Acompanhar pedido</a>
+              </div>
+            </aside>
+          </div>
+        </article>
+      `;
+    }
+
+    function renderReviewBox(order, item) {
+      const current = item.review || {};
+      return `
+        <form class="review-card" data-order-id="${escapeHtml(order.id)}" data-product-id="${escapeHtml(item.productId || "")}">
+          <h3>Avaliar ${escapeHtml(item.name)}</h3>
+          <label>Nota</label>
+          <select name="rating" required>
+            <option value="">Escolha uma nota</option>
+            ${[1,2,3,4,5].map((value) => `<option value="${value}" ${Number(current.rating) === value ? "selected" : ""}>${value} estrela${value > 1 ? "s" : ""}</option>`).join("")}
+          </select>
+          <label style="margin-top:10px;">Comentario</label>
+          <textarea name="comment" placeholder="Conte como foi sua experiencia com esse produto.">${escapeHtml(current.comment || "")}</textarea>
+          <button class="btn btn-primary" type="submit">Salvar avaliacao</button>
+          <div class="message">${current.comment ? "Voce ja avaliou este produto. Pode atualizar sua opiniao quando quiser." : "Sua avaliacao ajuda a melhorar a experiencia da loja."}</div>
+        </form>
+      `;
+    }
+
+    async function submitReview(event) {
+      const form = event.target;
+      if (!form.matches(".review-card")) return;
+      event.preventDefault();
+
+      const payload = {
+        orderId: form.dataset.orderId,
+        productId: form.dataset.productId,
+        rating: form.querySelector("[name='rating']").value,
+        comment: form.querySelector("[name='comment']").value
+      };
+
+      const button = form.querySelector("button");
+      const message = form.querySelector(".message");
+      button.disabled = true;
+      button.textContent = "Salvando...";
+      message.textContent = "";
+
+      try {
+        const response = await fetch("/api/customer/reviews", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(await authHeaders())
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Nao foi possivel salvar a avaliacao.");
+        message.textContent = "Avaliacao salva com sucesso.";
+      } catch (error) {
+        message.textContent = error.message;
+      } finally {
+        button.disabled = false;
+        button.textContent = "Salvar avaliacao";
+      }
+    }
+
+    async function loadBrand() {
+      try {
+        const response = await fetch("/api/site/settings");
+        const data = await response.json();
+        if (data?.settings?.logoUrl) {
+          document.getElementById("brandLogo").src = data.settings.logoUrl;
+        }
+        if (data?.settings?.faviconUrl) {
+          document.getElementById("siteFavicon").href = data.settings.faviconUrl;
+        }
+      } catch {}
+    }
+
+    async function loadOrders() {
+      const session = await supabaseClient.auth.getSession();
+      const user = session?.data?.session?.user;
+
+      if (!user) {
+        loginRequired.hidden = false;
+        accountContent.hidden = true;
+        return;
+      }
+
+      const response = await fetch("/api/customer/orders", {
+        headers: await authHeaders()
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        loginRequired.hidden = false;
+        return;
+      }
+
+      if (!data.orders || !data.orders.length) {
+        emptyOrders.hidden = false;
+        accountContent.hidden = true;
+        return;
+      }
+
+      loginRequired.hidden = true;
+      emptyOrders.hidden = true;
+      accountContent.hidden = false;
+      accountContent.innerHTML = data.orders.map((order) => renderOrderCard(order, data.reviewFeatureEnabled)).join("");
+    }
+
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await supabaseClient.auth.signOut();
+      window.location.href = "/index.html";
+    });
+
+    accountContent.addEventListener("submit", submitReview);
+    loadBrand().finally(loadOrders);
+  </script>
+</body>
+</html>

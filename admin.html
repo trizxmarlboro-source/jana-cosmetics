@@ -656,6 +656,7 @@
       <strong>Jana Admin</strong>
       <button class="btn nav-btn active" data-view="dashboard">Dashboard</button>
       <button class="btn nav-btn" data-view="sales">Vendas</button>
+      <button class="btn nav-btn" data-view="customers">Clientes</button>
       <button class="btn nav-btn" data-view="products">Produtos</button>
       <button class="btn nav-btn" data-view="categories">Categorias</button>
       <button class="btn nav-btn" data-view="settings">Personalizacao</button>
@@ -727,6 +728,18 @@
             <table>
               <thead><tr><th>ID</th><th>Cliente</th><th>Contato</th><th>Itens</th><th>Endereco</th><th>Valor</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
               <tbody id="salesTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section class="hidden" id="customersView">
+        <div class="panel">
+          <h2>Usuarios cadastrados e leads compradores</h2>
+          <div style="overflow-x:auto;">
+            <table>
+              <thead><tr><th>Usuario</th><th>ID</th><th>Valor gasto</th><th>Produtos comprados e endereco</th></tr></thead>
+              <tbody id="customersTableBody"><tr><td colspan="4" style="color:var(--muted);text-align:center">Nenhum usuario encontrado.</td></tr></tbody>
             </table>
           </div>
         </div>
@@ -851,6 +864,7 @@
     const SESSION_TIMEOUT_SECONDS = 30 * 60;
     const state = {
       orders: [],
+      customers: [],
       products: [],
       categories: [],
       settings: { logoUrl: DEFAULT_LOGO, faviconUrl: DEFAULT_LOGO },
@@ -948,7 +962,7 @@
     }
 
     async function loadAll() {
-      await Promise.all([loadDashboard(), loadOrders(), loadProducts(), loadCategories(), loadSettings()]);
+      await Promise.all([loadDashboard(), loadOrders(), loadCustomers(), loadProducts(), loadCategories(), loadSettings()]);
     }
 
     async function loadDashboard() {
@@ -1044,6 +1058,12 @@
       renderSales(state.orders);
     }
 
+    async function loadCustomers() {
+      const data = await api("/api/admin/customers");
+      state.customers = data.customers || [];
+      renderCustomers(state.customers);
+    }
+
     function renderSales(orders) {
       const table = document.getElementById("salesTableBody");
       if (!orders || !orders.length) {
@@ -1074,6 +1094,40 @@
                 <button class="btn" onclick="updateOrderStatus('${order.id}', 'Problema no produto')" style="font-size:11px; padding:6px 10px; width:100%; background:#d9a441; color:var(--ink); white-space:nowrap;">Problema no produto</button>
               </div>
             </td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function renderCustomers(customers) {
+      const table = document.getElementById("customersTableBody");
+      if (!customers || !customers.length) {
+        table.innerHTML = '<tr><td colspan="4" style="color:var(--muted);text-align:center">Nenhum usuario encontrado.</td></tr>';
+        return;
+      }
+
+      table.innerHTML = customers.map((customer) => {
+        const ordersHtml = (customer.orders || []).map((order) => {
+          const address = order.address || {};
+          const items = (order.items || []).map((item) => `${Number(item.quantity || 1)}x ${escapeHtml(item.name)}`).join(", ");
+          const addressLine = address.street
+            ? `${escapeHtml(address.street)}, ${escapeHtml(address.number || "S/N")} - ${escapeHtml(address.neighborhood || "Bairro nao informado")} - ${escapeHtml(address.city || "")}/${escapeHtml(address.uf || "")}`
+            : "Endereco nao registrado";
+          return `
+            <div style="padding:10px 0;border-bottom:1px solid var(--line)">
+              <strong>${escapeHtml(order.id)}</strong> · ${escapeHtml(order.status || "Pix gerado")} · ${money.format(Number(order.total || 0))}<br>
+              <span style="display:block;font-size:12px;color:var(--muted)">${items || "-"}</span>
+              <span style="display:block;font-size:12px;color:var(--muted)">${addressLine}</span>
+            </div>
+          `;
+        }).join("");
+
+        return `
+          <tr>
+            <td><strong>${escapeHtml(customer.user || "Lead")}</strong><span style="display:block;font-size:12px;color:var(--muted)">${escapeHtml(customer.email || "Sem e-mail")}<br>${escapeHtml(customer.whatsapp || "Sem WhatsApp")}</span></td>
+            <td><span class="order-id" title="${escapeHtml(customer.id)}">${escapeHtml(customer.id)}</span></td>
+            <td>${money.format(Number(customer.valueSpent || 0))}</td>
+            <td>${ordersHtml}</td>
           </tr>
         `;
       }).join("");
@@ -1353,12 +1407,14 @@
         button.classList.add("active");
         document.getElementById("dashboardView").classList.toggle("hidden", view !== "dashboard");
         document.getElementById("salesView").classList.toggle("hidden", view !== "sales");
+        document.getElementById("customersView").classList.toggle("hidden", view !== "customers");
         document.getElementById("productsView").classList.toggle("hidden", view !== "products");
         document.getElementById("categoriesView").classList.toggle("hidden", view !== "categories");
         document.getElementById("settingsView").classList.toggle("hidden", view !== "settings");
         document.getElementById("pageTitle").textContent =
           view === "dashboard" ? "Dashboard" :
           view === "sales" ? "Vendas" :
+          view === "customers" ? "Clientes" :
           view === "products" ? "Produtos" :
           view === "categories" ? "Categorias" :
           "Personalizacao";

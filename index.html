@@ -2600,6 +2600,7 @@
               <small>Seus proximos pedidos ficam com preenchimento mais rapido e sua experiencia na loja fica mais pratica.</small>
             </div>
             <div class="auth-actions">
+              <a class="btn btn-primary" href="/minha-conta.html" id="authMyOrders">Meus pedidos</a>
               <a class="btn btn-outline" href="#produtos" id="authSeeProducts">Ver produtos</a>
               <button id="btnLogout" class="btn btn-ghost" type="button">Sair da conta</button>
             </div>
@@ -2817,6 +2818,7 @@
     document.getElementById("authForm").addEventListener("submit", handleEmailAuth);
     document.getElementById("btnLogout").addEventListener("click", handleLogout);
     document.getElementById("authSeeProducts")?.addEventListener("click", closeAuthDrawer);
+    document.getElementById("authMyOrders")?.addEventListener("click", closeAuthDrawer);
 
     const togglePassword = document.getElementById("togglePassword");
     if (togglePassword) {
