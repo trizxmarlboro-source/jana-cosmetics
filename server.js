@@ -21,6 +21,8 @@ const routeMap = new Map([
   ["/", "/index.html"],
   ["/produto", "/produto.html"],
   ["/admin", "/admin.html"],
+  ["/entrar", "/entrar.html"],
+  ["/cadastro", "/cadastro.html"],
   ["/minha-conta", "/minha-conta.html"],
   ["/pedido-confirmado", "/pedido-confirmado.html"],
   ["/auth", "/auth.html"]

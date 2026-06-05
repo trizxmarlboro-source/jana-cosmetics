@@ -26,6 +26,14 @@
       "destination": "/admin.html"
     },
     {
+      "source": "/entrar",
+      "destination": "/entrar.html"
+    },
+    {
+      "source": "/cadastro",
+      "destination": "/cadastro.html"
+    },
+    {
       "source": "/minha-conta",
       "destination": "/minha-conta.html"
     },

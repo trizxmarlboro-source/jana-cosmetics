@@ -134,6 +134,7 @@ export function syncMetricsFromOrders(data) {
 export function serializeOrderForCustomer(order) {
   return {
     id: order.id,
+    customerId: order.customerId || null,
     items: Array.isArray(order.items) ? order.items : [],
     subtotal: Number(order.subtotal || 0),
     pixDiscount: Number(order.pixDiscount || 0),
@@ -156,18 +157,24 @@ export function summarizeCustomers(orders, authUsers = []) {
       .map((user) => [normalizeEmail(user.email), user])
       .filter(([email]) => email)
   );
+  const authUsersById = new Map(
+    authUsers
+      .map((user) => [String(user.id || "").trim(), user])
+      .filter(([id]) => id)
+  );
   const buckets = new Map();
 
   for (const order of orders) {
     const email = normalizeEmail(order.buyerEmail);
-    const key = email || String(order.buyerWhatsapp || order.id);
+    const customerId = String(order.customerId || "").trim();
+    const authUser = authUsersById.get(customerId) || authUsersByEmail.get(email);
+    const key = customerId || email || String(order.buyerWhatsapp || order.id);
     if (!buckets.has(key)) {
-      const authUser = authUsersByEmail.get(email);
       buckets.set(key, {
-        user: order.buyerName || authUser?.user_metadata?.name || authUser?.email || "Lead sem nome",
+        user: order.buyerName || authUser?.user_metadata?.name || authUser?.user_metadata?.full_name || authUser?.email || "Lead sem nome",
         email: order.buyerEmail || authUser?.email || "",
-        whatsapp: order.buyerWhatsapp || "",
-        id: authUser?.id || `lead-${buckets.size + 1}`,
+        whatsapp: order.buyerWhatsapp || authUser?.phone || authUser?.user_metadata?.whatsapp || "",
+        id: customerId || authUser?.id || `lead-${buckets.size + 1}`,
         valueSpent: 0,
         orders: []
       });
@@ -195,7 +202,7 @@ export function summarizeCustomers(orders, authUsers = []) {
       buckets.set(`auth-${user.id}`, {
         user: user.user_metadata?.name || user.user_metadata?.full_name || user.email || "Usuario cadastrado",
         email: user.email || "",
-        whatsapp: user.phone || "",
+        whatsapp: user.phone || user.user_metadata?.whatsapp || "",
         id: user.id,
         valueSpent: 0,
         orders: []

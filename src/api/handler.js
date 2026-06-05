@@ -343,6 +343,16 @@ async function listAdminUsers() {
   return users;
 }
 
+async function findAuthUserByEmail(email) {
+  const normalizedTarget = normalizeEmail(email);
+  if (!normalizedTarget) {
+    return null;
+  }
+
+  const users = await listAdminUsers();
+  return users.find((user) => normalizeEmail(user.email) === normalizedTarget) || null;
+}
+
 async function maybeSendConfirmationEmail(order) {
   if (!paidStatus(order?.status)) {
     return;
@@ -658,6 +668,24 @@ async function handleCustomerApi(request, response, requestUrl) {
     return false;
   }
 
+  if (request.method === "POST" && requestUrl.pathname === "/api/customer/email-status") {
+    const body = await readJsonBody(request);
+    const email = normalizeEmail(body.email);
+    if (!email) {
+      sendJson(response, 400, { error: "Informe um e-mail valido." });
+      return true;
+    }
+
+    const authUser = await findAuthUserByEmail(email);
+    sendJson(response, 200, {
+      exists: Boolean(authUser),
+      userId: authUser?.id || null,
+      email: authUser?.email || email,
+      name: authUser?.user_metadata?.name || authUser?.user_metadata?.full_name || ""
+    });
+    return true;
+  }
+
   const user = await requireCustomer(request, response);
   if (!user) {
     return true;
@@ -846,9 +874,19 @@ async function handleCheckoutApi(request, response, requestUrl) {
     return false;
   }
 
+  const customer = await requireCustomer(request, response);
+  if (!customer) {
+    return true;
+  }
+
   const body = await readJsonBody(request);
-  const buyerName = String(body.buyerName ?? "").trim();
-  const buyerEmail = String(body.buyerEmail ?? "").trim();
+  const buyerName = String(
+    body.buyerName ??
+    customer.user_metadata?.name ??
+    customer.user_metadata?.full_name ??
+    ""
+  ).trim();
+  const buyerEmail = String(customer.email ?? "").trim();
   const buyerWhatsapp = String(body.buyerWhatsapp ?? "").trim();
   const payerDocument = defaultPayerDocument();
   const address = formatCheckoutAddress(body);
@@ -910,6 +948,7 @@ async function handleCheckoutApi(request, response, requestUrl) {
   const initialStatus = orderStatusFromProviderResponse(payment) || "Pix gerado";
   ensureOrders(data).unshift({
     id: transactionId,
+    customerId: customer.id || null,
     items: checkoutItems.map((item) => ({
       productId: item.id,
       name: item.name,

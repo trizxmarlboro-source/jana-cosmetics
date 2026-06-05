@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Criar cadastro | Jana Cosmeticos</title>
+  <link rel="icon" href="assets/logo-jana-cosmeticos.svg">
+  <style>
+    :root {
+      --pink: #e4196e;
+      --pink-soft: #fdf2f8;
+      --pink-line: rgba(228, 25, 110, 0.18);
+      --ink: #1c1118;
+      --text: #47343f;
+      --muted: #8c7080;
+      --white: #fff;
+      --shadow: 0 24px 60px rgba(90, 30, 60, 0.16);
+      --radius: 28px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, rgba(228, 25, 110, 0.14), transparent 34%),
+        linear-gradient(180deg, #fffdfd 0%, #fff7fb 100%);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+    .shell {
+      width: min(100%, 1080px);
+      display: grid;
+      grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+      background: var(--white);
+      border-radius: 32px;
+      overflow: hidden;
+      border: 1px solid rgba(228, 25, 110, 0.1);
+      box-shadow: var(--shadow);
+    }
+    .hero {
+      padding: 44px 34px;
+      background: linear-gradient(180deg, rgba(228, 25, 110, 0.08), rgba(255,255,255,0.96));
+      border-right: 1px solid rgba(228, 25, 110, 0.08);
+    }
+    .hero img {
+      width: 82px;
+      height: 82px;
+      border-radius: 50%;
+      background: #fff;
+      object-fit: contain;
+      border: 1px solid var(--pink-line);
+      margin-bottom: 24px;
+    }
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(2rem, 4vw, 3rem);
+      line-height: 1.05;
+      color: var(--ink);
+    }
+    .hero p {
+      margin: 0;
+      line-height: 1.75;
+      color: var(--muted);
+    }
+    .hero ul {
+      margin: 26px 0 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 12px;
+    }
+    .hero li {
+      padding: 14px 16px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.84);
+      border: 1px solid rgba(228, 25, 110, 0.1);
+      font-weight: 600;
+    }
+    .panel {
+      padding: 44px 38px;
+      display: grid;
+      align-content: center;
+    }
+    .panel h2 {
+      margin: 0 0 8px;
+      color: var(--ink);
+      font-size: 2rem;
+    }
+    .panel p {
+      margin: 0 0 24px;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+    form { display: grid; gap: 16px; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    label {
+      display: grid;
+      gap: 8px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    input {
+      min-height: 54px;
+      border-radius: 16px;
+      border: 1px solid #ead8e2;
+      background: #fff;
+      padding: 0 16px;
+      font: inherit;
+      color: var(--ink);
+    }
+    input:focus {
+      outline: 2px solid rgba(228, 25, 110, 0.2);
+      border-color: rgba(228, 25, 110, 0.38);
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 54px;
+      padding: 0 22px;
+      border-radius: 999px;
+      border: 0;
+      font: inherit;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: transform .2s ease, box-shadow .2s ease, background .2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary {
+      background: var(--pink);
+      color: #fff;
+      box-shadow: 0 14px 32px rgba(228, 25, 110, 0.24);
+    }
+    .btn-outline {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid rgba(28,17,24,0.16);
+    }
+    .message {
+      min-height: 22px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #a11d4b;
+    }
+    .message.success { color: #0f766e; }
+    .success-card {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 18px;
+      background: var(--pink-soft);
+      border: 1px solid rgba(228,25,110,0.12);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .success-card strong {
+      display: block;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .foot-links {
+      margin-top: 18px;
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .foot-links a {
+      color: var(--pink);
+      font-weight: 700;
+      text-decoration: none;
+    }
+    @media (max-width: 860px) {
+      .shell { grid-template-columns: 1fr; }
+      .hero { border-right: 0; border-bottom: 1px solid rgba(228, 25, 110, 0.08); }
+      .panel, .hero { padding: 32px 24px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <img src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+      <h1>Crie sua conta</h1>
+      <p>Cadastre-se para liberar o checkout, acompanhar pedidos e manter seus dados salvos para as proximas compras.</p>
+      <ul>
+        <li>Cada cadastro recebe um ID unico no dashboard</li>
+        <li>Seus pedidos ficam vinculados ao seu e-mail</li>
+        <li>Seu acesso e confirmado por e-mail com total seguranca</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Cadastrar cliente</h2>
+      <p>Preencha seus dados. Depois de confirmar pelo e-mail, sua conta ja fica pronta para comprar.</p>
+      <form id="registerForm" autocomplete="on">
+        <div class="grid">
+          <label>
+            Nome completo
+            <input id="fullName" type="text" autocomplete="name" required>
+          </label>
+          <label>
+            WhatsApp
+            <input id="whatsapp" type="tel" autocomplete="tel" required>
+          </label>
+        </div>
+        <label>
+          E-mail
+          <input id="email" type="email" autocomplete="email" required>
+        </label>
+        <div class="grid">
+          <label>
+            Senha
+            <input id="password" type="password" autocomplete="new-password" minlength="6" required>
+          </label>
+          <label>
+            Confirmar senha
+            <input id="passwordConfirm" type="password" autocomplete="new-password" minlength="6" required>
+          </label>
+        </div>
+        <div class="actions">
+          <button class="btn btn-primary" id="submitBtn" type="submit">Criar conta</button>
+          <a class="btn btn-outline" id="loginLink" href="/entrar.html">Ja tenho conta</a>
+        </div>
+        <div class="message" id="message" role="status" aria-live="polite"></div>
+      </form>
+      <div id="successCard" class="success-card" hidden>
+        <strong>Conta criada com sucesso</strong>
+        Verifique o e-mail enviado para confirmar seu acesso. Depois disso, seu login fica pronto para comprar e acompanhar pedidos.
+      </div>
+      <div class="foot-links">
+        <a href="/index.html">Voltar para a loja</a>
+        <span>ou</span>
+        <a id="directLoginLink" href="/entrar.html">entrar com uma conta existente</a>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://qidbudksvbfpaurdjpmo.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_pJQT54d-Ff7Ic3yfvrQuqA_M_EPyPgM";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const params = new URLSearchParams(window.location.search);
+    const fullNameInput = document.getElementById("fullName");
+    const whatsappInput = document.getElementById("whatsapp");
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const passwordConfirmInput = document.getElementById("passwordConfirm");
+    const submitBtn = document.getElementById("submitBtn");
+    const messageEl = document.getElementById("message");
+    const successCard = document.getElementById("successCard");
+    const loginLink = document.getElementById("loginLink");
+    const directLoginLink = document.getElementById("directLoginLink");
+
+    function sanitizeNext(value) {
+      try {
+        const target = new URL(value || "/minha-conta.html", window.location.origin);
+        if (target.origin !== window.location.origin) {
+          return "/minha-conta.html";
+        }
+        return `${target.pathname}${target.search}${target.hash}`;
+      } catch {
+        return "/minha-conta.html";
+      }
+    }
+
+    function buildAuthRedirect(nextPath) {
+      const url = new URL("/auth", window.location.origin);
+      url.searchParams.set("next", nextPath);
+      return url.toString();
+    }
+
+    const nextPath = sanitizeNext(params.get("next"));
+    const prefillEmail = params.get("email") || "";
+    const loginHref = `/entrar.html?next=${encodeURIComponent(nextPath)}${prefillEmail ? `&email=${encodeURIComponent(prefillEmail)}` : ""}`;
+    loginLink.href = loginHref;
+    directLoginLink.href = loginHref;
+    if (prefillEmail) {
+      emailInput.value = prefillEmail;
+    }
+
+    function setMessage(text = "", type = "") {
+      messageEl.textContent = text;
+      messageEl.className = `message${type ? ` ${type}` : ""}`;
+    }
+
+    function setLoading(loading) {
+      submitBtn.disabled = loading;
+      submitBtn.textContent = loading ? "Criando..." : "Criar conta";
+    }
+
+    async function checkEmailStatus(email) {
+      const response = await fetch("/api/customer/email-status", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Nao foi possivel validar o e-mail.");
+      }
+      return data;
+    }
+
+    async function redirectIfLoggedIn() {
+      const { data } = await supabaseClient.auth.getSession();
+      if (data.session) {
+        window.location.replace(nextPath);
+      }
+    }
+
+    document.getElementById("registerForm").addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const fullName = fullNameInput.value.trim();
+      const whatsapp = whatsappInput.value.trim();
+      const email = emailInput.value.trim().toLowerCase();
+      const password = passwordInput.value;
+      const confirmPassword = passwordConfirmInput.value;
+      setMessage("");
+      successCard.hidden = true;
+
+      if (password.length < 6) {
+        setMessage("A senha precisa ter pelo menos 6 caracteres.");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setMessage("A confirmacao de senha nao confere.");
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        const status = await checkEmailStatus(email);
+        if (status.exists) {
+          setMessage("Ja existe uma conta com esse e-mail. Entre com seu acesso.");
+          loginLink.href = `/entrar.html?next=${encodeURIComponent(nextPath)}&email=${encodeURIComponent(email)}`;
+          directLoginLink.href = loginLink.href;
+          return;
+        }
+
+        const { data, error } = await supabaseClient.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: buildAuthRedirect(nextPath),
+            data: {
+              name: fullName,
+              full_name: fullName,
+              whatsapp
+            }
+          }
+        });
+
+        if (error) {
+          setMessage(error.message || "Nao foi possivel criar sua conta.");
+          return;
+        }
+
+        setMessage("Cadastro enviado. Agora confirme o link recebido no e-mail.", "success");
+        successCard.hidden = false;
+
+        if (data.session) {
+          window.setTimeout(() => {
+            window.location.replace(nextPath);
+          }, 500);
+        }
+      } catch (error) {
+        setMessage(error.message || "Nao foi possivel concluir o cadastro.");
+      } finally {
+        setLoading(false);
+      }
+    });
+
+    redirectIfLoggedIn();
+  </script>
+</body>
+</html>

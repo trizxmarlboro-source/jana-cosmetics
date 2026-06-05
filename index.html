@@ -2572,22 +2572,13 @@
             <p>Use seu e-mail para entrar ou criar sua conta. Se ainda nao existir cadastro, a loja cria seu acesso automaticamente.</p>
           </section>
         <div id="authLoggedOut">
-          <section class="auth-card" aria-label="Entrar ou criar conta">
-            <form id="authForm" class="auth-form" autocomplete="on">
-              <div class="auth-field">
-                <input type="email" id="authEmail" placeholder=" " required autocomplete="email">
-                <label for="authEmail">E-mail</label>
-              </div>
-              <div class="auth-field">
-                <input type="password" id="authPassword" placeholder=" " required autocomplete="current-password">
-                <label for="authPassword">Senha</label>
-                <button type="button" class="toggle-password" id="togglePassword" aria-label="Mostrar senha">
-                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                </button>
-              </div>
-              <p class="auth-helper">Ao continuar, voce entra na conta existente ou cria um novo acesso com esse e-mail. Depois, confirme o acesso pelo e-mail enviado.</p>
-              <button type="submit" class="btn btn-primary auth-submit" id="authSubmit">Entrar ou cadastrar</button>
-            </form>
+          <section class="auth-card" aria-label="Escolher acesso">
+            <p class="auth-helper">Entre com sua conta para acompanhar pedidos ou crie seu cadastro antes de comprar. Seu acesso fica salvo neste aparelho para as proximas visitas.</p>
+            <div class="auth-actions" style="display:grid;gap:12px;">
+              <a class="btn btn-primary auth-submit" id="authLoginLink" href="/entrar.html">Entrar</a>
+              <a class="btn btn-outline auth-submit" id="authRegisterLink" href="/cadastro.html">Criar cadastro</a>
+            </div>
+            <p class="auth-helper">Se ainda nao existir conta para o e-mail informado, o cadastro precisa ser feito primeiro.</p>
             <p id="authError" class="auth-message" role="status" aria-live="polite"></p>
           </section>
         </div>
@@ -2696,19 +2687,17 @@
     const SUPABASE_URL = "https://qidbudksvbfpaurdjpmo.supabase.co";
     const SUPABASE_KEY = "sb_publishable_pJQT54d-Ff7Ic3yfvrQuqA_M_EPyPgM";
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    const authEmailRedirectTo = new URL("/auth", window.location.origin).toString();
     let currentUser = null;
     const authOverlay = document.getElementById("authOverlay");
     const authLoggedOut = document.getElementById("authLoggedOut");
     const authLoggedIn = document.getElementById("authLoggedIn");
-    const authEmail = document.getElementById("authEmail");
-    const authPassword = document.getElementById("authPassword");
     const authError = document.getElementById("authError");
-    const authSubmit = document.getElementById("authSubmit");
     const authOpenButton = document.getElementById("authOpen");
     const authCloseButton = document.getElementById("authClose");
     const authUserName = document.getElementById("authUserName");
     const authUserEmail = document.getElementById("authUserEmail");
+    const authLoginLink = document.getElementById("authLoginLink");
+    const authRegisterLink = document.getElementById("authRegisterLink");
 
     function setAuthMessage(message = "", type = "error") {
       authError.textContent = message;
@@ -2723,12 +2712,10 @@
       setAuthMessage("");
     }
 
-    function setAuthLoading(isLoading, label = "Entrar ou cadastrar") {
-      authSubmit.disabled = isLoading;
-      authSubmit.textContent = isLoading ? "Entrando..." : label;
-    }
-
     function openAuthDrawer() {
+      const next = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      authLoginLink.href = `/entrar.html?next=${encodeURIComponent(next)}`;
+      authRegisterLink.href = `/cadastro.html?next=${encodeURIComponent(next)}`;
       authOverlay.classList.add("open");
       authOverlay.setAttribute("aria-hidden", "false");
       document.body.style.overflow = "hidden";
@@ -2736,7 +2723,7 @@
         if (currentUser) {
           document.getElementById("btnLogout")?.focus();
         } else {
-          authEmail?.focus();
+          authLoginLink?.focus();
         }
       }, 120);
     }
@@ -2746,7 +2733,6 @@
       authOverlay.setAttribute("aria-hidden", "true");
       document.body.style.overflow = "";
       clearAuthMessage();
-      setAuthLoading(false);
     }
 
     supabaseClient.auth.onAuthStateChange((event, session) => {
@@ -2758,45 +2744,6 @@
       currentUser = data.session?.user || null;
       renderAuthUI();
     });
-
-    async function handleEmailAuth(e) {
-      e.preventDefault();
-      const email = authEmail.value.trim();
-      const password = authPassword.value;
-      clearAuthMessage();
-      setAuthLoading(true);
-
-      try {
-        const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-
-        if (error && error.message.toLowerCase().includes("invalid login")) {
-          const { error: signUpError } = await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: {
-              emailRedirectTo: authEmailRedirectTo
-            }
-          });
-          if (signUpError) {
-            setAuthMessage(signUpError.message || "Nao foi possivel criar sua conta.");
-          } else {
-            setAuthMessage("Conta criada com sucesso. Confira seu e-mail para confirmar o acesso.", "success");
-          }
-          return;
-        }
-
-        if (error) {
-          setAuthMessage(error.message || "Nao foi possivel entrar.");
-          return;
-        }
-
-        setAuthMessage("Conta conectada com sucesso.", "success");
-      } catch (error) {
-        setAuthMessage(error.message || "Nao foi possivel entrar ou cadastrar.");
-      } finally {
-        setAuthLoading(false);
-      }
-    }
 
     async function handleLogout() {
       await supabaseClient.auth.signOut();
@@ -2822,26 +2769,9 @@
       }
     }
 
-    document.getElementById("authForm").addEventListener("submit", handleEmailAuth);
     document.getElementById("btnLogout").addEventListener("click", handleLogout);
     document.getElementById("authSeeProducts")?.addEventListener("click", closeAuthDrawer);
     document.getElementById("authMyOrders")?.addEventListener("click", closeAuthDrawer);
-
-    const togglePassword = document.getElementById("togglePassword");
-    if (togglePassword) {
-      togglePassword.addEventListener("click", () => {
-        const passInput = document.getElementById("authPassword");
-        if (passInput.type === "password") {
-          passInput.type = "text";
-          togglePassword.setAttribute("aria-label", "Ocultar senha");
-          togglePassword.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>';
-        } else {
-          passInput.type = "password";
-          togglePassword.setAttribute("aria-label", "Mostrar senha");
-          togglePassword.innerHTML = '<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>';
-        }
-      });
-    }
 
     authOpenButton.addEventListener("click", openAuthDrawer);
     authCloseButton.addEventListener("click", closeAuthDrawer);
@@ -2922,6 +2852,10 @@
 
     function productLink(id) {
       return `produto.html?id=${encodeURIComponent(id)}`;
+    }
+
+    function loginLinkFor(nextPath) {
+      return `/entrar.html?next=${encodeURIComponent(nextPath)}`;
     }
 
     function loadCart() {
@@ -3146,6 +3080,11 @@
     cartOverlay.addEventListener("click", (e) => { if (e.target === cartOverlay) closeCart(); });
     cartCheckout.addEventListener("click", (e) => {
       if (cartSummary().quantity === 0) { e.preventDefault(); return; }
+      if (!currentUser) {
+        e.preventDefault();
+        window.location.href = loginLinkFor("/produto.html?cart=1#checkout");
+        return;
+      }
       saveCart();
     });
 

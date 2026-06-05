@@ -276,6 +276,38 @@
       align-items: start;
     }
 
+    .checkout-auth-gate {
+      margin-bottom: 18px;
+      padding: 18px;
+      border-radius: 16px;
+      background: #fff7fb;
+      border: 1px solid rgba(224, 33, 122, 0.18);
+      display: grid;
+      gap: 10px;
+    }
+
+    .checkout-auth-gate strong {
+      color: var(--ink);
+      font-size: 1.05rem;
+    }
+
+    .checkout-auth-gate p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .checkout-auth-gate .actions {
+      margin-top: 4px;
+    }
+
+    .checkout-form.is-locked,
+    .order-summary.is-locked {
+      opacity: 0.5;
+      pointer-events: none;
+      user-select: none;
+    }
+
     .checkout-form {
       display: grid;
       gap: 14px;
@@ -765,6 +797,15 @@
         <p>Preencha seu endereco, confira o resumo e finalize pelo Pix integrado com a MisticPay.</p>
       </div>
 
+      <div class="checkout-auth-gate" id="checkoutAuthGate" hidden>
+        <strong>Entre para finalizar sua compra</strong>
+        <p>Para gerar o Pix e registrar o pedido no seu nome, e obrigatorio entrar com sua conta ou criar um cadastro antes do pagamento.</p>
+        <div class="actions">
+          <a class="btn btn-primary" id="checkoutLoginLink" href="/entrar.html">Entrar</a>
+          <a class="btn btn-outline" id="checkoutRegisterLink" href="/cadastro.html">Criar cadastro</a>
+        </div>
+      </div>
+
       <div class="checkout-grid">
         <form class="checkout-form" id="checkoutForm">
           <div class="payment-section" role="radiogroup" aria-label="Forma de pagamento">
@@ -918,10 +959,14 @@
     const cepLookupBtn = document.getElementById("cepLookupBtn");
     const noNumberInput = document.getElementById("buyerNoNumber");
     const numberInput = document.getElementById("buyerNumber");
+    const checkoutAuthGate = document.getElementById("checkoutAuthGate");
+    const checkoutLoginLink = document.getElementById("checkoutLoginLink");
+    const checkoutRegisterLink = document.getElementById("checkoutRegisterLink");
 
     let catalogProducts = [];
     let checkoutItems = [];
     let orderTrackTimer = null;
+    let currentCustomerUser = null;
 
     function applySiteSettings(settings) {
       if (!settings) return;
@@ -943,6 +988,19 @@
         '"': "&quot;",
         "'": "&#039;"
       }[char]));
+    }
+
+    function authNextPath() {
+      return `${window.location.pathname}${window.location.search}#checkout`;
+    }
+
+    function authPageLink(basePath) {
+      return `${basePath}?next=${encodeURIComponent(authNextPath())}`;
+    }
+
+    function updateCheckoutAuthLinks() {
+      checkoutLoginLink.href = authPageLink("/entrar.html");
+      checkoutRegisterLink.href = authPageLink("/cadastro.html");
     }
 
     function onlyDigits(value) {
@@ -1028,6 +1086,58 @@
         return {};
       }
     }
+
+    function setCheckoutLock(locked) {
+      checkoutAuthGate.hidden = !locked;
+      checkoutForm.classList.toggle("is-locked", locked);
+      orderSummary.classList.toggle("is-locked", locked);
+      Array.from(checkoutForm.elements).forEach((element) => {
+        if (!(element instanceof HTMLElement)) return;
+        element.disabled = locked;
+      });
+      mobileSubmit.disabled = locked;
+      const cardMethodInput = checkoutForm.querySelector("input[name='paymentMethod'][value='card']");
+      if (cardMethodInput) {
+        cardMethodInput.disabled = true;
+      }
+      checkoutSubmit.textContent = locked ? "Entre para comprar" : "Finalizar compra";
+      mobileSubmit.textContent = locked ? "Entre para comprar" : "Finalizar compra";
+      if (!locked) {
+        document.getElementById("buyerEmail").readOnly = true;
+        document.getElementById("buyerEmail").setAttribute("aria-readonly", "true");
+      }
+    }
+
+    function setCheckoutAccountState(user) {
+      currentCustomerUser = user || null;
+      updateCheckoutAuthLinks();
+
+      const nameInput = document.getElementById("buyerName");
+      const emailInput = document.getElementById("buyerEmail");
+      const whatsappInput = document.getElementById("buyerWhatsapp");
+
+      if (currentCustomerUser) {
+        if (!nameInput.value) {
+          nameInput.value = currentCustomerUser.user_metadata?.name || currentCustomerUser.user_metadata?.full_name || "";
+        }
+        emailInput.value = currentCustomerUser.email || "";
+        emailInput.readOnly = true;
+        emailInput.setAttribute("aria-readonly", "true");
+        if (!whatsappInput.value) {
+          whatsappInput.value = currentCustomerUser.phone || currentCustomerUser.user_metadata?.whatsapp || "";
+        }
+        setCheckoutLock(false);
+        return;
+      }
+
+      emailInput.value = "";
+      emailInput.readOnly = false;
+      emailInput.removeAttribute("aria-readonly");
+      setCheckoutLock(true);
+    }
+
+    updateCheckoutAuthLinks();
+    setCheckoutLock(true);
 
     function persistLastOrder(payload) {
       localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(payload));
@@ -1262,6 +1372,10 @@
     }
 
     goCheckoutBtn.addEventListener("click", () => {
+      if (!currentCustomerUser) {
+        window.location.href = authPageLink("/entrar.html");
+        return;
+      }
       document.getElementById("checkout").scrollIntoView({ behavior: "smooth", block: "start" });
       setTimeout(() => document.getElementById("buyerName").focus(), 250);
     });
@@ -1284,11 +1398,19 @@
     });
 
     mobileSubmit.addEventListener("click", () => {
+      if (!currentCustomerUser) {
+        window.location.href = authPageLink("/entrar.html");
+        return;
+      }
       checkoutSubmit.click();
     });
 
     checkoutForm.addEventListener("submit", async (event) => {
       event.preventDefault();
+      if (!currentCustomerUser) {
+        window.location.href = authPageLink("/entrar.html");
+        return;
+      }
       const paymentMethod = checkoutForm.querySelector("input[name='paymentMethod']:checked")?.value;
       if (paymentMethod !== "pix") {
         document.getElementById("checkoutResultTitle").textContent = "Forma de pagamento indisponivel";
@@ -1386,13 +1508,11 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     supabaseClient.auth.onAuthStateChange((event, session) => {
-      const user = session?.user;
-      if (user) {
-        const nameInput = document.getElementById("buyerName");
-        const emailInput = document.getElementById("buyerEmail");
-        if (!nameInput.value) nameInput.value = user.user_metadata?.name || user.user_metadata?.full_name || "";
-        if (!emailInput.value) emailInput.value = user.email || "";
-      }
+      setCheckoutAccountState(session?.user || null);
+    });
+
+    supabaseClient.auth.getSession().then(({ data }) => {
+      setCheckoutAccountState(data.session?.user || null);
     });
   </script>
 </body>
