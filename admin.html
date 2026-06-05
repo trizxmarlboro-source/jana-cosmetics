@@ -860,6 +860,14 @@
   </section>
 
   <script>
+    const cachedLogo = localStorage.getItem("adminLogoUrl");
+    if (cachedLogo) {
+      const loginLogo = document.getElementById("loginLogo");
+      if (loginLogo) loginLogo.src = cachedLogo;
+      const siteFavicon = document.getElementById("siteFavicon");
+      if (siteFavicon) siteFavicon.href = localStorage.getItem("adminFaviconUrl") || cachedLogo;
+    }
+
     const DEFAULT_LOGO = "assets/logo-jana-cosmeticos.svg";
     const SESSION_TIMEOUT_SECONDS = 30 * 60;
     const state = {
@@ -947,6 +955,8 @@
       if (!settings) return;
       const logoUrl = settings.logoUrl || DEFAULT_LOGO;
       const faviconUrl = settings.faviconUrl || logoUrl;
+      localStorage.setItem("adminLogoUrl", logoUrl);
+      localStorage.setItem("adminFaviconUrl", faviconUrl);
       document.getElementById("loginLogo").src = logoUrl;
       document.getElementById("siteFavicon").href = faviconUrl;
     }
@@ -1029,7 +1039,7 @@
         const addressCep = address.cep ? `CEP ${escapeHtml(address.cep)}` : "";
         return `
           <tr>
-            <td><span class="order-id" title="${escapeHtml(order.id)}">${escapeHtml(order.id)}</span></td>
+            <td><span class="order-id" title="${escapeHtml(order.id)}">${escapeHtml(String(order.id).slice(0, 12))}</span></td>
             <td><span class="order-buyer"><strong>${escapeHtml(order.buyerName || "-")}</strong>Privacidade preservada</span></td>
             <td>${items || "-"}</td>
             <td><span class="order-address"><strong>${addressLine}</strong>${addressCity}<br>${addressCep}</span></td>
@@ -1079,7 +1089,7 @@
         
         return `
           <tr>
-            <td><span class="order-id" title="${escapeHtml(order.id)}">${escapeHtml(order.id)}</span></td>
+            <td><span class="order-id" title="${escapeHtml(order.id)}">${escapeHtml(String(order.id).slice(0, 12))}</span></td>
             <td><strong>${escapeHtml(order.buyerName || "-")}</strong></td>
             <td><span style="display:block;font-size:12px;color:var(--muted)">E: ${escapeHtml(order.buyerEmail || "-")}<br>W: ${escapeHtml(order.buyerWhatsapp || "-")}</span></td>
             <td>${items || "-"}</td>
@@ -1088,10 +1098,10 @@
             <td>${createdAt}</td>
             <td><span class="status ${getStatusClass(order.status)}">${escapeHtml(order.status || "Pix gerado")}</span></td>
             <td style="position:relative;">
-              <button class="btn btn-ghost" onclick="toggleMenu('${order.id}')">⋮</button>
-              <div id="menu-${order.id}" class="hidden" style="position:absolute; right:0; top:100%; background:#fff; border:1px solid var(--line); border-radius:8px; padding:8px; z-index:10; display:flex; flex-direction:column; gap:4px; box-shadow:var(--shadow);">
-                <button class="btn" onclick="updateOrderStatus('${order.id}', 'Entrega efetuada')" style="font-size:11px; padding:6px 10px; width:100%; background:var(--red); color:#fff; white-space:nowrap;">Entrega efetuada</button>
-                <button class="btn" onclick="updateOrderStatus('${order.id}', 'Problema no produto')" style="font-size:11px; padding:6px 10px; width:100%; background:#d9a441; color:var(--ink); white-space:nowrap;">Problema no produto</button>
+              <button class="btn btn-ghost" onclick="toggleMenu(event, '${order.id}')">⋮</button>
+              <div id="menu-${order.id}" class="hidden action-menu" style="position:absolute; right:0; bottom:100%; margin-bottom:4px; background:#fff; border:1px solid var(--line); border-radius:8px; padding:8px; z-index:99; display:flex; flex-direction:column; gap:4px; box-shadow:0 8px 24px rgba(0,0,0,0.15);">
+                <button class="btn" onclick="updateOrderStatus('${order.id}', 'Entrega efetuada')" style="font-size:11px; padding:6px 10px; width:100%; background:var(--green); color:#fff; white-space:nowrap;">Entrega efetuada</button>
+                <button class="btn" onclick="updateOrderStatus('${order.id}', 'Problema no produto')" style="font-size:11px; padding:6px 10px; width:100%; background:var(--red); color:#fff; white-space:nowrap;">Problema no produto</button>
               </div>
             </td>
           </tr>
@@ -1115,7 +1125,7 @@
             : "Endereco nao registrado";
           return `
             <div style="padding:10px 0;border-bottom:1px solid var(--line)">
-              <strong>${escapeHtml(order.id)}</strong> · ${escapeHtml(order.status || "Pix gerado")} · ${money.format(Number(order.total || 0))}<br>
+              <strong>${escapeHtml(String(order.id).slice(0, 12))}</strong> · ${escapeHtml(order.status || "Pix gerado")} · ${money.format(Number(order.total || 0))}<br>
               <span style="display:block;font-size:12px;color:var(--muted)">${items || "-"}</span>
               <span style="display:block;font-size:12px;color:var(--muted)">${addressLine}</span>
             </div>
@@ -1125,7 +1135,7 @@
         return `
           <tr>
             <td><strong>${escapeHtml(customer.user || "Lead")}</strong><span style="display:block;font-size:12px;color:var(--muted)">${escapeHtml(customer.email || "Sem e-mail")}<br>${escapeHtml(customer.whatsapp || "Sem WhatsApp")}</span></td>
-            <td><span class="order-id" title="${escapeHtml(customer.id)}">${escapeHtml(customer.id)}</span></td>
+            <td><span class="order-id" title="${escapeHtml(customer.id)}">${escapeHtml(String(customer.id).slice(0, 12))}</span></td>
             <td>${money.format(Number(customer.valueSpent || 0))}</td>
             <td>${ordersHtml}</td>
           </tr>
@@ -1133,7 +1143,8 @@
       }).join("");
     }
 
-    window.toggleMenu = function(id) {
+    window.toggleMenu = function(e, id) {
+      e.stopPropagation();
       document.querySelectorAll("[id^='menu-']").forEach(m => {
         if (m.id !== `menu-${id}`) m.classList.add("hidden");
       });
@@ -1141,7 +1152,7 @@
     };
 
     window.updateOrderStatus = async function(id, status) {
-      window.toggleMenu(id);
+      document.getElementById(`menu-${id}`).classList.add("hidden");
       if (!confirm(`Mudar status para "${status}"?`)) return;
       try {
         await api(`/api/admin/orders/${encodeURIComponent(id)}/status`, {
@@ -1155,7 +1166,7 @@
     };
 
     document.addEventListener("click", (e) => {
-      if (!e.target.closest("td[style*='position:relative']")) {
+      if (!e.target.closest(".action-menu")) {
         document.querySelectorAll("[id^='menu-']").forEach(m => m.classList.add("hidden"));
       }
     });
