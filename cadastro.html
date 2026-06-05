@@ -208,16 +208,10 @@
       <h2>Cadastrar cliente</h2>
       <p>Preencha seus dados. Depois de confirmar pelo e-mail, sua conta ja fica pronta para comprar.</p>
       <form id="registerForm" autocomplete="on">
-        <div class="grid">
-          <label>
-            Nome completo
-            <input id="fullName" type="text" autocomplete="name" required>
-          </label>
-          <label>
-            WhatsApp
-            <input id="whatsapp" type="tel" autocomplete="tel" required>
-          </label>
-        </div>
+        <label>
+          Nome
+          <input id="name" type="text" autocomplete="name" required>
+        </label>
         <label>
           E-mail
           <input id="email" type="email" autocomplete="email" required>
@@ -256,8 +250,7 @@
     const SUPABASE_KEY = "sb_publishable_pJQT54d-Ff7Ic3yfvrQuqA_M_EPyPgM";
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
     const params = new URLSearchParams(window.location.search);
-    const fullNameInput = document.getElementById("fullName");
-    const whatsappInput = document.getElementById("whatsapp");
+    const nameInput = document.getElementById("name");
     const emailInput = document.getElementById("email");
     const passwordInput = document.getElementById("password");
     const passwordConfirmInput = document.getElementById("passwordConfirm");
@@ -326,13 +319,17 @@
 
     document.getElementById("registerForm").addEventListener("submit", async (event) => {
       event.preventDefault();
-      const fullName = fullNameInput.value.trim();
-      const whatsapp = whatsappInput.value.trim();
+      const name = nameInput.value.trim();
       const email = emailInput.value.trim().toLowerCase();
       const password = passwordInput.value;
       const confirmPassword = passwordConfirmInput.value;
       setMessage("");
       successCard.hidden = true;
+
+      if (!name) {
+        setMessage("Informe seu nome para criar a conta.");
+        return;
+      }
 
       if (password.length < 6) {
         setMessage("A senha precisa ter pelo menos 6 caracteres.");
@@ -361,9 +358,8 @@
           options: {
             emailRedirectTo: buildAuthRedirect(nextPath),
             data: {
-              name: fullName,
-              full_name: fullName,
-              whatsapp
+              name,
+              full_name: name
             }
           }
         });
