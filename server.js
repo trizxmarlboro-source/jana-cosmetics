@@ -17,9 +17,18 @@ const contentTypes = {
   ".svg": "image/svg+xml"
 };
 
+const routeMap = new Map([
+  ["/", "/index.html"],
+  ["/produto", "/produto.html"],
+  ["/admin", "/admin.html"],
+  ["/minha-conta", "/minha-conta.html"],
+  ["/pedido-confirmado", "/pedido-confirmado.html"],
+  ["/auth", "/auth.html"]
+]);
+
 async function serveStatic(request, response) {
   const requestUrl = new URL(request.url ?? "/", `http://${request.headers.host ?? "localhost"}`);
-  const pathname = requestUrl.pathname === "/" ? "/index.html" : requestUrl.pathname;
+  const pathname = routeMap.get(requestUrl.pathname) ?? requestUrl.pathname;
   const decodedPath = decodeURIComponent(pathname);
   const filePath = normalize(join(PUBLIC_DIR, decodedPath));
 

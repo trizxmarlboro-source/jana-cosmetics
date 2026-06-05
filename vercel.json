@@ -24,6 +24,18 @@
     {
       "source": "/admin",
       "destination": "/admin.html"
+    },
+    {
+      "source": "/minha-conta",
+      "destination": "/minha-conta.html"
+    },
+    {
+      "source": "/pedido-confirmado",
+      "destination": "/pedido-confirmado.html"
+    },
+    {
+      "source": "/auth",
+      "destination": "/auth.html"
     }
   ]
 }

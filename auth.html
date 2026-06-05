@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jana Cosmeticos | Confirmando acesso</title>
+  <link rel="icon" href="assets/logo-jana-cosmeticos.svg">
+  <style>
+    :root {
+      --pink: #e4196e;
+      --pink-soft: #fdf2f8;
+      --gold: #c9a84c;
+      --ink: #1c1118;
+      --text: #4c3944;
+      --muted: #8c7080;
+      --white: #ffffff;
+      --line: rgba(200, 150, 170, 0.2);
+      --shadow: 0 24px 60px rgba(90, 30, 60, 0.14);
+      --radius: 28px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, rgba(228, 25, 110, 0.12), transparent 34%),
+        linear-gradient(180deg, #fffdfd 0%, #fff7fb 100%);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .card {
+      width: min(100%, 560px);
+      background: var(--white);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px;
+      text-align: center;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .brand img {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 1px solid rgba(228, 25, 110, 0.18);
+      background: #fff;
+    }
+
+    .brand strong {
+      display: block;
+      color: var(--ink);
+      font-size: 1.35rem;
+      line-height: 1.1;
+    }
+
+    .brand span {
+      display: block;
+      margin-top: 3px;
+      color: var(--pink);
+      font-size: 0.85rem;
+      font-weight: 700;
+    }
+
+    h1 {
+      margin: 0 0 12px;
+      color: var(--ink);
+      font-size: clamp(1.8rem, 4vw, 2.4rem);
+      line-height: 1.15;
+    }
+
+    p {
+      margin: 0;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .status {
+      margin: 24px 0 18px;
+      padding: 18px;
+      border-radius: 20px;
+      background: var(--pink-soft);
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .status.error {
+      background: #fff1f2;
+      color: #9f1239;
+    }
+
+    .loader {
+      width: 54px;
+      height: 54px;
+      margin: 0 auto 18px;
+      border-radius: 50%;
+      border: 4px solid rgba(228, 25, 110, 0.14);
+      border-top-color: var(--pink);
+      animation: spin 1s linear infinite;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 24px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 180px;
+      padding: 14px 22px;
+      border-radius: 999px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--pink);
+      color: #fff;
+      box-shadow: 0 14px 28px rgba(228, 25, 110, 0.24);
+    }
+
+    .btn-secondary {
+      border: 1px solid rgba(28, 17, 24, 0.18);
+      color: var(--ink);
+      background: #fff;
+    }
+
+    small {
+      display: block;
+      margin-top: 18px;
+      color: var(--gold);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <div class="brand">
+      <img src="assets/logo-jana-cosmeticos.svg" alt="Logo Jana Cosmeticos">
+      <div>
+        <strong>Jana Cosmeticos</strong>
+        <span>Confirmacao de acesso</span>
+      </div>
+    </div>
+
+    <div class="loader" id="loader" aria-hidden="true"></div>
+    <h1 id="title">Estamos confirmando seu acesso</h1>
+    <p id="subtitle">Aguarde um instante enquanto validamos o link enviado para o seu e-mail.</p>
+    <div class="status" id="statusBox">Validando autenticacao com seguranca...</div>
+    <div class="actions">
+      <a class="btn btn-primary" id="primaryAction" href="/minha-conta.html">Ir para minha conta</a>
+      <a class="btn btn-secondary" href="/">Voltar ao site</a>
+    </div>
+    <small id="hint">Se a pagina nao seguir sozinha, voce pode continuar manualmente.</small>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const SUPABASE_URL = "https://qidbudksvbfpaurdjpmo.supabase.co";
+    const SUPABASE_KEY = "sb_publishable_pJQT54d-Ff7Ic3yfvrQuqA_M_EPyPgM";
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    const titleEl = document.getElementById("title");
+    const subtitleEl = document.getElementById("subtitle");
+    const statusBox = document.getElementById("statusBox");
+    const loader = document.getElementById("loader");
+    const primaryAction = document.getElementById("primaryAction");
+    const hint = document.getElementById("hint");
+
+    function setStatus(message, isError = false) {
+      statusBox.textContent = message;
+      statusBox.classList.toggle("error", isError);
+    }
+
+    function sanitizeRedirect(pathname) {
+      try {
+        const candidate = new URL(pathname || "/minha-conta.html", window.location.origin);
+        if (candidate.origin !== window.location.origin) {
+          return new URL("/minha-conta.html", window.location.origin).toString();
+        }
+        return candidate.toString();
+      } catch {
+        return new URL("/minha-conta.html", window.location.origin).toString();
+      }
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.startsWith("#") ? window.location.hash.slice(1) : "");
+    const redirectTo = sanitizeRedirect(params.get("next") || "/minha-conta.html");
+    primaryAction.href = redirectTo;
+
+    async function completeAuthFlow() {
+      const incomingError = params.get("error_description") || hashParams.get("error_description");
+
+      if (incomingError) {
+        throw new Error(decodeURIComponent(incomingError));
+      }
+
+      const code = params.get("code");
+      if (code) {
+        const { error } = await supabaseClient.auth.exchangeCodeForSession(code);
+        if (error) {
+          throw error;
+        }
+      }
+
+      await new Promise((resolve) => window.setTimeout(resolve, 350));
+      const { data, error } = await supabaseClient.auth.getSession();
+      if (error) {
+        throw error;
+      }
+
+      if (!data.session) {
+        throw new Error("Nao foi possivel confirmar sua sessao automaticamente.");
+      }
+
+      titleEl.textContent = "Acesso confirmado";
+      subtitleEl.textContent = "Seu login foi validado com sucesso. Estamos levando voce para a sua conta.";
+      setStatus("Tudo certo. Redirecionando para a area do cliente...");
+      hint.textContent = "Caso o redirecionamento nao aconteca, use o botao abaixo.";
+      loader.style.display = "none";
+      window.setTimeout(() => {
+        window.location.replace(redirectTo);
+      }, 900);
+    }
+
+    supabaseClient.auth.onAuthStateChange((event, session) => {
+      if ((event === "SIGNED_IN" || event === "INITIAL_SESSION") && session) {
+        titleEl.textContent = "Acesso confirmado";
+        subtitleEl.textContent = "Seu login foi validado com sucesso. Estamos levando voce para a sua conta.";
+        setStatus("Tudo certo. Redirecionando para a area do cliente...");
+        hint.textContent = "Caso o redirecionamento nao aconteca, use o botao abaixo.";
+        loader.style.display = "none";
+        window.setTimeout(() => {
+          window.location.replace(redirectTo);
+        }, 900);
+      }
+    });
+
+    completeAuthFlow().catch((error) => {
+      loader.style.display = "none";
+      titleEl.textContent = "Nao conseguimos concluir sua autenticacao";
+      subtitleEl.textContent = "O link pode ter expirado ou a URL de redirecionamento ainda nao esta configurada corretamente.";
+      setStatus(error.message || "Falha ao confirmar seu acesso.", true);
+      hint.textContent = "Se necessario, solicite um novo e-mail de confirmacao pelo site.";
+    });
+  </script>
+</body>
+</html>
